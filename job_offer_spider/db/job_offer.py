@@ -19,6 +19,10 @@ class CollectionHandler:
     def all(self):
         return self.collection.find({'url': {'$exists': True}})
 
+    @property
+    def size(self):
+        return self.collection.count_documents({'url': {'$exists': True}})
+
 class SitesCollectionHandler(CollectionHandler):
     def __init__(self, collection: MontyCollection):
         super().__init__(collection)

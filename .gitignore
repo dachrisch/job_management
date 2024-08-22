@@ -1,3 +1,5 @@
 /.mongitadb/
 /.idea/
 /scrapy.log
+*.pyc
+__pycache__

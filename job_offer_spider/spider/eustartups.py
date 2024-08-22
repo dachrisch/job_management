@@ -5,7 +5,7 @@ from scrapy.http import Response
 from scrapy.loader import ItemLoader
 from scrapy.spiders import SitemapSpider
 
-from job_offer_spider.items import TargetWebsiteSpiderItem
+from job_offer_spider.item.spider.target_website import TargetWebsiteSpiderItem
 
 
 class EuStartupsSpider(SitemapSpider):

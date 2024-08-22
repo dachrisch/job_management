@@ -1,7 +1,10 @@
 import logging
+from dataclasses import asdict
 
 from montydb import MontyClient, MontyCollection
 from scrapy import Item
+
+from job_offer_spider.item.db import HasUrl, IsDataclass
 
 
 class CollectionHandler:
@@ -9,12 +12,12 @@ class CollectionHandler:
         self.collection = collection
         self.log = logging.getLogger(__name__)
 
-    def add(self, item: Item):
+    def add(self, item: IsDataclass):
         self.log.info(f'storing: {item}')
-        self.collection.insert_one(dict(item))
+        self.collection.insert_one(asdict(item))
 
-    def contains(self, item: Item):
-        return self.collection.count_documents({'url': item['url']})
+    def contains(self, item: HasUrl):
+        return self.collection.count_documents({'url': item.url})
 
     def all(self):
         return self.collection.find({'url': {'$exists': True}})

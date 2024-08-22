@@ -3,14 +3,14 @@ from urllib.parse import urlparse
 from scrapy import Request
 from scrapy.loader import ItemLoader
 from scrapy.spiders import SitemapSpider
-from scrapy.utils.sitemap import Sitemap
 
 from job_offer_spider.db.job_offer import JobOfferDb
-from job_offer_spider.items import JobOfferSpiderItem
+from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
 
 
 class FindjobsSpider(SitemapSpider):
     name = "find-jobs"
+    sitemap_follow = ['/job', '/career']
 
     def start_requests(self):
         db = JobOfferDb()
@@ -23,11 +23,6 @@ class FindjobsSpider(SitemapSpider):
             assert site_url.scheme
             assert site_url.path
             yield Request(site_url.geturl(), self._parse_sitemap)
-
-    def sitemap_filter(self, entries: Sitemap):
-        for entry in entries:
-            if '/jobs/' in entry['loc']:
-                yield entry
 
     def parse(self, response, **kwargs):
         item_loader = ItemLoader(item=JobOfferSpiderItem(), response=response)

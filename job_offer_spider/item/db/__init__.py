@@ -1,10 +1,21 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, InitVar
 from typing import Protocol, ClassVar, Dict, Any, runtime_checkable
+
+from montydb.types.objectid import ObjectId
 
 
 @dataclass
 class HasUrl:
-    url: str
+    url: str = None
+
+
+@dataclass
+class HasId:
+    _id: InitVar[ObjectId | None] = None
+
+    def __post_init__(self, _id: ObjectId | None):
+        self.id = _id
+
 
 @runtime_checkable
 @dataclass

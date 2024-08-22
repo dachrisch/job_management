@@ -4,10 +4,13 @@
 # https://docs.scrapy.org/en/latest/topics/items.html
 
 import scrapy
+from itemloaders.processors import MapCompose
 
 
 class TargetWebsiteSpiderItem(scrapy.Item):
-    title = scrapy.Field()
+    title = scrapy.Field(
+        input_processor=MapCompose()
+    )
     url = scrapy.Field()
 
 

@@ -1,26 +1,22 @@
 from typing import override
 
-import scrapy
 from scrapy import Request
 from scrapy.http import Response
+from scrapy.loader import ItemLoader
+from scrapy.spiders import SitemapSpider
 
 from job_offer_spider.items import TargetWebsiteSpiderItem
 
 
-class EuStartupsSpider(scrapy.Spider):
+class EuStartupsSpider(SitemapSpider):
     name = "eu-startups"
-    start_urls = ["https://www.eu-startups.com/directory/wpbdp_category/german-startups/page/4/"]
+    sitemap_urls = ["https://www.eu-startups.com/wpbdp_listing-sitemap.xml"]
+    sitemap_follow = ['/directory/']
 
     @override
     def parse(self, response: Response, **kwargs) -> Request:
-        next_pages = response.css('div.listing-thumbnail a::attr("href")')
-        for next_page_selector in next_pages:
-            next_page = next_page_selector.get()
-            if next_page.endswith('/'):
-                yield response.follow(next_page, self.parse_listing)
-
-    def parse_listing(self, response: Response) -> Request:
-        website = response.css('div.wpbdp-field-website div.value::text').get()
-        title = response.xpath('//meta[@property="og:title"]/@content').get()
-        if website:
-            yield TargetWebsiteSpiderItem(title=title, url=website)
+        item_loader = ItemLoader(item=TargetWebsiteSpiderItem(), response=response)
+        item_loader.add_xpath('title', '//meta[@property="og:title"]/@content')
+        item_loader.add_css('url', 'div.wpbdp-field-website div.value::text')
+        if item_loader.get_output_value('url'):
+            yield item_loader.load_item()

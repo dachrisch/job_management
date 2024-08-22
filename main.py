@@ -2,11 +2,9 @@ import fire
 from rich import box
 from rich.console import Console
 from rich.table import Table
-from scrapy.crawler import CrawlerRunner
+from scrapy.crawler import CrawlerRunner, CrawlerProcess
 from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
-from twisted.internet import asyncioreactor
-from twisted.internet import defer
 
 from job_offer_spider.db.job_offer import JobOfferDb
 from job_offer_spider.spiders.eustartups import EuStartupsSpider
@@ -40,23 +38,23 @@ class CrawlCli:
         self._l = console.print
         self._db = JobOfferDb()
 
-    def scan(self):
-        asyncioreactor.install()
-        from twisted.internet import reactor
-        @defer.inlineCallbacks
-        def crawl():
-            with self._spinner('Crawling sites...'):
-                yield self._runner.crawl(EuStartupsSpider)
-                self._l(f'Found {self._db.sites.size} websites')
-            with self._spinner('Finding job offers...'):
-                yield self._runner.crawl(FindjobsSpider)
-                self._l(f'Found {self._db.jobs.size} jobs')
-            # noinspection PyUnresolvedReferences
-            reactor.stop()
+    def all(self):
+        self.sites()
+        self.jobs()
 
-        crawl()
-        # noinspection PyUnresolvedReferences
-        reactor.run()
+    def sites(self):
+        with self._spinner(f'Crawling sites from {EuStartupsSpider.sitemap_urls}...'):
+            process = CrawlerProcess(get_project_settings())
+            process.crawl(EuStartupsSpider)
+            process.start()
+        self._l(f'Found {self._db.sites.size} websites')
+
+    def jobs(self):
+        with self._spinner(f'Finding job offers from [{self._db.sites.size}] sites...'):
+            process = CrawlerProcess(get_project_settings())
+            process.crawl(FindjobsSpider)
+            process.start()
+        self._l(f'Found {self._db.jobs.size} jobs')
 
 
 class JobOfferCli:

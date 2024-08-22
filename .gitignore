@@ -1,1 +1,3 @@
 /.mongitadb/
+/.idea/
+/scrapy.log

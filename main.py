@@ -7,8 +7,8 @@ from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 
 from job_offer_spider.db.job_offer import JobOfferDb
-from job_offer_spider.spiders.eustartups import EuStartupsSpider
-from job_offer_spider.spiders.findjobs import FindjobsSpider
+from job_offer_spider.spider.eustartups import EuStartupsSpider
+from job_offer_spider.spider.findjobs import FindjobsSpider
 
 
 class JobsDbCli:

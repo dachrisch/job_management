@@ -1,5 +1,5 @@
 import logging
-from typing import Type, Iterable, Union
+from typing import Type, Iterable, Union, Any, Dict
 
 from dataclasses_json import DataClassJsonMixin
 from montydb import MontyClient, MontyCollection
@@ -23,7 +23,10 @@ class CollectionHandler[T]:
         return self.collection.count_documents({'url': item.url})
 
     def all(self) -> Iterable[T]:
-        return map(lambda c: self.collection_type(**dict(c)), self.collection.find({'url': {'$exists': True}}))
+        return self.filter({'url': {'$exists': True}})
+
+    def filter(self, condition: Dict[str, Any]):
+        return map(lambda c: self.collection_type(**dict(c)), self.collection.find(condition))
 
     @property
     def size(self) -> int:
@@ -31,7 +34,8 @@ class CollectionHandler[T]:
 
     def update(self, item: Union[HasId, DataClassJsonMixin]):
         return self.collection.update_one({'_id': {'$eq': item.id}},
-                                          {'$set': {k: v for k, v in item.to_dict(encode_json=True).items() if k != '_id'}})
+                                          {'$set': {k: v for k, v in item.to_dict(encode_json=True).items() if
+                                                    k != '_id'}})
 
 
 class JobOfferDb:

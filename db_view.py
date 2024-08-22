@@ -1,6 +1,7 @@
 from typing import Any
 
 import fire
+from rich import json
 from montydb import MontyCollection
 from rich.console import Console
 
@@ -22,10 +23,13 @@ class DbCollectionViewer:
     def __init__(self, collection: MontyCollection):
         self._collection = collection
         console = Console()
-        self._l=console.print
+        self._l = console.print
 
     def find(self, condition: dict[str, Any]):
-        self._l(list(self._collection.find(condition)))
+        self._l(json.JSON.from_data([
+            {key: value for key, value in item.items() if key != '_id'}
+            for item in self._collection.find(condition)
+        ]))
 
 
 if __name__ == '__main__':

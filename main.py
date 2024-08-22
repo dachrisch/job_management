@@ -8,7 +8,7 @@ from scrapy.utils.project import get_project_settings
 
 from job_offer_spider.db.job_offer import JobOfferDb
 from job_offer_spider.spider.eustartups import EuStartupsSpider
-from job_offer_spider.spider.findjobs import FindjobsSpider
+from job_offer_spider.spider.findjobs import FindJobsSpider
 
 
 class JobsDbCli:
@@ -52,7 +52,7 @@ class CrawlCli:
     def jobs(self):
         with self._spinner(f'Finding job offers from [{self._db.sites.size}] sites...'):
             process = CrawlerProcess(get_project_settings())
-            process.crawl(FindjobsSpider)
+            process.crawl(FindJobsSpider)
             process.start()
         self._l(f'Found {self._db.jobs.size} jobs')
 

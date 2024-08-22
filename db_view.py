@@ -25,7 +25,6 @@ class DbCollectionViewer:
         self._l=console.print
 
     def find(self, condition: dict[str, Any]):
-        print(condition)
         self._l(list(self._collection.find(condition)))
 
 

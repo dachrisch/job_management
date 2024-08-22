@@ -1,14 +1,17 @@
 from dataclasses import dataclass, InitVar
 from typing import Protocol, ClassVar, Dict, Any, runtime_checkable
 
+from dataclasses_json import dataclass_json
 from montydb.types.objectid import ObjectId
 
 
+@dataclass_json
 @dataclass
 class HasUrl:
     url: str = None
 
 
+@dataclass_json
 @dataclass
 class HasId:
     _id: InitVar[ObjectId | None] = None

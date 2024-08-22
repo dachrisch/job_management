@@ -1,40 +1,37 @@
 import logging
-from dataclasses import asdict
-from typing import Type, Iterable, Any
+from typing import Type, Iterable, Union
 
+from dataclasses_json import DataClassJsonMixin
 from montydb import MontyClient, MontyCollection
-import inspect
 
-from job_offer_spider.item.db import HasUrl, IsDataclass, HasId
+from job_offer_spider.item.db import HasUrl, HasId
 from job_offer_spider.item.db.job_offer import JobOfferDto
 from job_offer_spider.item.db.target_website import TargetWebsiteDto
 
 
 class CollectionHandler[T]:
-    def __init__(self, collection: MontyCollection, collection_type: Type[T]):
+    def __init__(self, collection: MontyCollection, collection_type: Union[Type[T], DataClassJsonMixin]):
         self.collection_type = collection_type
         self.collection = collection
         self.log = logging.getLogger(__name__)
 
-    def add(self, item: IsDataclass):
+    def add(self, item: DataClassJsonMixin):
         self.log.info(f'storing: {item}')
-        self.collection.insert_one(asdict(item))
+        self.collection.insert_one(item.to_dict(encode_json=True))
 
     def contains(self, item: HasUrl) -> bool:
         return self.collection.count_documents({'url': item.url})
 
     def all(self) -> Iterable[T]:
-
-        inspect.signature(self.collection_type.__init__)
         return map(lambda c: self.collection_type(**dict(c)), self.collection.find({'url': {'$exists': True}}))
 
     @property
     def size(self) -> int:
         return self.collection.count_documents({'url': {'$exists': True}})
 
-    def update(self, item: HasId):
+    def update(self, item: Union[HasId, DataClassJsonMixin]):
         return self.collection.update_one({'_id': {'$eq': item.id}},
-                                          {'$set': {k: v for k, v in asdict(item).items() if k != '_id'}})
+                                          {'$set': {k: v for k, v in item.to_dict(encode_json=True).items() if k != '_id'}})
 
 
 class JobOfferDb:

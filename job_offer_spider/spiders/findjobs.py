@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 
 from scrapy import Request
+from scrapy.loader import ItemLoader
 from scrapy.spiders import SitemapSpider
 from scrapy.utils.sitemap import Sitemap
 
@@ -29,5 +30,7 @@ class FindjobsSpider(SitemapSpider):
                 yield entry
 
     def parse(self, response, **kwargs):
-        title = response.css('h1::text').get()
-        yield JobOfferSpiderItem(title=title, url=response.url)
+        item_loader = ItemLoader(item=JobOfferSpiderItem(), response=response)
+        item_loader.add_css('title', 'h1::text')
+        item_loader.add_value('url', response.url)
+        yield item_loader.load_item()

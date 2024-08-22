@@ -31,6 +31,8 @@ ROBOTSTXT_OBEY = True
 #CONCURRENT_REQUESTS_PER_IP = 16
 DOWNLOAD_TIMEOUT=15
 
+RETRY_ENABLED=False
+
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
 

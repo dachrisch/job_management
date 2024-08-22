@@ -19,4 +19,4 @@ class EuStartupsSpider(SitemapSpider):
         item_loader.add_xpath('title', '//meta[@property="og:title"]/@content')
         item_loader.add_css('url', 'div.wpbdp-field-website div.value::text')
         if item_loader.get_output_value('url'):
-            yield item_loader.load_item()
+            return item_loader.load_item()

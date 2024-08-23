@@ -1,5 +1,6 @@
 import time
 from datetime import datetime, timedelta
+from json import JSONDecodeError
 from threading import Thread
 
 import fire
@@ -33,6 +34,7 @@ class SitesScannedProgressThread(Thread):
                 completed = JobOfferDb().sites.count({'last_scanned': {'$gt': now.timestamp()}})
                 p.update(task, completed=completed)
                 time.sleep(1)
+
         self._l(f'Found {JobOfferDb().jobs.size} jobs')
 
 

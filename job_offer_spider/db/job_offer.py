@@ -11,11 +11,11 @@ from job_offer_spider.item.db.target_website import TargetWebsiteDto
 
 
 class CollectionHandler[T]:
+    _mutex=Lock()
     def __init__(self, collection: MontyCollection, collection_type: Union[Type[T], DataClassJsonMixin]):
         self.collection_type = collection_type
         self.collection = collection
         self.log = logging.getLogger(__name__)
-        self._mutex=Lock()
 
     def add(self, item: DataClassJsonMixin):
         with self._mutex:

@@ -3,7 +3,7 @@ from threading import Lock
 from typing import Type, Iterable, Union, Any, Dict
 
 from dataclasses_json import DataClassJsonMixin
-from montydb import MontyClient, MontyCollection
+from montydb import MontyClient, MontyCollection, set_storage
 
 from job_offer_spider.item.db import HasUrl, HasId
 from job_offer_spider.item.db.job_offer import JobOfferDto
@@ -11,7 +11,8 @@ from job_offer_spider.item.db.target_website import TargetWebsiteDto
 
 
 class CollectionHandler[T]:
-    _mutex=Lock()
+    _mutex = Lock()
+
     def __init__(self, collection: MontyCollection, collection_type: Union[Type[T], DataClassJsonMixin]):
         self.collection_type = collection_type
         self.collection = collection
@@ -44,13 +45,14 @@ class CollectionHandler[T]:
     def update(self, item: Union[HasId, DataClassJsonMixin]):
         with self._mutex:
             return self.collection.update_one({'_id': {'$eq': item.id}},
-                                          {'$set': {k: v for k, v in item.to_dict(encode_json=True).items() if
-                                                    k != '_id'}})
+                                              {'$set': {k: v for k, v in item.to_dict(encode_json=True).items() if
+                                                        k != '_id'}})
 
 
 class JobOfferDb:
     def __init__(self):
-        self.client = MontyClient(repository='.mongitadb')  # Use MongitaClientMemory() for in-memory storage
+        set_storage('.mongitadb', storage='sqlite', check_same_thread=False)
+        self.client = MontyClient(repository='.mongitadb')
         self.db = self.client['job_offers_db']
         self.log = logging.getLogger(__name__)
 

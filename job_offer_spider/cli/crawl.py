@@ -34,5 +34,4 @@ class CrawlCli:
         pt.start()
         process.start()
         pt.join(timeout=1)
-
-
+        self._l(f'Found {self._db.jobs.size} jobs')

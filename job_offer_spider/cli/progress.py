@@ -15,17 +15,19 @@ class SitesScannedProgressThread(Thread):
         console = Console()
         self._l = console.print
         self.daemon = True
+        self.db = JobOfferDb()
 
     def run(self):
         now = datetime.now()
         timestamp_threshold = (now - timedelta(days=self.days_offset)).timestamp()
-        sites_to_scan = JobOfferDb().sites.count(
+        sites_to_scan = self.db.sites.count(
             {'$or': [{'last_scanned': {'$eq': None}}, {'last_scanned': {'$lt': timestamp_threshold}}]})
-        with Progress() as p:
-            task = p.add_task(f'Crawling [{sites_to_scan}] sites for job offers', total=sites_to_scan)
-            while not p.finished:
-                completed = JobOfferDb().sites.count({'last_scanned': {'$gt': now.timestamp()}})
-                p.update(task, completed=completed)
-                time.sleep(1)
+        if sites_to_scan:
+            with Progress() as p:
+                task = p.add_task(f'Crawling [{sites_to_scan}] sites for job offers', total=sites_to_scan)
+                while not p.finished:
+                    completed = self.db.sites.count({'last_scanned': {'$gt': now.timestamp()}})
+                    p.update(task, completed=completed)
+                    time.sleep(1)
 
-        self._l(f'Found {JobOfferDb().jobs.size} jobs')
+        self._l('Waiting for all crawling jobs to complete')

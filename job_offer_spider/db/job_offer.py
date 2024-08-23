@@ -1,4 +1,5 @@
 import logging
+from threading import Lock
 from typing import Type, Iterable, Union, Any, Dict
 
 from dataclasses_json import DataClassJsonMixin
@@ -14,26 +15,35 @@ class CollectionHandler[T]:
         self.collection_type = collection_type
         self.collection = collection
         self.log = logging.getLogger(__name__)
+        self._mutex=Lock()
 
     def add(self, item: DataClassJsonMixin):
-        self.log.info(f'storing: {item}')
-        self.collection.insert_one(item.to_dict(encode_json=True))
+        with self._mutex:
+            self.log.info(f'storing: {item}')
+            self.collection.insert_one(item.to_dict(encode_json=True))
 
     def contains(self, item: HasUrl) -> bool:
-        return self.collection.count_documents({'url': item.url})
+        with self._mutex:
+            return self.collection.count_documents({'url': item.url})
 
     def all(self) -> Iterable[T]:
         return self.filter({'url': {'$exists': True}})
 
     def filter(self, condition: Dict[str, Any]):
-        return map(lambda c: self.collection_type(**dict(c)), self.collection.find(condition))
+        with self._mutex:
+            return map(lambda c: self.collection_type(**dict(c)), self.collection.find(condition))
 
     @property
     def size(self) -> int:
-        return self.collection.count_documents({'url': {'$exists': True}})
+        return self.count({'url': {'$exists': True}})
+
+    def count(self, condition: Dict[str, Any]):
+        with self._mutex:
+            return self.collection.count_documents(condition)
 
     def update(self, item: Union[HasId, DataClassJsonMixin]):
-        return self.collection.update_one({'_id': {'$eq': item.id}},
+        with self._mutex:
+            return self.collection.update_one({'_id': {'$eq': item.id}},
                                           {'$set': {k: v for k, v in item.to_dict(encode_json=True).items() if
                                                     k != '_id'}})
 

@@ -18,14 +18,15 @@ from job_offer_spider.spider.findjobs import FindJobsSpider
 
 
 class SitesScannedProgressThread(Thread):
-    def __init__(self):
+    def __init__(self, days_offset:int):
         super().__init__()
+        self.days_offset = days_offset
         console = Console()
         self._l = console.print
 
     def run(self):
         now = datetime.now()
-        timestamp_threshold = (now - timedelta(days=7)).timestamp()
+        timestamp_threshold = (now - timedelta(days=self.days_offset)).timestamp()
         sites_to_scan = JobOfferDb().sites.count(
             {'$or': [{'last_scanned': {'$eq': None}}, {'last_scanned': {'$lt': timestamp_threshold}}]})
         with Progress() as p:
@@ -73,9 +74,10 @@ class CrawlCli:
             process.start(stop_after_crawl=stop)
         self._l(f'Found {self._db.sites.size} websites')
 
-    def jobs(self):
-        pt = SitesScannedProgressThread()
+    def jobs(self, days_offset:int=7):
+        pt = SitesScannedProgressThread(days_offset)
         process = CrawlerProcess(get_project_settings())
+        process.settings.set('SPIDER_DAYS_OFFSET', days_offset)
         process.crawl(FindJobsSpider)
         pt.start()
         process.start()

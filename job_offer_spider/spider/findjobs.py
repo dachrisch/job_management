@@ -12,11 +12,12 @@ from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
 
 class FindJobsSpider(SitemapSpider):
     name = "find-jobs"
-    sitemap_follow = ['/job', '/career']
+    sitemap_follow = ['/job/', '/jobs/', '/career/', '/careers/']
 
     def start_requests(self):
+        days_offset = self.settings.get('SPIDER_DAYS_OFFSET', 7)
         db = JobOfferDb()
-        timestamp_threshold = (datetime.now() - timedelta(days=7)).timestamp()
+        timestamp_threshold = (datetime.now() - timedelta(days=days_offset)).timestamp()
 
         for site in db.sites.filter(
                 {

@@ -1,8 +1,8 @@
 from typing import Any
 
 import fire
-from rich import json
 from montydb import MontyCollection
+from rich import json
 from rich.console import Console
 
 from job_offer_spider.db.job_offer import JobOfferDb
@@ -30,6 +30,10 @@ class DbCollectionViewer:
             {key: value for key, value in item.items() if key != '_id'}
             for item in self._collection.find(condition)
         ]))
+
+    def delete(self, condition: dict[str, Any]):
+        deleted_result = self._collection.delete_many(condition)
+        self._l(f'deleted {deleted_result.deleted_count} items')
 
 
 if __name__ == '__main__':

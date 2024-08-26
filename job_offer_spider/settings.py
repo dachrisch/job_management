@@ -92,8 +92,10 @@ AUTOTHROTTLE_TARGET_CONCURRENCY = 3.0
 
 # Set settings whose default value is deprecated to a future-proof value
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
-TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
+#TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
+TWISTED_REACTOR= 'twisted.internet.pollreactor.PollReactor'
 FEED_EXPORT_ENCODING = "utf-8"
 
 # logging to file
 LOG_FILE='scrapy.log'
+LOG_FORMATTER='job_offer_spider.logformat.NoBodyLogFormatter'

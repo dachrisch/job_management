@@ -1,10 +1,15 @@
+import sys
+from threading import Thread
+
+import crochet
 import reflex as rx
+from twisted.internet.pollreactor import install
 
 from .backend.backend import SiteState, JobsState
 from .components.stats_cards import stats_cards_group
 from .views import job_site
 from .views.navbar import navbar
-from .views.table import main_table
+from .views.sites_table import main_table
 
 
 @rx.page(route="/", title="Job Management App")
@@ -46,3 +51,8 @@ app = rx.App(
         appearance="light", has_background=True, radius="large", accent_color="grass"
     ),
 )
+
+if "twisted.internet.reactor" not in sys.modules:
+    install()
+    crochet.setup()
+

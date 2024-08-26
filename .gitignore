@@ -1,5 +1,5 @@
-/.mongitadb/
-/.idea/
-/scrapy.log
-*.pyc
-__pycache__
+*.db
+*.py[cod]
+.web
+__pycache__/
+assets/external/

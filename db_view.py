@@ -18,6 +18,8 @@ class DbViewerCli:
     def jobs(self):
         return DbCollectionViewer(self._db.jobs.collection)
 
+    def jobs_body(self):
+        return DbCollectionViewer(self._db.jobs_body.collection)
 
 class DbCollectionViewer:
     def __init__(self, collection: MontyCollection):

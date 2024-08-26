@@ -46,6 +46,7 @@ class FindJobsSpider(SitemapSpider):
         item_loader = ItemLoader(item=JobOfferSpiderItem(), response=response)
         item_loader.add_css('title', 'h1::text')
         item_loader.add_value('url', response.url)
+        item_loader.add_value('body', response.text)
         if not item_loader.get_output_value('title'):
             item_loader.replace_xpath('title', '//meta[@property="og:title"]/@content')
         yield item_loader.load_item()

@@ -1,7 +1,7 @@
 import logging
 
 from job_offer_spider.db.job_offer import JobOfferDb
-from job_offer_spider.item.db.job_offer import JobOfferDto
+from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto
 from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
 from job_offer_spider.processor.chainable import ChainablePipeline
 
@@ -14,9 +14,11 @@ class StoreJobOfferPipeline(ChainablePipeline[JobOfferSpiderItem]):
         self.log = logging.getLogger(__name__)
 
     def process_item(self, item: JobOfferSpiderItem, spider):
-        dto = JobOfferDto(**dict(item))
+        dto = JobOfferDto.from_dict(item)
         if self.db.jobs.contains(dto):
             self.log.debug(f'Site already collected: {dto}')
         else:
             self.db.jobs.add(dto)
+            job_dto = JobOfferBodyDto.from_dict(item)
+            self.db.jobs_body.add(job_dto)
         return item

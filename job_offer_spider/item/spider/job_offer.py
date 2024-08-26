@@ -10,3 +10,4 @@ class JobOfferSpiderItem(scrapy.Item):
         output_processor=TakeFirst()
     )
     url: str = scrapy.Field(output_processor=TakeFirst())
+    body: str = scrapy.Field(output_processor=TakeFirst())

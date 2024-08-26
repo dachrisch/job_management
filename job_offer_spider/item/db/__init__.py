@@ -1,7 +1,7 @@
-from dataclasses import dataclass, InitVar
-from typing import Protocol, ClassVar, Dict, Any, runtime_checkable
+from dataclasses import dataclass, field
+from typing import Protocol, ClassVar, Dict, Any, runtime_checkable, Optional
 
-from dataclasses_json import dataclass_json
+from dataclasses_json import dataclass_json, config
 from montydb.types.objectid import ObjectId
 
 
@@ -14,10 +14,7 @@ class HasUrl:
 @dataclass_json
 @dataclass
 class HasId:
-    _id: InitVar[ObjectId | None] = None
-
-    def __post_init__(self, _id: ObjectId | None):
-        self.id = _id
+    id: Optional[ObjectId | None] = field(default=None, metadata=config(field_name='_id', exclude=bool))
 
 
 @runtime_checkable

@@ -11,6 +11,7 @@ from job_offer_spider.item.db import HasUrl, HasId
 class JobOfferDto(HasUrl, HasId, DataClassJsonMixin):
     title: str = None
     added: datetime = datetime.now()
+    site_url: str = None
 
 
 @dataclass_json

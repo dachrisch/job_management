@@ -30,9 +30,9 @@ class CollectionHandler[T]:
     def all(self) -> Iterable[T]:
         return self.filter({'url': {'$exists': True}})
 
-    def filter(self, condition: Dict[str, Any]):
+    def filter(self, condition: Dict[str, Any]) -> Iterable[T]:
         with self._mutex:
-            return map(lambda c: self.collection_type(**dict(c)), self.collection.find(condition))
+            return map(lambda c: self.collection_type.from_dict(c), self.collection.find(condition))
 
     @property
     def size(self) -> int:

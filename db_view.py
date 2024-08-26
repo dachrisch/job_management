@@ -35,6 +35,9 @@ class DbCollectionViewer:
         deleted_result = self._collection.delete_many(condition)
         self._l(f'deleted {deleted_result.deleted_count} items')
 
+    def update(self, condition: dict[str, Any], update_clause: dict[str, Any]):
+        self._l(f"updated: {self._collection.update_many(condition, {'$set': update_clause}).modified_count} items")
+
 
 if __name__ == '__main__':
     fire.Fire(DbViewerCli)

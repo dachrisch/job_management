@@ -26,10 +26,10 @@ def show_site(site: JobSite):
                                 size="2",
                                 variant="solid")),
         rx.table.cell(rx.button(
-                    rx.icon('play'),
-                    loading=site.crawling,
-                    on_click=lambda: SitesState.start_crawl(site)
-                )),
+            rx.icon('play'),
+            loading=site.crawling,
+            on_click=lambda: SitesState.start_crawl(site)
+        )),
         style={"_hover": {"bg": rx.color("gray", 3)}},
         align="center",
     )
@@ -47,6 +47,13 @@ def main_table():
                 size="3",
                 on_click=SitesCrawlerState.start_crawling,
                 disabled=SitesCrawlerState.running
+            ),
+            rx.spacer(),
+            rx.hstack(
+                rx.select(
+                    map(lambda f:f.capitalize(), JobSite.get_fields()),
+                    placeholder=f"Sort By: {list(JobSite.get_fields())[0].capitalize()}",
+                )
             ),
             spacing="3",
             wrap="wrap",
@@ -73,17 +80,3 @@ def main_table():
             on_mount=SitesState.load_sites,
         ),
     )
-
-
-def render_table_row(site: tuple[str, int], index: int):
-    return rx.table.row(
-        rx.table.cell(render_crawl_button(site, SitesState.set_running)),
-    )
-
-
-def render_crawl_button(value, set_running):
-    return rx.button(
-        value[0],
-        loading=value[1],
-        on_click=lambda: set_running(value),
-    ),

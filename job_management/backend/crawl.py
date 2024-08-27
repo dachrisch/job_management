@@ -10,7 +10,7 @@ from scrapy.statscollectors import StatsCollector
 from scrapy.utils.project import get_project_settings
 
 from job_offer_spider.spider.eustartups import EuStartupsSpider
-from job_offer_spider.spider.findjobs import FindJobsSpider
+from job_offer_spider.spider.findjobs import JobFromDbSpider
 
 
 class CrochetCrawlerRunner:
@@ -20,8 +20,8 @@ class CrochetCrawlerRunner:
         self.crawler.settings.set('SPIDER_DAYS_OFFSET', 0)
 
     @crochet.run_in_reactor
-    def crawl(self):
-        d = self.crawler.crawl(self.spider_class)
+    def crawl(self, site_url:str):
+        d = self.crawler.crawl(self.spider_class, site_url)
         stats = set(self.crawler.crawlers).pop().stats
         d.addCallback(partial(self.finished, stats))
         return d
@@ -46,13 +46,17 @@ class JobsCrawlerState(rx.State):
     def check(self, value):
         print(value)
 
+    def is_running(self, site):
+        print(f'Running: {site}')
+        return False
+
 class JobsCrawlerButton(rx.ComponentState):
     running: bool = False
     last_run_stats: dict[str, Any] = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.crawler = CrochetCrawlerRunner(FindJobsSpider)
+        self.crawler = CrochetCrawlerRunner(JobFromDbSpider)
 
     @rx.background
     async def start_crawling(self):

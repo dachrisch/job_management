@@ -1,7 +1,6 @@
 import reflex as rx
-from reflex import Var
 
-from ..backend.crawl import SitesCrawlerState, JobsCrawlerButton, JobsCrawlerState
+from ..backend.crawl import SitesCrawlerState, JobsCrawlerButton
 from ..backend.data import SiteState
 from ..backend.entity import JobSite
 
@@ -58,16 +57,29 @@ def main_table():
             rx.table.header(
                 rx.table.row(
                     _header_cell("Site", "building"),
-                    _header_cell("Url", "link"),
-                    _header_cell("Last Scanned", "history"),
-                    _header_cell("Jobs", "briefcase"),
-                    _header_cell("Actions", "cog"),
                 ),
             ),
-            rx.table.body(rx.foreach(SiteState.sites, show_site)),
+            rx.table.body(rx.foreach(
+                SiteState.running,
+                render_table_row
+            )),
             variant="surface",
             size="3",
             width="100%",
             on_mount=SiteState.load_sites,
         ),
     )
+
+
+def render_table_row(site: tuple[str, int], index: int):
+    return rx.table.row(
+        rx.table.cell(render_crawl_button(site, SiteState.set_running)),
+    )
+
+
+def render_crawl_button(value, set_running):
+    return rx.button(
+        value[2],
+        loading=value[1],
+        on_click=lambda: set_running(value),
+    ),

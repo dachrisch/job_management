@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Callable, Iterable
 from urllib.parse import urlparse
 
 from scrapy import Request
@@ -8,35 +9,30 @@ from scrapy.spiders.sitemap import iterloc
 from scrapy.utils.sitemap import Sitemap, sitemap_urls_from_robots
 
 from job_offer_spider.db.job_offer import JobOfferDb
+from job_offer_spider.item.db import HasUrl
+from job_offer_spider.item.db.target_website import TargetWebsiteDto
 from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
 
 
-class FindJobsSpider(SitemapSpider):
-    name = "find-jobs"
+class JobsFromUrlListSpider(SitemapSpider):
     sitemap_follow = ['/job/', '/jobs/', '/career/', '/careers/']
 
-    def start_requests(self):
-        days_offset = self.settings.get('SPIDER_DAYS_OFFSET', 7)
-        db = JobOfferDb()
-        timestamp_threshold = (datetime.now() - timedelta(days=days_offset)).timestamp()
+    def __init__(self, scan_urls_callback: Callable[[], Iterable[str]], *a, **kw):
+        super().__init__(*a, **kw)
+        self.scan_urls_callback = scan_urls_callback
 
-        for site in db.sites.filter(
-                {
-                    '$or': [
-                        {'last_scanned': {'$eq': None}},
-                        {'last_scanned': {'$lt': timestamp_threshold}}
-                    ]
-                }):
-            site_url = urlparse(site.url, 'https')
+    def start_requests(self):
+
+        for su in self.scan_urls_callback():
+            site_url = urlparse(su, 'https')
             if not site_url.hostname and site_url.path:
                 site_url = site_url._replace(netloc=site_url.path)
             site_url = site_url._replace(path='/robots.txt')
             assert site_url.hostname
             assert site_url.scheme
             assert site_url.path
-            yield Request(site_url.geturl(), self._parse_sitemap, cb_kwargs={'site_url': site.url})
-            site.last_scanned = datetime.now()
-            db.sites.update(site)
+            yield Request(site_url.geturl(), self._parse_sitemap, cb_kwargs={'site_url': su})
+            self.inform_site_scanned(su)
 
     def _parse_sitemap(self, response, **kwargs):
         if response.url.endswith("/robots.txt"):
@@ -80,3 +76,47 @@ class FindJobsSpider(SitemapSpider):
         if not item_loader.get_output_value('title'):
             item_loader.replace_xpath('title', '//meta[@property="og:title"]/@content')
         yield item_loader.load_item()
+
+    def inform_site_scanned(self, site_url: str):
+        pass
+
+
+class JobFromUrlSpider(JobsFromUrlListSpider):
+    name = "find-jobs-from-url"
+
+    def __init__(self, site_url: str, *a, **kw):
+        super().__init__(scan_urls_callback=lambda: [site_url], *a, **kw)
+        self.db = JobOfferDb()
+
+    def inform_site_scanned(self, site_url):
+        if not self.db.sites.contains(HasUrl(site_url)):
+            self.db.sites.add(TargetWebsiteDto(title=site_url, url=site_url))
+
+        for site in self.db.sites.filter({'url': {'$eq': site_url}}):
+            site.last_scanned = datetime.now()
+            self.db.sites.update(site)
+
+
+class JobFromDbSpider(JobsFromUrlListSpider):
+    name = "find-jobs-from-db"
+
+    def __init__(self, *a, **kw):
+        super().__init__(scan_urls_callback=self.load_from_database, *a, **kw)
+        self.db = JobOfferDb()
+
+    def load_from_database(self) -> Iterable[str]:
+        days_offset = self.settings.get('SPIDER_DAYS_OFFSET', 7)
+        timestamp_threshold = (datetime.now() - timedelta(days=days_offset)).timestamp()
+
+        return map(lambda s: s.url, self.db.sites.filter(
+            {
+                '$or': [
+                    {'last_scanned': {'$eq': None}},
+                    {'last_scanned': {'$lt': timestamp_threshold}}
+                ]
+            }))
+
+    def inform_site_scanned(self, site_url):
+        for site in self.db.sites.filter({'url': {'$eq': site_url}}):
+            site.last_scanned = datetime.now()
+            self.db.sites.update(site)

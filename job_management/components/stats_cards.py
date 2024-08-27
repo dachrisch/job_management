@@ -3,7 +3,7 @@ from reflex.components.radix.themes.base import (
     LiteralAccentColor,
 )
 
-from ..backend.backend import SiteState
+from ..backend.data import SiteState
 
 
 def _arrow_badge(arrow_icon: str, percentage_change: float, arrow_color: str):

@@ -8,7 +8,7 @@ from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 from twisted.internet.pollreactor import install
 
-from .backend.backend import SiteState, JobsState
+from .backend.data import SiteState, JobsState
 from .components.stats_cards import stats_cards_group
 from .views import job_site
 from .views.navbar import navbar

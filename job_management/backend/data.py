@@ -1,55 +1,9 @@
-import sys
-from datetime import datetime
-
-import crochet
 import reflex as rx
-from scrapy import signals
-from scrapy.crawler import  CrawlerRunner
-from scrapy.utils.project import get_project_settings
 
+from job_management.backend.entity import JobSite, JobOffer
 from job_offer_spider.db.job_offer import JobOfferDb
 from job_offer_spider.item.db.target_website import TargetWebsiteDto
-from job_offer_spider.spider.findjobs import FindJobsSpider
 
-
-class JobSite(rx.Base):
-    title: str = ''
-    url: str = ''
-    num_jobs: int = 0
-    last_scanned: datetime = None
-
-
-class JobOffer(rx.Base):
-    title: str = ''
-    url: str = ''
-
-
-class JobsCrawlerState(rx.State):
-    running: bool = False
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.crawler = CrawlerRunner(get_project_settings())
-        self.crawler.settings.set('SPIDER_DAYS_OFFSET', 0)
-
-    @rx.background
-    async def start_crawling(self):
-        async with self:
-            self.running = True
-            print('Running crawler')
-        self.crawl().wait(timeout=60)
-        async with self:
-            self.running = False
-            print('Finished crawler')
-
-    @crochet.run_in_reactor
-    def crawl(self):
-        d = self.crawler.crawl(FindJobsSpider)
-        d.addCallback(self.finished)
-        return d
-
-    def finished(self, what):
-        print(f'Finished crawler: {what}')
 
 class SiteState(rx.State):
     num_sites: int = 0

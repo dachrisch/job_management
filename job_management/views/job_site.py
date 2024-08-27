@@ -1,7 +1,7 @@
 import reflex as rx
 from reflex.components.radix.themes.base import LiteralAccentColor
 
-from job_management.backend.backend import SiteState, JobsState
+from job_management.backend.data import SiteState, JobsState
 
 
 def header():

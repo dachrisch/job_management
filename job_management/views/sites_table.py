@@ -1,6 +1,9 @@
 import reflex as rx
+from reflex import Var
 
-from ..backend.backend import SiteState, JobSite, JobsCrawlerState
+from ..backend.crawl import SitesCrawlerState, JobsCrawlerButton, JobsCrawlerState
+from ..backend.data import SiteState
+from ..backend.entity import JobSite
 
 
 def _header_cell(text: str, icon: str):
@@ -25,14 +28,7 @@ def show_site(site: JobSite):
                                 variant="solid")),
         rx.table.cell(
             rx.hstack(
-                rx.button(
-
-                    rx.icon("play", size=22),
-                    loading=JobsCrawlerState.running,
-                    on_click=JobsCrawlerState.start_crawling,
-                    size="2",
-                    variant="solid",
-                ),
+                JobsCrawlerButton.create(site_url=site.url),
             )
         ),
         style={"_hover": {"bg": rx.color("gray", 3)}},
@@ -42,6 +38,22 @@ def show_site(site: JobSite):
 
 def main_table():
     return rx.fragment(
+        rx.flex(
+            rx.button(
+                rx.cond(SitesCrawlerState.running,
+                        rx.spinner(loading=True),
+                        rx.icon("building", size=26), ),
+                rx.text("Crawl Websites", size="4", display=[
+                    "none", "none", "block"]),
+                size="3",
+                on_click=SitesCrawlerState.start_crawling,
+                disabled=SitesCrawlerState.running
+            ),
+            spacing="3",
+            wrap="wrap",
+            width="100%",
+            padding_bottom="1em",
+        ),
         rx.table.root(
             rx.table.header(
                 rx.table.row(

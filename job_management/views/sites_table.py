@@ -25,11 +25,11 @@ def show_site(site: JobSite):
                                 on_click=rx.redirect(f'/jobs/?site={site.url}'),
                                 size="2",
                                 variant="solid")),
-        rx.table.cell(
-            rx.hstack(
-                JobsCrawlerButton.create(site_url=site.url),
-            )
-        ),
+        rx.table.cell(rx.button(
+                    rx.icon('play'),
+                    loading=site.crawling,
+                    on_click=lambda: SiteState.start_crawl(site)
+                )),
         style={"_hover": {"bg": rx.color("gray", 3)}},
         align="center",
     )
@@ -57,11 +57,15 @@ def main_table():
             rx.table.header(
                 rx.table.row(
                     _header_cell("Site", "building"),
+                    _header_cell("Website", "link"),
+                    _header_cell("Last Scanned", "refresh-cw"),
+                    _header_cell("Jobs", "briefcase"),
+                    _header_cell("Actions", "cog"),
                 ),
             ),
             rx.table.body(rx.foreach(
-                SiteState.running,
-                render_table_row
+                SiteState.sites,
+                show_site
             )),
             variant="surface",
             size="3",
@@ -79,7 +83,7 @@ def render_table_row(site: tuple[str, int], index: int):
 
 def render_crawl_button(value, set_running):
     return rx.button(
-        value[2],
+        value[0],
         loading=value[1],
         on_click=lambda: set_running(value),
     ),

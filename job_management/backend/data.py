@@ -15,7 +15,7 @@ class SiteState(rx.State):
     num_sites: int = 0
     current_site: JobSite = JobSite()
 
-    running: dict[str, bool] = {}
+    sites:list[JobSite]=[]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,24 +23,28 @@ class SiteState(rx.State):
         self.crawler = CrochetCrawlerRunner(JobFromUrlSpider)
 
     def load_sites(self):
+        self.sites=list(map(self.load_job_site, self.db.sites.all()))
         # noinspection PyTypeChecker
         self.num_sites = len(self.sites)
-        # noinspection PyTypeChecker
-        self.running = {site.url: False for site in self.sites}
 
     @rx.background
-    async def set_running(self, site_url_and_state: tuple[str, bool]):
-        site_url, _ = site_url_and_state
-        async with self:
-            self.running[site_url] = True
-            print(self.running)
+    async def start_crawl(self, site_dict: dict[str, Any]):
+        site:JobSite|None=None
+        for s in self.sites:
+            if s.url==site_dict['url']:
+                site=s
+                break
 
-        stats = self.crawler.crawl(site_url).wait(timeout=60)
+        async with self:
+            site.crawling = True
+            print(site)
+
+        stats = self.crawler.crawl(site.url).wait(timeout=60)
 
         async with self:
-            self.running[site_url] = False
-            print(self.running)
-        return self.fire_stats_toast(site_url, stats)
+            site.crawling = False
+            print(site)
+        return self.fire_stats_toast(site.url, stats)
 
     def fire_stats_toast(self, site_url:str, stats: dict[str,Any]):
         if stats['finish_reason'] == 'finished':
@@ -55,9 +59,6 @@ class SiteState(rx.State):
         print(site_url)
         return list(filter(lambda s:s.url==site_url, self.sites))[0]
 
-    @rx.var(cache=False)
-    def sites(self) -> list[JobSite]:
-        return list(map(self.load_job_site, self.db.sites.all()))
 
     def update_current_site(self):
         site_url = self.router.page.params.get('site', None)

@@ -8,6 +8,7 @@ class JobSite(rx.Base):
     url: str = ''
     num_jobs: int = 0
     last_scanned: datetime = None
+    crawling: bool = False
 
 
 class JobOffer(rx.Base):

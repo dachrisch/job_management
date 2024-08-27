@@ -14,7 +14,7 @@ class StoreTargetWebsitePipeline(ChainablePipeline[TargetWebsiteSpiderItem]):
         self.log = logging.getLogger(__name__)
 
     def process_item(self, item: TargetWebsiteSpiderItem, spider):
-        dto = TargetWebsiteDto(**dict(item))
+        dto = TargetWebsiteDto.from_dict(item)
         if self.db.sites.contains(dto):
             self.log.debug(f'Site already collected: {dto.url}')
         else:

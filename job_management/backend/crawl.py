@@ -9,6 +9,7 @@ from scrapy.statscollectors import StatsCollector
 from scrapy.utils.project import get_project_settings
 
 from job_offer_spider.spider.eustartups import EuStartupsSpider
+from job_offer_spider.spider.findjobs import JobsFromDbSpider
 
 
 class CrochetCrawlerRunner:
@@ -29,7 +30,17 @@ class CrochetCrawlerRunner:
         return stats.get_stats()
 
 
-class SitesCrawlerState(rx.State):
+class StatsCrawler:
+    def fire_stats_toast(self, stats: dict[str, Any]):
+        if stats['finish_reason'] == 'finished':
+            return rx.toast.success(
+                f'Scraped [{stats["item_scraped_count"]}] '
+                f'items in {stats["elapsed_time_seconds"]} seconds')
+        else:
+            return rx.toast.error(f'Crawling failed: {stats}')
+
+
+class SitesCrawlerState(rx.State, StatsCrawler):
     running: bool = False
 
     def __init__(self, *args, **kwargs):
@@ -46,10 +57,20 @@ class SitesCrawlerState(rx.State):
             print(f'Stats: {stats}')
         return self.fire_stats_toast(stats)
 
-    def fire_stats_toast(self, stats: dict[str, Any]):
-        if stats['finish_reason'] == 'finished':
-            return rx.toast.success(
-                f'Scraped [{stats["item_scraped_count"]}] '
-                f'items in {stats["elapsed_time_seconds"]} seconds')
-        else:
-            return rx.toast.error(f'Crawling failed: {self.last_run_stats}')
+
+class JobsCrawlerState(rx.State):
+    running: bool = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @rx.background
+    async def start_crawling(self):
+        async with self:
+            self.running = True
+        crawler = CrochetCrawlerRunner(JobsFromDbSpider)
+        stats = crawler.crawl().wait(timeout=600)
+        async with self:
+            self.running = False
+            print(f'Stats: {stats}')
+        return self.fire_stats_toast(stats)

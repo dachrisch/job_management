@@ -5,7 +5,7 @@ from scrapy.utils.project import get_project_settings
 from job_offer_spider.cli.progress import SitesScannedProgressThread
 from job_offer_spider.db.job_offer import JobOfferDb
 from job_offer_spider.spider.eustartups import EuStartupsSpider
-from job_offer_spider.spider.findjobs import JobFromDbSpider
+from job_offer_spider.spider.findjobs import JobsFromDbSpider
 
 
 class CrawlCli:
@@ -30,7 +30,7 @@ class CrawlCli:
         pt = SitesScannedProgressThread(days_offset)
         process = CrawlerProcess(get_project_settings())
         process.settings.set('SPIDER_DAYS_OFFSET', days_offset)
-        process.crawl(JobFromDbSpider)
+        process.crawl(JobsFromDbSpider)
         pt.start()
         process.start()
         pt.join(timeout=1)

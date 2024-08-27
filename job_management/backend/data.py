@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -7,7 +8,7 @@ from job_management.backend.crawl import CrochetCrawlerRunner
 from job_management.backend.entity import JobSite, JobOffer
 from job_offer_spider.db.job_offer import JobOfferDb
 from job_offer_spider.item.db.target_website import TargetWebsiteDto
-from job_offer_spider.spider.findjobs import JobFromUrlSpider
+from job_offer_spider.spider.findjobs import JobsFromUrlSpider
 
 
 class SitesState(rx.State):
@@ -16,16 +17,22 @@ class SitesState(rx.State):
     current_site: JobSite = JobSite()
 
     _sites: list[JobSite] = []
+    _jobs: list[JobOffer] = []
     sort_value: str = 'title'
     sort_reverse: bool = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.db = JobOfferDb()
+        self.info = logging.getLogger(self.__class__.__name__).info
+        self.debug = logging.getLogger(self.__class__.__name__).debug
 
     def load_sites(self):
+        self.info('Loading sites...')
         self._sites = list(map(self.load_job_site, self.db.sites.all()))
+        self._jobs = list(map(lambda j: JobOffer(**j.to_dict()), self.db.jobs.all()))
         self.num_sites = len(self._sites)
+        self.info(f'Loaded [{self.num_sites}] sites...')
         self.num_sites_yesterday = len(
             [site for site in self._sites if site.added.date() < (datetime.now().date() - timedelta(days=1))])
 
@@ -51,10 +58,12 @@ class SitesState(rx.State):
                 site = s
                 break
 
+        self.info(f'Starting crawler for [{site}]')
+
         async with self:
             site.crawling = True
 
-        crawler = CrochetCrawlerRunner(JobFromUrlSpider, site.url)
+        crawler = CrochetCrawlerRunner(JobsFromUrlSpider, site.url)
         stats = crawler.crawl().wait(timeout=60)
 
         async with self:
@@ -77,8 +86,9 @@ class SitesState(rx.State):
             self.current_site = site
 
     def load_job_site(self, s: TargetWebsiteDto):
+        self.debug(f'Loading Job Site [{s}]')
         site_dict = s.to_dict()
-        site_dict['num_jobs'] = self.db.jobs.count({'site_url': {'$eq': s.url}})
+        site_dict['num_jobs'] = len([job for job in self._jobs if job.site_url == s.url])
         return JobSite(**site_dict)
 
 

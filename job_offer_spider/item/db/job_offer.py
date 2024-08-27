@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 from dataclasses_json import dataclass_json, DataClassJsonMixin
@@ -17,5 +17,5 @@ class JobOfferDto(HasUrl, HasId, DataClassJsonMixin):
 @dataclass_json
 @dataclass
 class JobOfferBodyDto(HasUrl, HasId, DataClassJsonMixin):
-    body: str = None
+    body: str = field(default=None, repr=False)
     added: datetime = datetime.now()

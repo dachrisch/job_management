@@ -1,6 +1,6 @@
 import reflex as rx
 
-from ..backend.crawl import SitesCrawlerState
+from ..backend.crawl import SitesCrawlerState, JobsCrawlerState
 from ..backend.data import SitesState
 from ..backend.entity import JobSite
 
@@ -26,7 +26,7 @@ def show_site(site: JobSite):
                                 size="2",
                                 variant="solid")),
         rx.table.cell(rx.button(
-            rx.icon('play'),
+            rx.icon('refresh-cw'),
             loading=site.crawling,
             on_click=lambda: SitesState.start_crawl(site)
         )),
@@ -49,6 +49,16 @@ def main_table():
                 disabled=SitesCrawlerState.running
             ),
             rx.spacer(),
+            rx.button(
+                rx.cond(JobsCrawlerState.running,
+                        rx.spinner(loading=True),
+                        rx.icon("briefcase", size=26), ),
+                rx.text("Scan Jobs", size="4", display=[
+                    "none", "none", "block"]),
+                size="3",
+                on_click=JobsCrawlerState.start_crawling,
+                disabled=JobsCrawlerState.running
+            ),
             rx.hstack(
                 rx.cond(
                     SitesState.sort_reverse,

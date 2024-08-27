@@ -81,7 +81,7 @@ class JobsFromUrlListSpider(SitemapSpider):
         pass
 
 
-class JobFromUrlSpider(JobsFromUrlListSpider):
+class JobsFromUrlSpider(JobsFromUrlListSpider):
     name = "find-jobs-from-url"
 
     def __init__(self, site_url: str, *a, **kw):
@@ -97,7 +97,7 @@ class JobFromUrlSpider(JobsFromUrlListSpider):
             self.db.sites.update(site)
 
 
-class JobFromDbSpider(JobsFromUrlListSpider):
+class JobsFromDbSpider(JobsFromUrlListSpider):
     name = "find-jobs-from-db"
 
     def __init__(self, *a, **kw):

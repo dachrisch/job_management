@@ -15,4 +15,5 @@ class JobSite(rx.Base):
 class JobOffer(rx.Base):
     title: str = ''
     url: str = ''
+    site_url:str=''
     added: datetime = None

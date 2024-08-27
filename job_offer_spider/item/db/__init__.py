@@ -14,7 +14,7 @@ class HasUrl:
 @dataclass_json
 @dataclass
 class HasId:
-    id: Optional[ObjectId | None] = field(default=None, metadata=config(field_name='_id', exclude=bool))
+    id: Optional[ObjectId | None] = field(default=1, metadata=config(field_name='_id', exclude=lambda x: True))
 
 
 @runtime_checkable

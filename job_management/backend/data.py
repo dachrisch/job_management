@@ -10,7 +10,7 @@ from job_offer_spider.item.db.target_website import TargetWebsiteDto
 from job_offer_spider.spider.findjobs import JobFromUrlSpider
 
 
-class SiteState(rx.State):
+class SitesState(rx.State):
     num_sites: int = 0
     num_sites_yesterday: int = 0
     current_site: JobSite = JobSite()
@@ -23,7 +23,6 @@ class SiteState(rx.State):
 
     def load_sites(self):
         self.sites = list(map(self.load_job_site, self.db.sites.all()))
-        # noinspection PyTypeChecker
         self.num_sites = len(self.sites)
         self.num_sites_yesterday = len(
             [site for site in self.sites if site.added.date() < (datetime.now().date() - timedelta(days=1))])
@@ -58,7 +57,6 @@ class SiteState(rx.State):
     def update_current_site(self):
         site_url = self.router.page.params.get('site', None)
         if site_url:
-            # noinspection PyTypeChecker
             site = next(filter(lambda s: s.url == site_url, self.sites))
             self.current_site = site
 
@@ -67,20 +65,30 @@ class SiteState(rx.State):
         site_dict['num_jobs'] = self.db.jobs.count({'site_url': {'$eq': s.url}})
         return JobSite(**site_dict)
 
-
 class JobsState(rx.State):
     num_jobs: int = 0
+    num_jobs_yesterday: int = 0
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.db = JobOfferDb()
-        self.site_url = self.router.page.params.get('site')
 
     def load_jobs(self):
-        # noinspection PyTypeChecker
-        self.num_jobs = len(self.jobs)
+        jobs = list(self.db.jobs.all())
+        self.num_jobs = len(jobs)
+        self.num_jobs_yesterday = len(
+            [job for job in jobs if job.added.date() < (datetime.now().date() - timedelta(days=1))])
 
-    @rx.var()
-    def jobs(self) -> list[JobOffer]:
+
+class JobState(rx.State):
+    num_jobs: int = 0
+    jobs: list[JobOffer] = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.db = JobOfferDb()
+
+    def load_jobs(self):
         site_url = self.router.page.params.get('site')
-        return list(map(lambda s: JobOffer(**s.to_dict()), self.db.jobs.filter({'site_url': {'$eq': site_url}})))
+        self.jobs = list(map(lambda s: JobOffer(**s.to_dict()), self.db.jobs.filter({'site_url': {'$eq': site_url}})))
+        self.num_jobs = len(self.jobs)

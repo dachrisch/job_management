@@ -1,7 +1,7 @@
 import reflex as rx
 
 from ..backend.crawl import SitesCrawlerState
-from ..backend.data import SiteState
+from ..backend.data import SitesState
 from ..backend.entity import JobSite
 
 
@@ -28,7 +28,7 @@ def show_site(site: JobSite):
         rx.table.cell(rx.button(
                     rx.icon('play'),
                     loading=site.crawling,
-                    on_click=lambda: SiteState.start_crawl(site)
+                    on_click=lambda: SitesState.start_crawl(site)
                 )),
         style={"_hover": {"bg": rx.color("gray", 3)}},
         align="center",
@@ -64,20 +64,20 @@ def main_table():
                 ),
             ),
             rx.table.body(rx.foreach(
-                SiteState.sites,
+                SitesState.sites,
                 show_site
             )),
             variant="surface",
             size="3",
             width="100%",
-            on_mount=SiteState.load_sites,
+            on_mount=SitesState.load_sites,
         ),
     )
 
 
 def render_table_row(site: tuple[str, int], index: int):
     return rx.table.row(
-        rx.table.cell(render_crawl_button(site, SiteState.set_running)),
+        rx.table.cell(render_crawl_button(site, SitesState.set_running)),
     )
 
 

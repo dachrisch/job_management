@@ -8,14 +8,14 @@ from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 from twisted.internet.pollreactor import install
 
-from .backend.data import SiteState, JobsState
+from .backend.data import SitesState, JobState, JobsState
 from .components.stats_cards import stats_cards_group
 from .views import job_site
 from .views.navbar import navbar
 from .views.sites_table import main_table
 
 
-@rx.page(route="/", title="Job Management App")
+@rx.page(route="/", title="Job Management App", on_load=[JobsState.load_jobs])
 def index() -> rx.Component:
     return rx.vstack(
         navbar(),
@@ -30,7 +30,7 @@ def index() -> rx.Component:
     )
 
 
-@rx.page(route="/jobs", title="Job Site", on_load=[SiteState.update_current_site, JobsState.load_jobs])
+@rx.page(route="/jobs", title="Job Site", on_load=[SitesState.update_current_site, JobState.load_jobs])
 def jobs() -> rx.Component:
     return rx.vstack(
         navbar(True),

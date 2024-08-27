@@ -1,11 +1,11 @@
 import reflex as rx
 from reflex.components.radix.themes.base import LiteralAccentColor
 
-from job_management.backend.data import SiteState, JobsState
+from job_management.backend.data import SitesState, JobState
 
 
 def header():
-    return card('building', 'green', SiteState.current_site.title, SiteState.current_site.url)
+    return card('building', 'green', SitesState.current_site.title, SitesState.current_site.url)
 
 
 def card(icon: str, icon_color: LiteralAccentColor, title: str, link: str):
@@ -55,7 +55,7 @@ def card(icon: str, icon_color: LiteralAccentColor, title: str, link: str):
 
 def cards():
     return rx.grid(
-        rx.foreach(JobsState.jobs, lambda j: card('briefcase', 'yellow', j.title, j.url)),
+        rx.foreach(JobState.jobs, lambda j: card('briefcase', 'yellow', j.title, j.url)),
         gap="1rem",
         grid_template_columns=[
             "1fr",

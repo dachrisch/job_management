@@ -4,7 +4,7 @@ from reflex.components.radix.themes.base import (
 )
 from reflex.constants.colors import ColorType
 
-from ..backend.data import SiteState
+from ..backend.data import SitesState, JobState, JobsState
 
 
 def _arrow_badge(arrow_icon: str, percentage_change: float, arrow_color: ColorType):
@@ -93,9 +93,16 @@ def stats_cards_group() -> rx.Component:
     return rx.flex(
         stats_card(
             'Total Websites',
-            SiteState.num_sites,
-            SiteState.num_sites_yesterday,
-            "users",
+            SitesState.num_sites,
+            SitesState.num_sites_yesterday,
+            "building",
+            "blue",
+        ),
+        stats_card(
+            'Total Jobs',
+            JobsState.num_jobs,
+            JobsState.num_jobs_yesterday,
+            "briefcase",
             "blue",
         ),
         spacing="5",

@@ -6,6 +6,7 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+from scrapy.settings.default_settings import LOG_FORMAT
 
 BOT_NAME = "job_offer_spider"
 
@@ -104,7 +105,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'default': {
-            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            'format': LOG_FORMAT,
         },
     },
     'handlers': {

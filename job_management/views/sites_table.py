@@ -1,6 +1,6 @@
 import reflex as rx
 
-from ..backend.crawl import SitesCrawlerState, JobsCrawlerButton
+from ..backend.crawl import SitesCrawlerState
 from ..backend.data import SiteState
 from ..backend.entity import JobSite
 

@@ -50,9 +50,15 @@ def main_table():
             ),
             rx.spacer(),
             rx.hstack(
+                rx.cond(
+                    SitesState.sort_reverse,
+                    rx.icon("arrow-up-z-a", size=28, stroke_width=1.5, cursor="pointer", on_click=SitesState.toggle_sort),
+                    rx.icon("arrow-down-a-z", size=28, stroke_width=1.5, cursor="pointer", on_click=SitesState.toggle_sort),
+                ),
                 rx.select(
                     map(lambda f:f.capitalize(), JobSite.get_fields()),
                     placeholder=f"Sort By: {list(JobSite.get_fields())[0].capitalize()}",
+                    on_change=SitesState.set_sort_value
                 )
             ),
             spacing="3",

@@ -15,22 +15,38 @@ class SitesState(rx.State):
     num_sites_yesterday: int = 0
     current_site: JobSite = JobSite()
 
-    sites: list[JobSite] = []
+    _sites: list[JobSite] = []
+    sort_value: str = 'title'
+    sort_reverse: bool = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.db = JobOfferDb()
 
     def load_sites(self):
-        self.sites = list(map(self.load_job_site, self.db.sites.all()))
-        self.num_sites = len(self.sites)
+        self._sites = list(map(self.load_job_site, self.db.sites.all()))
+        self.num_sites = len(self._sites)
         self.num_sites_yesterday = len(
-            [site for site in self.sites if site.added.date() < (datetime.now().date() - timedelta(days=1))])
+            [site for site in self._sites if site.added.date() < (datetime.now().date() - timedelta(days=1))])
+
+    @rx.var(cache=True)
+    def sites(self) -> list[JobSite]:
+        sites = self._sites
+        if self.sort_value:
+            sites = sorted(
+                self._sites,
+                key=lambda s: getattr(s, self.sort_value.lower()),
+                reverse=self.sort_reverse
+            )
+        return sites
+
+    def toggle_sort(self):
+        self.sort_reverse = not self.sort_reverse
 
     @rx.background
     async def start_crawl(self, site_dict: dict[str, Any]):
         site: JobSite | None = None
-        for s in self.sites:
+        for s in self._sites:
             if s.url == site_dict['url']:
                 site = s
                 break
@@ -57,13 +73,14 @@ class SitesState(rx.State):
     def update_current_site(self):
         site_url = self.router.page.params.get('site', None)
         if site_url:
-            site = next(filter(lambda s: s.url == site_url, self.sites))
+            site = next(filter(lambda s: s.url == site_url, self._sites))
             self.current_site = site
 
     def load_job_site(self, s: TargetWebsiteDto):
         site_dict = s.to_dict()
         site_dict['num_jobs'] = self.db.jobs.count({'site_url': {'$eq': s.url}})
         return JobSite(**site_dict)
+
 
 class JobsState(rx.State):
     num_jobs: int = 0

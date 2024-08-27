@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Any
 
 import reflex as rx
@@ -11,6 +12,7 @@ from job_offer_spider.spider.findjobs import JobFromUrlSpider
 
 class SiteState(rx.State):
     num_sites: int = 0
+    num_sites_yesterday: int = 0
     current_site: JobSite = JobSite()
 
     sites: list[JobSite] = []
@@ -23,6 +25,8 @@ class SiteState(rx.State):
         self.sites = list(map(self.load_job_site, self.db.sites.all()))
         # noinspection PyTypeChecker
         self.num_sites = len(self.sites)
+        self.num_sites_yesterday = len(
+            [site for site in self.sites if site.added.date() < (datetime.now().date() - timedelta(days=1))])
 
     @rx.background
     async def start_crawl(self, site_dict: dict[str, Any]):

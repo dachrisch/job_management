@@ -2,11 +2,12 @@ import reflex as rx
 from reflex.components.radix.themes.base import (
     LiteralAccentColor,
 )
+from reflex.constants.colors import ColorType
 
 from ..backend.data import SiteState
 
 
-def _arrow_badge(arrow_icon: str, percentage_change: float, arrow_color: str):
+def _arrow_badge(arrow_icon: str, percentage_change: float, arrow_color: ColorType):
     return rx.badge(
         rx.icon(
             tag=arrow_icon,
@@ -28,11 +29,11 @@ def stats_card(
     stat_name: str,
     value: int,
     prev_value: int,
-    percentage_change: float,
     icon: str,
     icon_color: LiteralAccentColor,
     extra_char: str = "",
 ) -> rx.Component:
+    percentage_change: float= ((value - prev_value) / prev_value) * 100
     return rx.card(
         rx.hstack(
             rx.vstack(
@@ -93,8 +94,7 @@ def stats_cards_group() -> rx.Component:
         stats_card(
             'Total Websites',
             SiteState.num_sites,
-            SiteState.num_sites,
-            0,
+            SiteState.num_sites_yesterday,
             "users",
             "blue",
         ),

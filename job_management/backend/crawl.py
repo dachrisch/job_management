@@ -40,7 +40,7 @@ class SitesCrawlerState(rx.State):
         async with self:
             self.running = True
         crawler = CrochetCrawlerRunner(EuStartupsSpider)
-        stats = crawler.crawl().wait(timeout=60)
+        stats = crawler.crawl().wait(timeout=600)
         async with self:
             self.running = False
             print(f'Stats: {stats}')

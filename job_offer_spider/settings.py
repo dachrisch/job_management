@@ -6,7 +6,7 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-from scrapy.settings.default_settings import LOG_FORMAT
+from scrapy.settings.default_settings import LOG_FORMAT, LOG_DATEFORMAT
 
 BOT_NAME = "job_offer_spider"
 
@@ -106,6 +106,7 @@ LOGGING = {
     'formatters': {
         'default': {
             'format': LOG_FORMAT,
+            'datefmt': LOG_DATEFORMAT
         },
     },
     'handlers': {

@@ -1,8 +1,11 @@
+import logging
+import logging.config
 import sys
-from threading import Thread
 
 import crochet
 import reflex as rx
+from scrapy.utils.log import configure_logging
+from scrapy.utils.project import get_project_settings
 from twisted.internet.pollreactor import install
 
 from .backend.backend import SiteState, JobsState
@@ -53,6 +56,7 @@ app = rx.App(
 )
 
 if "twisted.internet.reactor" not in sys.modules:
+    configure_logging(get_project_settings(), install_root_handler=False)
+    logging.config.dictConfig(get_project_settings()['LOGGING'])
     install()
     crochet.setup()
-

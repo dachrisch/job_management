@@ -99,3 +99,37 @@ FEED_EXPORT_ENCODING = "utf-8"
 # logging to file
 LOG_FILE='scrapy.log'
 LOG_FORMATTER='job_offer_spider.logformat.NoBodyLogFormatter'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+            'formatter': 'default',
+            'stream': 'ext://sys.stdout',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'level': 'DEBUG',
+            'formatter': 'default',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        '': {  # root logger
+            'level': 'DEBUG',
+            'handlers': ['console', 'file'],
+        },
+        'watchfiles': {  # specific logger for watchfiles
+            'level': 'WARNING',
+            'handlers': ['console'],  # No file handler, only console
+            'propagate': False,
+        },
+    },
+}

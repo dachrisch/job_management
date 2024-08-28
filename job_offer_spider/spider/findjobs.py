@@ -97,7 +97,7 @@ class JobsFromUrlSpider(JobsFromUrlListSpider):
 
         for site in self.db.sites.filter({'url': {'$eq': site_url}}):
             site.last_scanned = datetime.now()
-            self.db.sites.update(site)
+            self.db.sites.update_item(site)
 
 
 class JobsFromDbSpider(JobsFromUrlListSpider):
@@ -122,4 +122,4 @@ class JobsFromDbSpider(JobsFromUrlListSpider):
     def inform_site_scanned(self, site_url):
         for site in self.db.sites.filter({'url': {'$eq': site_url}}):
             site.last_scanned = datetime.now()
-            self.db.sites.update(site)
+            self.db.sites.update_item(site)

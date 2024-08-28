@@ -113,9 +113,7 @@ class SitesState(rx.State):
             return rx.toast.error(f'Crawling failed: {stats}')
 
     def load_job_site(self, s: TargetWebsiteDto):
-        site_dict = s.to_dict()
-        site_dict['num_jobs'] = len([job for job in self._jobs if job.site_url == s.url])
-        return JobSite(**site_dict)
+        return JobSite(**(s.to_dict()))
 
     @rx.var(cache=True)
     def total_pages(self) -> int:

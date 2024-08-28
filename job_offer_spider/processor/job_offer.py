@@ -15,7 +15,7 @@ class StoreJobOfferPipeline(ChainablePipeline[JobOfferSpiderItem]):
         self.db = JobOfferDb()
         self.log = logging.getLogger(__name__)
 
-    def process_item(self, item: JobOfferSpiderItem, spider) ->Item:
+    def process_item(self, item: JobOfferSpiderItem, spider) -> Item:
         dto = JobOfferDto.from_dict(item)
         if self.db.jobs.contains(dto):
             self.log.debug(f'Site already collected: {dto}')
@@ -23,4 +23,5 @@ class StoreJobOfferPipeline(ChainablePipeline[JobOfferSpiderItem]):
             self.db.jobs.add(dto)
             job_dto = JobOfferBodyDto.from_dict(item)
             self.db.jobs_body.add(job_dto)
+            self.db.sites.update_one({'url': {'$eq': dto.site_url}}, {'$inc': {'num_jobs': 1}})
         return item

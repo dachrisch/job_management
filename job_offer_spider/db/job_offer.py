@@ -1,5 +1,4 @@
 import logging
-from threading import Lock
 from typing import Type, Iterable, Union, Any, Dict
 
 from dataclasses_json import DataClassJsonMixin
@@ -11,7 +10,6 @@ from job_offer_spider.item.db.target_website import TargetWebsiteDto
 
 
 class CollectionHandler[T]:
-    _mutex = Lock()
 
     def __init__(self, collection: MontyCollection, collection_type: Union[Type[T], DataClassJsonMixin]):
         self.collection_type = collection_type
@@ -19,13 +17,11 @@ class CollectionHandler[T]:
         self.log = logging.getLogger(__name__)
 
     def add(self, item: DataClassJsonMixin):
-        with self._mutex:
-            self.log.info(f'storing: {item}')
-            self.collection.insert_one(item.to_dict(encode_json=True))
+        self.log.info(f'storing: {item}')
+        self.collection.insert_one(item.to_dict(encode_json=True))
 
     def contains(self, item: HasUrl) -> bool:
-        with self._mutex:
-            return self.collection.count_documents({'url': item.url})
+        return self.collection.count_documents({'url': item.url})
 
     def all(self, skip: int = None, limit: int = None, sort_key: str = '',
             direction: ASCENDING | DESCENDING = ASCENDING) -> Iterable[T]:
@@ -33,29 +29,29 @@ class CollectionHandler[T]:
 
     def filter(self, condition: Dict[str, Any], skip: int = None, limit: int = None, sort_key: str = '',
                direction: ASCENDING | DESCENDING = ASCENDING) -> Iterable[T]:
-        with self._mutex:
-            find = self.collection.find(condition)
-            if skip:
-                find.skip(skip)
-            if limit:
-                find.limit(limit)
-            if sort_key or direction:
-                find.sort(sort_key, direction=direction)
-            return map(lambda c: self.collection_type.from_dict(c), find)
+        find = self.collection.find(condition)
+        if skip:
+            find.skip(skip)
+        if limit:
+            find.limit(limit)
+        if sort_key or direction:
+            find.sort(sort_key, direction=direction)
+        return map(lambda c: self.collection_type.from_dict(c), find)
 
     @property
     def size(self) -> int:
         return self.count({'url': {'$exists': True}})
 
     def count(self, condition: Dict[str, Any]):
-        with self._mutex:
-            return self.collection.count_documents(condition)
+        return self.collection.count_documents(condition)
 
-    def update(self, item: Union[HasId, DataClassJsonMixin]):
-        with self._mutex:
-            return self.collection.update_one({'_id': {'$eq': item.id}},
-                                              {'$set': {k: v for k, v in item.to_dict(encode_json=True).items() if
-                                                        k != '_id'}})
+    def update_one(self, condition: Dict[str, Any], update: Dict[str, Any]):
+        return self.collection.update_one(condition, update)
+
+    def update_item(self, item: Union[HasId, DataClassJsonMixin]):
+        return self.update_one({'_id': {'$eq': item.id}},
+                               {'$set': {k: v for k, v in item.to_dict(encode_json=True).items() if
+                                         k != '_id'}})
 
     def delete(self, item: Union[HasId, T]):
         return self.collection.delete_one({'_id': {'$eq': item.id}})

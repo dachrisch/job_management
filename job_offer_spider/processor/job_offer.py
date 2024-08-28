@@ -1,5 +1,7 @@
 import logging
 
+from scrapy import Item
+
 from job_offer_spider.db.job_offer import JobOfferDb
 from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto
 from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
@@ -13,7 +15,7 @@ class StoreJobOfferPipeline(ChainablePipeline[JobOfferSpiderItem]):
         self.db = JobOfferDb()
         self.log = logging.getLogger(__name__)
 
-    def process_item(self, item: JobOfferSpiderItem, spider):
+    def process_item(self, item: JobOfferSpiderItem, spider) ->Item:
         dto = JobOfferDto.from_dict(item)
         if self.db.jobs.contains(dto):
             self.log.debug(f'Site already collected: {dto}')

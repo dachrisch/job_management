@@ -3,7 +3,7 @@ from threading import Lock
 from typing import Type, Iterable, Union, Any, Dict
 
 from dataclasses_json import DataClassJsonMixin
-from montydb import MontyClient, MontyCollection, set_storage
+from montydb import MontyClient, MontyCollection, set_storage, DESCENDING, ASCENDING
 
 from job_offer_spider.item.db import HasUrl, HasId
 from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto
@@ -27,12 +27,21 @@ class CollectionHandler[T]:
         with self._mutex:
             return self.collection.count_documents({'url': item.url})
 
-    def all(self) -> Iterable[T]:
-        return self.filter({'url': {'$exists': True}})
+    def all(self, skip: int = None, limit: int = None, sort_key: str = '',
+            direction: ASCENDING | DESCENDING = ASCENDING) -> Iterable[T]:
+        return self.filter({'url': {'$exists': True}}, skip, limit, sort_key, direction)
 
-    def filter(self, condition: Dict[str, Any]) -> Iterable[T]:
+    def filter(self, condition: Dict[str, Any], skip: int = None, limit: int = None, sort_key: str = '',
+               direction: ASCENDING | DESCENDING = ASCENDING) -> Iterable[T]:
         with self._mutex:
-            return map(lambda c: self.collection_type.from_dict(c), self.collection.find(condition))
+            find = self.collection.find(condition)
+            if skip:
+                find.skip(skip)
+            if limit:
+                find.limit(limit)
+            if sort_key or direction:
+                find.sort(sort_key, direction=direction)
+            return map(lambda c: self.collection_type.from_dict(c), find)
 
     @property
     def size(self) -> int:

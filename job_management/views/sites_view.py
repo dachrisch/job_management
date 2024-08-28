@@ -1,19 +1,11 @@
 import reflex as rx
 
-from ..backend.crawl import SitesCrawlerState, JobsCrawlerState
+from ..backend.crawl import JobsCrawlerState
 from ..backend.data import SitesState
 from ..backend.entity import JobSite
-
-
-def _header_cell(text: str, icon: str):
-    return rx.table.column_header_cell(
-        rx.hstack(
-            rx.icon(icon, size=18),
-            rx.text(text),
-            align="center",
-            spacing="2",
-        ),
-    )
+from ..components.crawl_button import crawl_eu_sites_button
+from ..components.form import form_field
+from ..components.table import header_cell
 
 
 def show_site(site: JobSite):
@@ -41,31 +33,6 @@ def show_site(site: JobSite):
             )),
         style={"_hover": {"bg": rx.color("gray", 3)}},
         align="center",
-    )
-
-
-def form_field(
-        label: str, placeholder: str, type: str, name: str, icon: str, default_value: str = ""
-) -> rx.Component:
-    return rx.form.field(
-        rx.flex(
-            rx.hstack(
-                rx.icon(icon, size=16, stroke_width=1.5),
-                rx.form.label(label),
-                align="center",
-                spacing="2",
-            ),
-            rx.form.control(
-                rx.input(
-                    placeholder=placeholder, type=type, default_value=default_value
-                ),
-                as_child=True,
-            ),
-            direction="column",
-            spacing="1",
-        ),
-        name=name,
-        width="100%",
     )
 
 
@@ -178,55 +145,52 @@ def add_site_button() -> rx.Component:
 def main_table():
     return rx.fragment(
         rx.flex(
-            rx.button(
-                rx.cond(SitesCrawlerState.running,
-                        rx.spinner(loading=True),
-                        rx.icon("building", size=26), ),
-                rx.text("Crawl EU-Startup Websites", size="4", display=[
-                    "none", "none", "block"]),
-                size="3",
-                on_click=SitesCrawlerState.start_crawling,
-                disabled=SitesCrawlerState.running
-            ),
-            add_site_button(),
-            rx.spacer(),
-            rx.button(
-                rx.cond(JobsCrawlerState.running,
-                        rx.spinner(loading=True),
-                        rx.icon("briefcase", size=26), ),
-                rx.text("Scan Jobs", size="4", display=[
-                    "none", "none", "block"]),
-                size="3",
-                on_click=JobsCrawlerState.start_crawling,
-                disabled=JobsCrawlerState.running
-            ),
             rx.hstack(
-                rx.cond(
-                    SitesState.sort_reverse,
-                    rx.icon("arrow-up-z-a", size=28, stroke_width=1.5, cursor="pointer",
-                            on_click=SitesState.toggle_sort),
-                    rx.icon("arrow-down-a-z", size=28, stroke_width=1.5, cursor="pointer",
-                            on_click=SitesState.toggle_sort),
+                add_site_button(),
+                crawl_eu_sites_button(),
+                rx.spacer(),
+                pagination(),
+                rx.spacer(),
+                rx.button(
+                    rx.cond(JobsCrawlerState.running,
+                            rx.spinner(loading=True),
+                            rx.icon("briefcase", size=26), ),
+                    rx.text("Scan Jobs", size="4", display=[
+                        "none", "none", "block"]),
+                    size="3",
+                    on_click=JobsCrawlerState.start_crawling,
+                    disabled=JobsCrawlerState.running
                 ),
-                rx.select(
-                    map(lambda f: f.capitalize(), JobSite.get_fields()),
-                    placeholder=f"Sort By: {list(JobSite.get_fields())[0].capitalize()}",
-                    on_change=SitesState.set_sort_value
-                )
-            ),
-            spacing="3",
-            wrap="wrap",
-            width="100%",
-            padding_bottom="1em",
+                rx.hstack(
+                    rx.cond(
+                        SitesState.sort_reverse,
+                        rx.icon("arrow-up-z-a", size=28, stroke_width=1.5, cursor="pointer",
+                                on_click=SitesState.toggle_sort),
+                        rx.icon("arrow-down-a-z", size=28, stroke_width=1.5, cursor="pointer",
+                                on_click=SitesState.toggle_sort),
+                    ),
+                    rx.select(
+                        map(lambda f: f.capitalize(), JobSite.get_fields()),
+                        placeholder=f"Sort By: {list(JobSite.get_fields())[0].capitalize()}",
+                        on_change=SitesState.change_sort_value
+                    ),
+                    justify='center'
+                ),
+                spacing="3",
+                wrap="wrap",
+                width="100%",
+                padding="1em",
+                align="center"
+            )
         ),
         rx.table.root(
             rx.table.header(
                 rx.table.row(
-                    _header_cell("Site", "building"),
-                    _header_cell("Website", "link"),
-                    _header_cell("Last Scanned", "refresh-cw"),
-                    _header_cell("Jobs", "briefcase"),
-                    _header_cell("Actions", "cog"),
+                    header_cell("Site", "building"),
+                    header_cell("Website", "link"),
+                    header_cell("Last Scanned", "refresh-cw"),
+                    header_cell("Jobs", "briefcase"),
+                    header_cell("Actions", "cog"),
                 ),
             ),
             rx.table.body(rx.foreach(
@@ -237,6 +201,34 @@ def main_table():
             size="3",
             width="100%",
             on_mount=SitesState.load_sites,
+        ),
+    )
+
+
+def pagination():
+    return rx.hstack(
+        rx.button(
+            rx.icon('arrow-left-from-line'),
+            disabled=SitesState.at_beginning,
+            on_click=SitesState.first_page
+        ),
+        rx.button(
+            rx.icon('arrow-left'),
+            disabled=SitesState.at_beginning,
+            on_click=SitesState.prev_page
+        ),
+        rx.text(
+            f'Page {SitesState.page + 1} / {SitesState.total_pages}'
+        ),
+        rx.button(
+            rx.icon('arrow-right'),
+            disabled=SitesState.at_end,
+            on_click=SitesState.next_page
+        ),
+        rx.button(
+            rx.icon('arrow-right-from-line'),
+            disabled=SitesState.at_end,
+            on_click=SitesState.last_page
         ),
     )
 

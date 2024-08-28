@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import reflex as rx
+from montydb import ASCENDING
+from pymongo import DESCENDING
 
 from job_management.backend.crawl import CrochetCrawlerRunner
 from job_management.backend.entity import JobSite, JobOffer
@@ -20,6 +22,9 @@ class SitesState(rx.State):
     sort_value: str = 'title'
     sort_reverse: bool = False
 
+    page: int = 0
+    page_size: int = 50
+
     deleting: bool = False
 
     def __init__(self, *args, **kwargs):
@@ -30,26 +35,27 @@ class SitesState(rx.State):
 
     def load_sites(self):
         self.info('Loading sites...')
-        self._sites = list(map(self.load_job_site, self.db.sites.all()))
+        self._sites = list(
+            map(self.load_job_site, self.db.sites.all(skip=self.page * self.page_size, limit=self.page_size,
+                                                      sort_key=self.sort_value.lower(),
+                                                      direction=DESCENDING if self.sort_reverse else ASCENDING)))
         self._jobs = list(map(lambda j: JobOffer(**j.to_dict()), self.db.jobs.all()))
-        self.num_sites = len(self._sites)
-        self.info(f'Loaded [{self.num_sites}] sites...')
+        self.num_sites = self.db.sites.count({})
+        self.info(f'Loaded [{len(self._sites)}] sites for page [{self.page + 1} of {self.total_pages}]...')
         self.num_sites_yesterday = len(
             [site for site in self._sites if site.added.date() < (datetime.now().date() - timedelta(days=1))])
 
     @rx.var(cache=True)
     def sites(self) -> list[JobSite]:
-        sites = self._sites
-        if self.sort_value:
-            sites = sorted(
-                self._sites,
-                key=lambda s: getattr(s, self.sort_value.lower()),
-                reverse=self.sort_reverse
-            )
-        return sites
+        return self._sites
 
     def toggle_sort(self):
         self.sort_reverse = not self.sort_reverse
+        self.load_sites()
+
+    def change_sort_value(self, new_value:str):
+        self.sort_value = new_value
+        self.load_sites()
 
     def add_site_to_db(self, form_data: dict):
         site = TargetWebsiteDto.from_dict(form_data)
@@ -111,6 +117,38 @@ class SitesState(rx.State):
         site_dict['num_jobs'] = len([job for job in self._jobs if job.site_url == s.url])
         return JobSite(**site_dict)
 
+    @rx.var(cache=True)
+    def total_pages(self) -> int:
+        return self.num_sites // self.page_size + (
+            1 if self.num_sites % self.page_size else 0
+        )
+
+    @rx.var(cache=True)
+    def at_beginning(self) -> bool:
+        return self.page * self.page_size - self.page_size < 0
+
+    @rx.var(cache=True)
+    def at_end(self) -> bool:
+        return self.page * self.page_size + self.page_size > self.num_sites
+
+    def first_page(self):
+        self.page = 0
+        self.load_sites()
+
+    def prev_page(self):
+        if not self.at_beginning:
+            self.page -= 1
+        self.load_sites()
+
+    def last_page(self):
+        self.page = self.num_sites // self.page_size
+        self.load_sites()
+
+    def next_page(self):
+        if not self.at_end:
+            self.page += 1
+        self.load_sites()
+
 
 class JobsState(rx.State):
     num_jobs: int = 0
@@ -149,4 +187,3 @@ class JobState(rx.State):
         if site_url:
             sites = map(lambda s: JobSite(**s.to_dict()), self.db.sites.filter({'url': {'$eq': site_url}}))
             self.current_site = next(sites)
-

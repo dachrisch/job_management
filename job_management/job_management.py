@@ -9,9 +9,9 @@ from twisted.internet.pollreactor import install
 
 from .backend.data import SitesState, JobState, JobsState
 from .components.stats_cards import stats_cards_group
-from .views import job_site
-from .views.navbar import navbar
-from .views.sites_table import main_table
+from .views import jobs_view
+from .components.navbar import navbar
+from .views import sites_view
 
 
 @rx.page(route="/", title="Job Management App", on_load=[JobsState.load_jobs])
@@ -20,7 +20,7 @@ def index() -> rx.Component:
         navbar(),
         stats_cards_group(),
         rx.box(
-            main_table(),
+            sites_view.main_table(),
             width="100%",
         ),
         width="100%",
@@ -34,8 +34,8 @@ def jobs() -> rx.Component:
     return rx.vstack(
         navbar(True),
         rx.flex(
-            job_site.header(),
-            job_site.cards(),
+            jobs_view.header(),
+            jobs_view.cards(),
             spacing="5",
             width="100%",
             wrap="wrap",

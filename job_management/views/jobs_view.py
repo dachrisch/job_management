@@ -2,6 +2,7 @@ import reflex as rx
 from reflex.components.radix.themes.base import LiteralAccentColor
 
 from job_management.backend.data import SitesState, JobState
+from job_management.components.navbar import navbar
 
 
 def header():
@@ -65,3 +66,4 @@ def cards():
             "repeat(3, 1fr)",
         ],
         width="100%", )
+

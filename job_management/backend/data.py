@@ -50,6 +50,14 @@ class SitesState(rx.State):
     def toggle_sort(self):
         self.sort_reverse = not self.sort_reverse
 
+    def add_site_to_db(self, form_data: dict):
+        site = TargetWebsiteDto.from_dict(form_data)
+        self.db.sites.add(site)
+        self.load_sites()
+        if form_data['crawling']:
+            print('run')
+            return SitesState.start_crawl(site.to_dict())
+
     @rx.background
     async def start_crawl(self, site_dict: dict[str, Any]):
         site: JobSite | None = None
@@ -86,7 +94,6 @@ class SitesState(rx.State):
             self.current_site = site
 
     def load_job_site(self, s: TargetWebsiteDto):
-        self.debug(f'Loading Job Site [{s}]')
         site_dict = s.to_dict()
         site_dict['num_jobs'] = len([job for job in self._jobs if job.site_url == s.url])
         return JobSite(**site_dict)

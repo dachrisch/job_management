@@ -75,7 +75,10 @@ class JobsFromUrlListSpider(SitemapSpider):
         item_loader.add_value('site_url', kwargs.get('site_url', None))
         if not item_loader.get_output_value('title'):
             item_loader.replace_xpath('title', '//meta[@property="og:title"]/@content')
-        yield item_loader.load_item()
+        if not item_loader.get_output_value('title'):
+            item_loader.add_css('title', 'h1::text')
+        if item_loader.get_output_value('title'):
+            yield item_loader.load_item()
 
     def inform_site_scanned(self, site_url: str):
         pass

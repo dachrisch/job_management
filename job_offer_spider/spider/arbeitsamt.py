@@ -14,6 +14,9 @@ def jobsuche_url(query, page: int = 1, size: int = 2):
 
 
 class ArbeitsamtSpider(Spider):
+    """
+    https://jobsuche.api.bund.dev/
+    """
     name = 'arbeitsamt'
     start_urls = [
         jobsuche_url('coach', 1, 50)]
@@ -52,5 +55,6 @@ class ArbeitsamtSpider(Spider):
         company_name = response_json.get('firma')
         if 'links' in response_json:
             for link in response_json.get('links'):
+                parsed_url = parse_url(link['url'])
                 if company_name and link:
-                    yield TargetWebsiteSpiderItem(title=company_name, url=link['url'])
+                    yield TargetWebsiteSpiderItem(title=company_name, url=f'{parsed_url.scheme}://{parsed_url.netloc}')

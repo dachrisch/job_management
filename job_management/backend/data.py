@@ -25,8 +25,6 @@ class SitesState(rx.State):
     page: int = 0
     page_size: int = 50
 
-    deleting: bool = False
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.db = JobOfferDb()
@@ -67,8 +65,9 @@ class SitesState(rx.State):
 
     @rx.background
     async def delete_site(self, site_dict: dict):
+        site = self._find_site(site_dict)
         async with self:
-            self.deleting = True
+            site.deleting = True
         for site in self.db.sites.filter({'url': {'$eq': site_dict['url']}}):
             self.info(f'Deleting {site}')
             self.db.sites.delete(site)
@@ -76,7 +75,7 @@ class SitesState(rx.State):
         async with self:
             self.load_sites()
         async with self:
-            self.deleting = False
+            site.deleting = False
         return rx.toast.success(f'Deleted [{site_dict["title"]}] and [{delete_many_result.deleted_count}] jobs')
 
     @rx.background
@@ -86,13 +85,15 @@ class SitesState(rx.State):
         self.info(f'Starting crawler for [{site}]')
 
         async with self:
-            site.crawling = True
+            if site:
+                site.crawling = True
 
         crawler = CrochetCrawlerRunner(JobsFromUrlSpider, site.url)
         stats = crawler.crawl().wait(timeout=60)
 
         async with self:
-            site.crawling = False
+            if site:
+                site.crawling = False
             self.load_sites()
         return self.fire_stats_toast(site.url, stats)
 

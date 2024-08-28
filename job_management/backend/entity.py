@@ -10,6 +10,7 @@ class JobSite(rx.Base):
     added: datetime = None
     last_scanned: datetime = None
     crawling: bool = False
+    deleting:bool = False
 
 
 class JobOffer(rx.Base):

@@ -26,7 +26,7 @@ def show_site(site: JobSite):
                 ),
                 rx.button(
                     rx.icon('trash-2'),
-                    loading=SitesState.deleting,
+                    loading=site.deleting,
                     on_click=lambda: SitesState.delete_site(site),
                     color_scheme='red'
                 )

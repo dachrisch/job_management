@@ -29,7 +29,7 @@ def index() -> rx.Component:
     )
 
 
-@rx.page(route="/jobs", title="Job Site", on_load=[SitesState.update_current_site, JobState.load_jobs])
+@rx.page(route="/jobs", title="Job Site", on_load=[JobState.update_current_site, JobState.load_jobs])
 def jobs() -> rx.Component:
     return rx.vstack(
         navbar(True),

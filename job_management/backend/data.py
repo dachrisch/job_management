@@ -14,7 +14,6 @@ from job_offer_spider.spider.findjobs import JobsFromUrlSpider
 class SitesState(rx.State):
     num_sites: int = 0
     num_sites_yesterday: int = 0
-    current_site: JobSite = JobSite()
 
     _sites: list[JobSite] = []
     _jobs: list[JobOffer] = []
@@ -107,12 +106,6 @@ class SitesState(rx.State):
         else:
             return rx.toast.error(f'Crawling failed: {stats}')
 
-    def update_current_site(self):
-        site_url = self.router.page.params.get('site', None)
-        if site_url:
-            site = next(filter(lambda s: s.url == site_url, self._sites))
-            self.current_site = site
-
     def load_job_site(self, s: TargetWebsiteDto):
         site_dict = s.to_dict()
         site_dict['num_jobs'] = len([job for job in self._jobs if job.site_url == s.url])
@@ -140,6 +133,7 @@ class JobsState(rx.State):
 class JobState(rx.State):
     num_jobs: int = 0
     jobs: list[JobOffer] = []
+    current_site: JobSite = JobSite()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -149,3 +143,10 @@ class JobState(rx.State):
         site_url = self.router.page.params.get('site')
         self.jobs = list(map(lambda s: JobOffer(**s.to_dict()), self.db.jobs.filter({'site_url': {'$eq': site_url}})))
         self.num_jobs = len(self.jobs)
+
+    def update_current_site(self):
+        site_url = self.router.page.params.get('site', None)
+        if site_url:
+            sites = map(lambda s: JobSite(**s.to_dict()), self.db.sites.filter({'url': {'$eq': site_url}}))
+            self.current_site = next(sites)
+

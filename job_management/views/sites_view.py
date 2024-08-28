@@ -1,10 +1,8 @@
 import reflex as rx
 
 from ..backend.crawl import SitesCrawlerState, JobsCrawlerState
-from ..backend.data import SitesState, JobsState
+from ..backend.data import SitesState
 from ..backend.entity import JobSite
-from ..components.navbar import navbar
-from ..components.stats_cards import stats_cards_group
 
 
 def _header_cell(text: str, icon: str):

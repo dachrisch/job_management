@@ -1,12 +1,11 @@
 import reflex as rx
 from reflex.components.radix.themes.base import LiteralAccentColor
 
-from job_management.backend.data import SitesState, JobState
-from job_management.components.navbar import navbar
+from job_management.backend.data import JobState
 
 
 def header():
-    return card('building', 'green', SitesState.current_site.title, SitesState.current_site.url)
+    return card('building', 'green', JobState.current_site.title, JobState.current_site.url)
 
 
 def card(icon: str, icon_color: LiteralAccentColor, title: str, link: str):

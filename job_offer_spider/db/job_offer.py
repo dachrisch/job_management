@@ -48,6 +48,9 @@ class CollectionHandler[T]:
                                               {'$set': {k: v for k, v in item.to_dict(encode_json=True).items() if
                                                         k != '_id'}})
 
+    def delete(self, item: Union[HasId, T]):
+        return self.collection.delete_one({'_id': {'$eq': item.id}})
+
 
 class JobOfferDb:
     def __init__(self):

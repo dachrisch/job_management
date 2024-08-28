@@ -21,6 +21,8 @@ class SitesState(rx.State):
     sort_value: str = 'title'
     sort_reverse: bool = False
 
+    deleting: bool = False
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.db = JobOfferDb()
@@ -59,12 +61,22 @@ class SitesState(rx.State):
             return SitesState.start_crawl(site.to_dict())
 
     @rx.background
+    async def delete_site(self, site_dict: dict):
+        async with self:
+            self.deleting = True
+        for site in self.db.sites.filter({'url': {'$eq': site_dict['url']}}):
+            self.info(f'Deleting {site}')
+            self.db.sites.delete(site)
+        delete_many_result = self.db.jobs.collection.delete_many({'site_url': {'$eq': site_dict['url']}})
+        async with self:
+            self.load_sites()
+        async with self:
+            self.deleting = False
+        return rx.toast.success(f'Deleted [{site_dict["title"]}] and [{delete_many_result.deleted_count}] jobs')
+
+    @rx.background
     async def start_crawl(self, site_dict: dict[str, Any]):
-        site: JobSite | None = None
-        for s in self._sites:
-            if s.url == site_dict['url']:
-                site = s
-                break
+        site = self._find_site(site_dict)
 
         self.info(f'Starting crawler for [{site}]')
 
@@ -78,6 +90,14 @@ class SitesState(rx.State):
             site.crawling = False
             self.load_sites()
         return self.fire_stats_toast(site.url, stats)
+
+    def _find_site(self, site_dict: dict[str, Any]) -> JobSite | None:
+        site: JobSite | None = None
+        for s in self._sites:
+            if s.url == site_dict['url']:
+                site = s
+                break
+        return site
 
     def fire_stats_toast(self, site_url: str, stats: dict[str, Any]):
         if stats['finish_reason'] == 'finished':
@@ -106,12 +126,15 @@ class JobsState(rx.State):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.db = JobOfferDb()
+        self.info = logging.getLogger(self.__class__.__name__).info
 
     def load_jobs(self):
+        self.info('Loading Jobs')
         jobs = list(self.db.jobs.all())
         self.num_jobs = len(jobs)
         self.num_jobs_yesterday = len(
             [job for job in jobs if job.added.date() < (datetime.now().date() - timedelta(days=1))])
+        self.info(f'Loaded [{self.num_jobs}] Jobs')
 
 
 class JobState(rx.State):

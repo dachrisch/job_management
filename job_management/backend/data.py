@@ -89,7 +89,7 @@ class SitesState(rx.State):
                 site.crawling = True
 
         crawler = CrochetCrawlerRunner(JobsFromUrlSpider, site.url)
-        stats = crawler.crawl().wait(timeout=60)
+        stats = crawler.crawl().wait(timeout=600)
 
         async with self:
             if site:

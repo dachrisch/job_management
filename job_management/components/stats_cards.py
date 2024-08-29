@@ -4,7 +4,9 @@ from reflex.components.radix.themes.base import (
 )
 from reflex.constants.colors import ColorType
 
-from ..backend.data import SitesState, JobState, JobsState
+from ..backend.sites import SitesState
+from ..backend.jobs import JobsState
+from ..backend.job import JobState
 
 
 def _arrow_badge(arrow_icon: str, percentage_change: float, arrow_color: ColorType):

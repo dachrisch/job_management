@@ -5,7 +5,7 @@ from dataclasses_json import DataClassJsonMixin
 from montydb import MontyClient, MontyCollection, set_storage, DESCENDING, ASCENDING
 
 from job_offer_spider.item.db import HasUrl, HasId
-from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto
+from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto, JobOfferAnalyzeDto
 from job_offer_spider.item.db.target_website import TargetWebsiteDto
 
 
@@ -75,3 +75,7 @@ class JobOfferDb:
     @property
     def jobs_body(self) -> CollectionHandler[JobOfferBodyDto]:
         return CollectionHandler[JobOfferBodyDto](self.db['job_offers_body'], JobOfferBodyDto)
+
+    @property
+    def jobs_analyze(self):
+        return CollectionHandler[JobOfferBodyDto](self.db['job_offers_analyze'], JobOfferAnalyzeDto)

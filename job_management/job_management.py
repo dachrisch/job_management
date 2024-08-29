@@ -7,11 +7,13 @@ from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 from twisted.internet.pollreactor import install
 
-from .backend.data import SitesState, JobState, JobsState
-from .components.stats_cards import stats_cards_group
-from .views import jobs_view
+from .backend.job import JobState
+from .backend.jobs import JobsState
 from .components.navbar import navbar
+from .components.stats_cards import stats_cards_group
+from .views import jobs_view, application_view
 from .views import sites_view
+from .views.application_view import ApplicationState
 
 
 @rx.page(route="/", title="Job Management App", on_load=[JobsState.load_jobs])
@@ -32,7 +34,7 @@ def index() -> rx.Component:
 @rx.page(route="/jobs", title="Job Site", on_load=[JobState.update_current_site, JobState.load_jobs])
 def jobs() -> rx.Component:
     return rx.vstack(
-        navbar(True),
+        navbar(rx.Var.create('/', _var_is_string=True)),
         rx.flex(
             jobs_view.header(),
             jobs_view.cards(),
@@ -42,6 +44,23 @@ def jobs() -> rx.Component:
             display=["none", "none", "flex"],
         ),
 
+        width="100%",
+        spacing="6",
+        padding_x=["1.5em", "1.5em", "3em"],
+    )
+
+
+@rx.page(route='/application', title='Job Application', on_load=ApplicationState.load_current_job_offer)
+def application() -> rx.Component:
+    return rx.vstack(
+        navbar(f'/jobs/?site={ApplicationState.job_offer.site_url}'),
+        rx.flex(
+            application_view.render(),
+            spacing="5",
+            width="100%",
+            wrap="wrap",
+            display=["none", "none", "flex"],
+        ),
         width="100%",
         spacing="6",
         padding_x=["1.5em", "1.5em", "3em"],

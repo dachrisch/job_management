@@ -20,6 +20,7 @@ class JobOffer(rx.Base):
     site_url:str=''
     added: datetime = None
     is_analyzed: bool = False
+    is_analyzing: bool = False
 
 class JobOfferAnalyze(rx.Base):
     url: str = ''

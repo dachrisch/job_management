@@ -12,7 +12,6 @@ from job_offer_spider.item.db.job_offer import JobOfferAnalyzeDto
 
 class ApplicationState(rx.State):
     job_offer: JobOffer = JobOffer()
-    is_analyzing: bool = False
     analyzed_job_offer: JobOfferAnalyze = JobOfferAnalyze()
 
     def __init__(self, *args, **kwargs):
@@ -31,7 +30,7 @@ class ApplicationState(rx.State):
     @rx.background
     async def analyze_job(self):
         async with self:
-            self.is_analyzing = True
+            self.job_offer.is_analyzing = True
 
         c = Conversation(openai_api_key=os.getenv('OPENAI_API_KEY'))
         system_prompt = ('Analyze the content of this webpage and find the job description. '
@@ -56,10 +55,13 @@ class ApplicationState(rx.State):
             analyze_dto = JobOfferAnalyzeDto(**analyzed_result['job'])
             analyze_dto.url = self.job_offer.url
             self.db.jobs_analyze.add(analyze_dto)
+            self.load_current_job_offer()
             self.job_offer.is_analyzed = True
 
+
         async with self:
-            self.is_analyzing = False
+            self.job_offer.is_analyzing = False
+
 
 
 # Common styles for questions and answers.
@@ -103,7 +105,7 @@ def header():
                 rx.button(
                     rx.icon('search'),
                     on_click=ApplicationState.analyze_job,
-                    loading=ApplicationState.is_analyzing
+                    loading=ApplicationState.job_offer.is_analyzing
                 )
             )
         ),

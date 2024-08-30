@@ -8,6 +8,7 @@ from job_management.components.form import form_field
 class OptionsState(rx.State):
     openai_key: str = os.getenv('OPENAI_API_KEY')
     openai_key_dialog_open: bool = False
+    load_cv_data_open: bool = False
 
     def toggle_openai_key_dialog_open(self):
         self.openai_key_dialog_open = not self.openai_key_dialog_open
@@ -19,6 +20,13 @@ class OptionsState(rx.State):
             self.openai_key = openai_key
         self.toggle_openai_key_dialog_open()
 
+    def toggle_load_cv_data_open(self):
+        self.load_cv_data_open = not self.load_cv_data_open
+
+    def new_cv_data(self, cv_files: list[rx.UploadFile]):
+        print(cv_files)
+        self.toggle_load_cv_data_open()
+
 
 def options_menu():
     return rx.hstack(
@@ -29,7 +37,10 @@ def options_menu():
             rx.menu.content(
                 rx.menu.item("OpenAI API Key", shortcut="Strg E",
                              on_click=OptionsState.toggle_openai_key_dialog_open),
-            )),
+                rx.menu.item("Load CV data", shortcut="Strg C",
+                             on_click=OptionsState.toggle_load_cv_data_open),
+            ),
+        ),
         rx.dialog.root(
             rx.dialog.content(
                 rx.vstack(
@@ -87,7 +98,66 @@ def options_menu():
             ),
             open=OptionsState.openai_key_dialog_open,
 
-        )
+        ),
+        rx.dialog.root(
+            rx.dialog.content(
+                rx.vstack(
+                    rx.dialog.title(
+                        "Load CV data",
+                        weight="bold",
+                        margin="0",
+                    ),
+                    rx.dialog.description(
+                        "Upload your CV data",
+                    ),
+                    spacing="1",
+                    height="100%",
+                    align_items="start",
+                ),
+                rx.flex(
+                    rx.form.root(
+                        rx.flex(
+                            rx.upload(
+                                rx.text("Upload CV data"), rx.icon(tag="upload"),
+                                id="cv_upload",
+                                multiple=False,
+                                accept={
+                                    'text/plain': ['.txt']
+                                }
+                            ),
+                            rx.hstack(rx.foreach(rx.selected_files("cv_upload"), rx.text)),
+                            direction="column",
+                            spacing="3",
+                        ),
+                        rx.flex(
+                            rx.dialog.close(
+                                rx.button(
+                                    "Cancel",
+                                    variant="soft",
+                                    color_scheme="gray",
+                                ),
+                                on_click=OptionsState.toggle_load_cv_data_open
+                            ),
+                            rx.form.submit(
+                                rx.dialog.close(
+                                    rx.button("Submit"),
+                                ),
+                                as_child=True,
+                            ),
+                            padding_top="2em",
+                            spacing="3",
+                            mt="4",
+                            justify="end",
+                        ),
+                        on_submit=OptionsState.new_cv_data(rx.upload_files(upload_id="cv_upload")),
+                        reset_on_submit=False,
+                    ),
+
+                ),
+            ),
+            open=OptionsState.load_cv_data_open,
+
+        ),
     )
 
 

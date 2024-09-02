@@ -22,15 +22,18 @@ class JobOfferService:
         return self.jobs.count(
             {'$and': [
                 {'site_url': {'$eq': site.url}},
-                {'$or' : [
-                    {'seen' : {'$exists': False}},
-                    {'seen' : {'$eq': None}}
+                {'$or': [
+                    {'seen': {'$exists': False}},
+                    {'seen': {'$eq': None}}
                 ]}
             ]}
         )
 
     def hide_job(self, job: JobOffer):
         self.jobs.update_one({'url': {'$eq': job.url}}, {'$set': {'seen': datetime.now().timestamp()}})
+
+    def show_job(self, job: JobOffer):
+        self.jobs.update_one({'url': {'$eq': job.url}}, {'$unset': {'seen': ''}})
 
 
 class JobSitesService:
@@ -52,6 +55,14 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
     @override
     def hide_job(self, job: JobOffer):
         super().hide_job(job)
+        self.update_unseen_for_job(job)
+
+    @override
+    def show_job(self, job: JobOffer):
+        super().show_job(job)
+        self.update_unseen_for_job(job)
+
+    def update_unseen_for_job(self, job):
         site = self.site_for_url(job.site_url)
         unseen_jobs = self.count_jobs_unseen_for_site(site)
         self.update_jobs_unseen(site, unseen_jobs)

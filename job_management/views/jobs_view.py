@@ -35,6 +35,7 @@ def job_card(j: JobOffer):
 def apply_button(j: JobOffer):
     return rx.button(
         rx.icon('mail-plus'),
+        disabled=rx.cond(j.seen, True, False),
         on_click=rx.redirect(f'/application?job={j.url}')
     )
 
@@ -42,11 +43,13 @@ def apply_button(j: JobOffer):
 def hide_button(j: JobOffer):
     return rx.cond(j.seen,
                    rx.button(
-                       rx.icon('eye-off'),
-                       disabled=True
+                       rx.icon('eye'),
+                       on_click=JobState.show_job(j),
+                       title='Show Job'
                    ),
                    rx.button(
                        rx.icon('eye-off'),
-                       on_click=JobState.hide_job(j)
+                       on_click=JobState.hide_job(j),
+                       title='Hide Job'
                    )
                    )

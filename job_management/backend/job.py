@@ -32,3 +32,8 @@ class JobState(rx.State):
         job_offer = JobOffer(**job_dict)
         self.sites_jobs_service.hide_job(job_offer)
         self.load_jobs()
+
+    def show_job(self, job_dict: dict[str, Any]):
+        job_offer = JobOffer(**job_dict)
+        self.sites_jobs_service.show_job(job_offer)
+        self.load_jobs()

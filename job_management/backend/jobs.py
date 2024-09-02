@@ -16,9 +16,6 @@ class JobsState(rx.State):
         self.info = logging.getLogger(self.__class__.__name__).info
 
     def load_jobs(self):
-        self.info('Loading Jobs')
-        jobs = list(self.db.jobs.all())
-        self.num_jobs = len(jobs)
-        self.num_jobs_yesterday = len(
-            [job for job in jobs if job.added.date() < (datetime.now().date() - timedelta(days=1))])
-        self.info(f'Loaded [{self.num_jobs}] Jobs')
+        self.num_jobs = self.db.jobs.count({})
+        self.num_jobs_yesterday = self.db.jobs.count(
+            {'added': {'$lt': (datetime.now() - timedelta(days=1)).timestamp()}})

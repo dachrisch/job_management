@@ -1,6 +1,10 @@
+import logging
+from typing import Any
+
 import reflex as rx
 
 from job_management.backend.entity import JobOffer, JobSite
+from job_management.backend.service.job_offer import JobOfferService, JobSitesService, SitesJobsOfferService
 from job_offer_spider.db.job_offer import JobOfferDb
 
 
@@ -11,15 +15,20 @@ class JobState(rx.State):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.db = JobOfferDb()
+        self.sites_jobs_service = SitesJobsOfferService(JobOfferDb())
+        self.info = logging.getLogger(self.__class__.__name__).info
 
     def load_jobs(self):
-        site_url = self.router.page.params.get('site')
-        self.jobs = list(map(lambda s: JobOffer(**s.to_dict()), self.db.jobs.filter({'site_url': {'$eq': site_url}})))
+        self.jobs = self.sites_jobs_service.jobs_for_site(self.current_site)
         self.num_jobs = len(self.jobs)
+        self.info(f'loaded [{self.num_jobs}] jobs for [{self.current_site}]')
 
     def update_current_site(self):
-        site_url = self.router.page.params.get('site', None)
+        site_url = self.router.page.params.get('site', '')
         if site_url:
-            sites = map(lambda s: JobSite(**s.to_dict()), self.db.sites.filter({'url': {'$eq': site_url}}))
-            self.current_site = next(sites)
+            self.current_site = self.sites_jobs_service.site_for_url(site_url)
+
+    def hide_job(self, job_dict: dict[str, Any]):
+        job_offer = JobOffer(**job_dict)
+        self.sites_jobs_service.hide_job(job_offer)
+        self.load_jobs()

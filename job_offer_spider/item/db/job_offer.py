@@ -10,9 +10,10 @@ from job_offer_spider.item.db import HasUrl, HasId
 @dataclass_json
 @dataclass
 class JobOfferDto(HasUrl, HasId, DataClassJsonMixin):
-    title: str = None
+    title: str | None = None
     added: datetime = datetime.now()
-    site_url: str = None
+    seen: datetime | None = None
+    site_url: str | None = None
 
 
 @dataclass_json

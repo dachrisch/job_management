@@ -56,7 +56,7 @@ def stats_card(
                         align="center",
                     ),
                     rx.cond(
-                        value > prev_value,
+                        value >= prev_value,
                         _arrow_badge("trending-up", percentage_change, "grass"),
                         _arrow_badge("trending-down", percentage_change, "tomato"),
                     ),

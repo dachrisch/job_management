@@ -10,3 +10,4 @@ dataclasses-json
 reflex
 crochet
 openai
+more_itertools

@@ -39,9 +39,9 @@ class SitesState(rx.State):
                                                       direction=DESCENDING if self.sort_reverse else ASCENDING)))
         self._jobs = list(map(lambda j: JobOffer(**j.to_dict()), self.db.jobs.all()))
         self.num_sites = self.db.sites.count({})
+        self.num_sites_yesterday = self.db.sites.count(
+            {'added': {'$lt': (datetime.now() - timedelta(days=1)).timestamp()}})
         self.info(f'Loaded [{len(self._sites)}] sites for page [{self.page + 1} of {self.total_pages}]...')
-        self.num_sites_yesterday = len(
-            [site for site in self._sites if site.added.date() < (datetime.now().date() - timedelta(days=1))])
 
     @rx.var(cache=True)
     def sites(self) -> list[JobSite]:
@@ -51,7 +51,7 @@ class SitesState(rx.State):
         self.sort_reverse = not self.sort_reverse
         self.load_sites()
 
-    def change_sort_value(self, new_value:str):
+    def change_sort_value(self, new_value: str):
         self.sort_value = new_value
         self.load_sites()
 

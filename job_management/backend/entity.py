@@ -8,19 +8,22 @@ class JobSite(rx.Base):
     title: str = ''
     url: str = ''
     num_jobs: int = 0
+    num_jobs_unseen: int = 0
     added: datetime = None
     last_scanned: datetime = None
     crawling: bool = False
-    deleting:bool = False
+    deleting: bool = False
 
 
 class JobOffer(rx.Base):
     title: str = ''
     url: str = ''
-    site_url:str=''
+    site_url: str = ''
     added: datetime = None
+    seen: datetime = None
     is_analyzed: bool = False
     is_analyzing: bool = False
+
 
 class JobOfferAnalyze(rx.Base):
     url: str = ''

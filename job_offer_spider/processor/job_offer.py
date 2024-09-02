@@ -23,5 +23,7 @@ class StoreJobOfferPipeline(ChainablePipeline[JobOfferSpiderItem]):
             self.db.jobs.add(dto)
             job_dto = JobOfferBodyDto.from_dict(item)
             self.db.jobs_body.add(job_dto)
-            self.db.sites.update_one({'url': {'$eq': dto.site_url}}, {'$inc': {'num_jobs': 1}})
+            self.db.sites.update_one({'url': {'$eq': dto.site_url}},
+                                     {'$inc': {'num_jobs': 1, 'num_jobs_unseen': 1}}
+                                     )
         return item

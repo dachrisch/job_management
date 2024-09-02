@@ -14,7 +14,7 @@ class CollectionHandler[T]:
     def __init__(self, collection: MontyCollection, collection_type: Union[Type[T], DataClassJsonMixin]):
         self.collection_type = collection_type
         self.collection = collection
-        self.log = logging.getLogger(__name__)
+        self.log = logging.getLogger(f'{__name__}[{collection.name}]')
 
     def add(self, item: DataClassJsonMixin):
         self.log.info(f'storing: {item}')
@@ -43,10 +43,15 @@ class CollectionHandler[T]:
         return self.count({'url': {'$exists': True}})
 
     def count(self, condition: Dict[str, Any]):
-        return self.collection.count_documents(condition)
+        count_documents = self.collection.count_documents(condition)
+        self.log.debug(f'found [{count_documents}] document for [{condition}]')
+        return count_documents
 
     def update_one(self, condition: Dict[str, Any], update: Dict[str, Any]):
-        return self.collection.update_one(condition, update)
+        update_result = self.collection.update_one(condition, update)
+        self.log.debug(f'updating [{condition}] with [{update}]: {update_result.modified_count} updated')
+        assert update_result.modified_count == 1
+        return update_result
 
     def update_item(self, item: Union[HasId, DataClassJsonMixin]):
         return self.update_one({'_id': {'$eq': item.id}},

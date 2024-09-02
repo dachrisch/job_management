@@ -1,8 +1,8 @@
 import reflex as rx
 
 from ..backend.crawl import JobsCrawlerState
-from ..backend.sites import SitesState
 from ..backend.entity import JobSite
+from ..backend.sites import SitesState
 from ..components.crawl_button import crawl_eu_sites_button
 from ..components.form import form_field
 from ..components.table import header_cell
@@ -13,10 +13,13 @@ def show_site(site: JobSite):
         rx.table.cell(site.title),
         rx.table.cell(rx.link(site.url, href=site.url, target='_blank')),
         rx.table.cell(rx.moment(site.last_scanned, from_now=True)),
-        rx.table.cell(rx.text(site.num_jobs_unseen) , rx.button(rx.text(site.num_jobs),
-                                on_click=rx.redirect(f'/jobs/?site={site.url}'),
-                                size="2",
-                                variant="solid")),
+        rx.table.cell(
+            rx.button(rx.hstack(rx.text(site.num_jobs_unseen), rx.text(' / '), rx.text(site.num_jobs)),
+                      on_click=rx.redirect(f'/jobs/?site={site.url}'),
+                      size="2",
+                      variant="solid")
+        )
+        ,
         rx.table.cell(
             rx.hstack(
                 rx.button(
@@ -231,5 +234,3 @@ def pagination():
             on_click=SitesState.last_page
         ),
     )
-
-

@@ -43,7 +43,7 @@ class SitesState(rx.State):
             {'added': {'$lt': (datetime.now() - timedelta(days=1)).timestamp()}})
         self.info(f'Loaded [{len(self._sites)}] sites for page [{self.page + 1} of {self.total_pages}]...')
 
-    @rx.var(cache=True)
+    @rx.var(cache=False)
     def sites(self) -> list[JobSite]:
         return self._sites
 

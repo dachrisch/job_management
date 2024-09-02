@@ -13,3 +13,4 @@ class TargetWebsiteDto(HasUrl, HasId, DataClassJsonMixin):
     added: datetime = datetime.now()
     last_scanned: datetime = None
     num_jobs: int = 0
+    num_jobs_unseen: int = 0

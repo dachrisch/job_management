@@ -3,7 +3,8 @@ from datetime import datetime
 
 from more_itertools import one
 
-from job_management.backend.entity import JobOffer, JobSite
+from job_management.backend.entity.offer import JobOffer
+from job_management.backend.entity.site import JobSite
 from job_offer_spider.db.job_management import JobManagementDb
 
 

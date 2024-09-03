@@ -14,7 +14,7 @@ def form_field(
             ),
             rx.form.control(
                 rx.input(
-                    placeholder=placeholder, type=type, default_value=default_value
+                    placeholder=placeholder, type=type
                 ),
                 as_child=True,
             ),

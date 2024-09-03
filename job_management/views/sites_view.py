@@ -1,7 +1,7 @@
 import reflex as rx
 
 from ..backend.crawl import JobsCrawlerState
-from ..backend.entity import JobSite
+from ..backend.entity.site import JobSite
 from ..backend.state.sites import SitesState
 from ..backend.state.statistics import JobsStatisticsState
 from ..components.crawl_button import crawl_eu_sites_button

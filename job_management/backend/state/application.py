@@ -1,6 +1,8 @@
 import reflex as rx
 
-from job_management.backend.entity import JobOffer, JobOfferAnalyze
+from job_management.backend.entity.offer import JobOffer
+from job_management.backend.entity.offer_analyzed import JobOfferAnalyze
+from job_management.backend.entity.site import JobSite
 from job_management.backend.service.application import JobApplicationService
 from job_offer_spider.db.job_management import JobManagementDb
 
@@ -19,6 +21,9 @@ class ApplicationState(rx.State):
         if job_url:
             self.job_offer = self.application_service.job_from_url(job_url)
             self.analyzed_job_offer = self.application_service.job_analysis(self.job_offer)
+
+    def set_openai_api_key(self, openai_api_key: str):
+        self.application_service.openai_api_key = openai_api_key
 
     @rx.background
     async def analyze_job(self):

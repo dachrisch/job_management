@@ -7,14 +7,15 @@ from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 from twisted.internet.pollreactor import install
 
+from .backend.state.application import ApplicationState
+from .backend.state.cv import CvState
 from .backend.state.job import JobState
-from .backend.state.options import CvService, CvState
+from .backend.state.openai_key import OpenaiKeyState
 from .backend.state.statistics import JobsStatisticsState
 from .components.navbar import navbar
-from .views.sites_view import stats_cards_group
 from .views import jobs_view, application_view
 from .views import sites_view
-from .backend.state.application import ApplicationState
+from .views.sites_view import stats_cards_group
 
 
 @rx.page(route="/", title="Job Management App", on_load=[JobsStatisticsState.load_jobs_statistic])
@@ -51,7 +52,8 @@ def jobs() -> rx.Component:
     )
 
 
-@rx.page(route='/application', title='Job Application', on_load=[ApplicationState.load_current_job_offer, CvState.load_cv])
+@rx.page(route='/application', title='Job Application',
+         on_load=[ApplicationState.load_current_job_offer, CvState.load_cv, OpenaiKeyState.inform_openai_api_key])
 def application() -> rx.Component:
     return rx.vstack(
         navbar(f'/jobs/?site={ApplicationState.job_offer.site_url}'),

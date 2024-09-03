@@ -6,8 +6,9 @@ import reflex as rx
 from montydb import ASCENDING, DESCENDING
 
 from job_management.backend.crawl import CrochetCrawlerRunner
-from job_management.backend.entity import JobSite, JobOffer
-from job_management.backend.service.site import JobSitesService, SitesJobsOfferService
+from job_management.backend.entity.offer import JobOffer
+from job_management.backend.entity.site import JobSite
+from job_management.backend.service.site import SitesJobsOfferService
 from job_management.backend.state.statistics import JobsStatisticsState
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.sites import JobSiteDto

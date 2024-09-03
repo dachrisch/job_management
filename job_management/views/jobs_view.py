@@ -1,6 +1,6 @@
 import reflex as rx
 
-from job_management.backend.entity import JobOffer
+from job_management.backend.entity.offer import JobOffer
 from job_management.backend.state.job import JobState
 from job_management.components.card import card
 

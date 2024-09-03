@@ -1,22 +1,24 @@
 import logging
-import os
 
 from more_itertools import one, first
 
 from job_management.backend.ai.conversation import Conversation
-from job_management.backend.entity import JobOffer, JobOfferAnalyze
+from job_management.backend.entity.offer import JobOffer
+from job_management.backend.entity.offer_analyzed import JobOfferAnalyze
+from job_management.backend.entity.site import JobSite
 from job_management.backend.service.job_offer import JobOfferService
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.job_offer import JobOfferAnalyzeDto
 
 
 class JobApplicationService(JobOfferService):
-    def __init__(self, db: JobManagementDb, openai_api_key=os.getenv('OPENAI_API_KEY')):
+    openai_api_key: str = None
+
+    def __init__(self, db: JobManagementDb, ):
         super().__init__(db)
         self.jobs = db.jobs
         self.jobs_body = db.jobs_body
         self.jobs_analyze = db.jobs_analyze
-        self.c = Conversation(openai_api_key=openai_api_key)
         self.log = logging.getLogger(f'{__name__}')
 
     def job_analysis(self, job_offer: JobOffer):
@@ -24,6 +26,7 @@ class JobApplicationService(JobOfferService):
                          self.jobs_analyze.filter({'url': {'$eq': job_offer.url}})), None)
 
     def analyze_job(self, job_offer: JobOffer) -> JobOfferAnalyzeDto:
+        c = Conversation(openai_api_key=self.openai_api_key)
         self.log.info(f'Analyzing [{job_offer}]')
         system_prompt = ('Analyze the content of this webpage and find the job description. '
                          'if no job description is found, return empty json as {}'
@@ -41,7 +44,7 @@ class JobApplicationService(JobOfferService):
                          '}')
         page_content = one(self.jobs_body.filter({'url': {'$eq': job_offer.url}}))
         user_prompt = f'The web page content is: {page_content.body}'
-        analyzed_result = self.c.as_system(system_prompt).as_user(user_prompt).complete()
+        analyzed_result = c.as_system(system_prompt).as_user(user_prompt).complete()
         analyze_dto = JobOfferAnalyzeDto(**analyzed_result['job'])
         analyze_dto.url = job_offer.url
         self.log.debug(f'Finished analyzing offer: {analyze_dto}')
@@ -50,8 +53,8 @@ class JobApplicationService(JobOfferService):
 
         return analyze_dto
 
-    def compose_application(self, job_offer:JobOffer):
-        prompt_template='''Help me write an application for the job indicated by JOBDESC
+    def compose_application(self, job_offer: JobOffer):
+        prompt_template = '''Help me write an application for the job indicated by JOBDESC
 
 Use the data from my cv as indicated by CVDATA
 
@@ -77,4 +80,3 @@ ${CVDATA}
 <<<<CVDATA
 
 '''
-

@@ -1,6 +1,7 @@
 import reflex as rx
 
-from job_management.backend.state.options import OptionsState, CvState
+from job_management.backend.state.openai_key import OpenaiKeyState
+from job_management.backend.state.cv import CvState
 from job_management.components.form import form_field
 
 
@@ -12,7 +13,7 @@ def options_menu():
             ),
             rx.menu.content(
                 rx.menu.item("OpenAI API Key", shortcut="Strg E",
-                             on_click=OptionsState.toggle_openai_key_dialog_open),
+                             on_click=OpenaiKeyState.toggle_openai_key_dialog_open),
             ),
         ),
         rx.dialog.root(
@@ -51,7 +52,7 @@ def options_menu():
                                     variant="soft",
                                     color_scheme="gray",
                                 ),
-                                on_click=OptionsState.toggle_openai_key_dialog_open
+                                on_click=OpenaiKeyState.toggle_openai_key_dialog_open
                             ),
                             rx.form.submit(
                                 rx.dialog.close(
@@ -64,13 +65,13 @@ def options_menu():
                             mt="4",
                             justify="end",
                         ),
-                        on_submit=OptionsState.new_openai_key,
+                        on_submit=OpenaiKeyState.new_openai_key,
                         reset_on_submit=False,
                     ),
 
                 ),
             ),
-            open=OptionsState.openai_key_dialog_open,
+            open=OpenaiKeyState.openai_key_dialog_open,
 
         ),
         rx.dialog.root(

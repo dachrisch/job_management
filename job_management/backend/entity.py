@@ -11,6 +11,12 @@ class Statistics(rx.Base):
     unseen: int = 0
 
 
+class Status(rx.Base):
+    clearing: bool = False
+    crawling: bool = False
+    deleting: bool = False
+
+
 class JobSite(rx.Base):
     title: str = ''
     url: str = ''
@@ -19,6 +25,7 @@ class JobSite(rx.Base):
     last_scanned: datetime = None
     crawling: bool = False
     deleting: bool = False
+    status: Status = Field(default_factory=lambda: Status())
 
     @validator('jobs', pre=True)
     def jobs_not_none(cls, value: Any, values: dict[str, Any], config: Type[BaseConfig], field: ModelField):

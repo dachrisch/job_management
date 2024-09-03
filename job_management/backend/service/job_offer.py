@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import override
+from typing import override, Optional
 
 from more_itertools import one
 
@@ -35,6 +35,9 @@ class JobOfferService:
     def show_job(self, job: JobOffer):
         self.jobs.update_one({'url': {'$eq': job.url}}, {'$unset': {'seen': ''}})
 
+    def clear_jobs_for_site(self, site: JobSite):
+        self.jobs.delete_many({'site_url': {'$eq': site.url}})
+
 
 class JobSitesService:
     def __init__(self, sites: CollectionHandler[JobSiteDto]):
@@ -43,8 +46,11 @@ class JobSitesService:
     def site_for_url(self, site_url: str) -> JobSite:
         return one(map(lambda s: JobSite(**s.to_dict()), self.sites.filter({'url': {'$eq': site_url}})))
 
-    def update_jobs_unseen(self, site: JobSite, num_jobs: int):
-        self.sites.update_one({'url': {'$eq': site.url}}, {'$set': {'jobs.unseen': num_jobs}})
+    def update_jobs_statistics(self, site: JobSite, total: Optional[int] = None, unseen: Optional[int] = None):
+        if total is not None:
+            self.sites.update_one({'url': {'$eq': site.url}}, {'$set': {'jobs.total': total}})
+        if unseen is not None:
+            self.sites.update_one({'url': {'$eq': site.url}}, {'$set': {'jobs.unseen': unseen}})
 
 
 class SitesJobsOfferService(JobOfferService, JobSitesService):
@@ -65,4 +71,8 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
     def update_unseen_for_job(self, job):
         site = self.site_for_url(job.site_url)
         unseen_jobs = self.count_jobs_unseen_for_site(site)
-        self.update_jobs_unseen(site, unseen_jobs)
+        self.update_jobs_statistics(site, unseen=unseen_jobs)
+
+    def clear_jobs(self, site: JobSite):
+        self.clear_jobs_for_site(site)
+        self.update_jobs_statistics(site, total=0, unseen=0)

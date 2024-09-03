@@ -7,6 +7,7 @@ from montydb import ASCENDING, DESCENDING
 
 from job_management.backend.crawl import CrochetCrawlerRunner
 from job_management.backend.entity import JobSite, JobOffer
+from job_management.backend.service.job_offer import JobSitesService, SitesJobsOfferService
 from job_offer_spider.db.job_offer import JobOfferDb
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.spider.findjobs import JobsFromUrlSpider
@@ -29,6 +30,7 @@ class SitesState(rx.State):
         self.db = JobOfferDb()
         self.info = logging.getLogger(self.__class__.__name__).info
         self.debug = logging.getLogger(self.__class__.__name__).debug
+        self.site_service = SitesJobsOfferService(self.db)
 
     def load_sites(self):
         self.info('Loading sites...')
@@ -145,3 +147,16 @@ class SitesState(rx.State):
         if not self.at_end:
             self.page += 1
         self.load_sites()
+
+    @rx.background
+    async def clear_jobs(self, site_dict: dict[str, Any]):
+        site = self._find_site(site_dict)
+        self.info(f'Deleting jobs from [{site}]')
+        async with self:
+            site.status.clearing = True
+
+        self.site_service.clear_jobs(site)
+
+        async with self:
+            self.load_sites()
+            site.status.clearing = False

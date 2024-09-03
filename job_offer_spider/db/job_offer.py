@@ -61,6 +61,11 @@ class CollectionHandler[T]:
     def delete(self, item: Union[HasId, T]):
         return self.collection.delete_one({'_id': {'$eq': item.id}})
 
+    def delete_many(self, condition: Dict[str, Any]):
+        many = self.collection.delete_many(condition)
+        self.log.debug(f'Deleting [{condition}] affected [{many.deleted_count}] items')
+        return many
+
 
 class JobOfferDb:
     def __init__(self):

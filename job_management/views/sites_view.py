@@ -2,10 +2,11 @@ import reflex as rx
 
 from ..backend.crawl import JobsCrawlerState
 from ..backend.entity import JobSite
-from ..backend.state.statistics import JobsStatisticsState
 from ..backend.state.sites import SitesState
+from ..backend.state.statistics import JobsStatisticsState
 from ..components.crawl_button import crawl_eu_sites_button
 from ..components.form import form_field
+from ..components.icon_button import icon_button
 from ..components.stats_cards import stats_card
 from ..components.table import header_cell
 
@@ -29,6 +30,7 @@ def show_site(site: JobSite):
                     loading=site.crawling,
                     on_click=lambda: SitesState.start_crawl(site)
                 ),
+                icon_button('eraser', SitesState.clear_jobs(site), site.status.clearing, 'yellow'),
                 rx.button(
                     rx.icon('trash-2'),
                     loading=site.deleting,

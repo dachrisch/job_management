@@ -36,7 +36,6 @@ class State(rx.Base):
     is_analyzing: bool = False
     analyzed : bool = False
 
-
 class JobOffer(rx.Base):
     title: str = ''
     url: str = ''

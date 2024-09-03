@@ -23,7 +23,7 @@ class JobSite(rx.Base):
     jobs: Statistics = Field(default_factory=lambda: Statistics())
     added: datetime = None
     last_scanned: datetime = None
-    status: Status = Field(default_factory=lambda: Status())
+    status: Status = Status()
 
     @validator('jobs', pre=True)
     def jobs_not_none(cls, value: Any, values: dict[str, Any], config: Type[BaseConfig], field: ModelField):
@@ -32,14 +32,19 @@ class JobSite(rx.Base):
         return value
 
 
+class State(rx.Base):
+    is_analyzing: bool = False
+    analyzed : bool = False
+
+
 class JobOffer(rx.Base):
     title: str = ''
     url: str = ''
     site_url: str = ''
     added: datetime = None
     seen: datetime = None
-    is_analyzed: bool = False
-    is_analyzing: bool = False
+
+    state: State = Field(default_factory=lambda: State())
 
 
 class JobOfferAnalyze(rx.Base):

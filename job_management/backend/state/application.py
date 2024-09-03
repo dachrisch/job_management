@@ -19,16 +19,16 @@ class ApplicationState(rx.State):
         if job_url:
             self.job_offer = self.application_service.job_from_url(job_url)
             self.analyzed_job_offer = self.application_service.job_analysis(self.job_offer)
-            self.job_offer.is_analyzed = self.analyzed_job_offer is not None
+            # self.job_offer.state.analyzed = self.analyzed_job_offer is not None
 
     @rx.background
     async def analyze_job(self):
         async with self:
-            self.job_offer.is_analyzing = True
+            self.job_offer.state.is_analyzing = True
 
         self.application_service.analyze_job(self.job_offer)
 
         async with self:
             self.load_current_job_offer()
-            self.job_offer.is_analyzed = True
-            self.job_offer.is_analyzing = False
+            self.job_offer.state.analyzed = True
+            self.job_offer.state.is_analyzing = False

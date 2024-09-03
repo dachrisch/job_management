@@ -9,11 +9,19 @@ from job_offer_spider.item.db import HasUrl, HasId
 
 @dataclass_json
 @dataclass
+class JobOfferState:
+    is_analyzing: bool = False
+    analyzed: bool = False
+
+
+@dataclass_json
+@dataclass
 class JobOfferDto(HasUrl, HasId, DataClassJsonMixin):
-    title: str | None = None
+    title: Optional[str] = None
     added: datetime = datetime.now()
-    seen: datetime | None = None
-    site_url: str | None = None
+    seen: Optional[datetime] = None
+    site_url: Optional[str] = None
+    state: JobOfferState = field(default_factory=lambda: JobOfferState())
 
 
 @dataclass_json
@@ -26,11 +34,11 @@ class JobOfferBodyDto(HasUrl, HasId, DataClassJsonMixin):
 @dataclass_json
 @dataclass
 class JobOfferAnalyzeDto(HasUrl, HasId, DataClassJsonMixin):
-    title: str = None
-    about: str = None
-    company_name: str = None
-    requirements: str = None
-    responsibilities: str = None
-    offers: str = None
+    title: Optional[str] = None
+    about: Optional[str] = None
+    company_name: Optional[str] = None
+    requirements: Optional[str] = None
+    responsibilities: Optional[str] = None
+    offers: Optional[str] = None
     additional: Optional[str] = None
     added: datetime = datetime.now()

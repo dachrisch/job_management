@@ -1,3 +1,4 @@
+import logging
 import os
 
 from more_itertools import one, first
@@ -16,12 +17,14 @@ class JobApplicationService(JobOfferService):
         self.jobs_body = db.jobs_body
         self.jobs_analyze = db.jobs_analyze
         self.c = Conversation(openai_api_key=openai_api_key)
+        self.log = logging.getLogger(f'{__name__}')
 
     def job_analysis(self, job_offer: JobOffer):
         return first(map(lambda a: JobOfferAnalyze(**a.to_dict()),
-                       self.jobs_analyze.filter({'url': {'$eq': job_offer.url}})), None)
+                         self.jobs_analyze.filter({'url': {'$eq': job_offer.url}})), None)
 
-    def analyze_job(self, job_offer:JobOffer)->JobOfferAnalyzeDto:
+    def analyze_job(self, job_offer: JobOffer) -> JobOfferAnalyzeDto:
+        self.log.info(f'Analyzing [{job_offer}]')
         system_prompt = ('Analyze the content of this webpage and find the job description. '
                          'if no job description is found, return empty json as {}'
                          'if a job description is found, respond with'
@@ -41,6 +44,8 @@ class JobApplicationService(JobOfferService):
         analyzed_result = self.c.as_system(system_prompt).as_user(user_prompt).complete()
         analyze_dto = JobOfferAnalyzeDto(**analyzed_result['job'])
         analyze_dto.url = job_offer.url
+        self.log.debug(f'Finished analyzing offer: {analyze_dto}')
         self.jobs_analyze.add(analyze_dto)
+        self.jobs.update_one({'url': job_offer.url}, {'$set': {'state.analyzed': True}})
 
         return analyze_dto

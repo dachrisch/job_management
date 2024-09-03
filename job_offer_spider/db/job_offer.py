@@ -54,6 +54,7 @@ class CollectionHandler[T]:
         return update_result
 
     def update_item(self, item: Union[HasId, DataClassJsonMixin]):
+        assert item.id, f'Item has no id: {item}'
         return self.update_one({'_id': {'$eq': item.id}},
                                {'$set': {k: v for k, v in item.to_dict(encode_json=True).items() if
                                          k != '_id'}})

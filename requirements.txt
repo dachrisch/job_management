@@ -11,3 +11,4 @@ reflex
 crochet
 openai
 more_itertools
+pydantic

@@ -6,7 +6,7 @@ from more_itertools import one
 from job_management.backend.entity import JobOffer, JobSite
 from job_offer_spider.db.job_offer import CollectionHandler, JobOfferDb
 from job_offer_spider.item.db.job_offer import JobOfferDto
-from job_offer_spider.item.db.target_website import TargetWebsiteDto
+from job_offer_spider.item.db.sites import JobSiteDto
 
 
 class JobOfferService:
@@ -37,14 +37,14 @@ class JobOfferService:
 
 
 class JobSitesService:
-    def __init__(self, sites: CollectionHandler[TargetWebsiteDto]):
+    def __init__(self, sites: CollectionHandler[JobSiteDto]):
         self.sites = sites
 
     def site_for_url(self, site_url: str) -> JobSite:
         return one(map(lambda s: JobSite(**s.to_dict()), self.sites.filter({'url': {'$eq': site_url}})))
 
     def update_jobs_unseen(self, site: JobSite, num_jobs: int):
-        self.sites.update_one({'url': {'$eq': site.url}}, {'$set': {'num_jobs_unseen': num_jobs}})
+        self.sites.update_one({'url': {'$eq': site.url}}, {'$set': {'jobs.unseen': num_jobs}})
 
 
 class SitesJobsOfferService(JobOfferService, JobSitesService):

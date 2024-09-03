@@ -9,7 +9,7 @@ from pymongo import DESCENDING
 from job_management.backend.crawl import CrochetCrawlerRunner
 from job_management.backend.entity import JobSite, JobOffer
 from job_offer_spider.db.job_offer import JobOfferDb
-from job_offer_spider.item.db.target_website import TargetWebsiteDto
+from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.spider.findjobs import JobsFromUrlSpider
 
 
@@ -56,11 +56,10 @@ class SitesState(rx.State):
         self.load_sites()
 
     def add_site_to_db(self, form_data: dict):
-        site = TargetWebsiteDto.from_dict(form_data)
+        site = JobSiteDto.from_dict(form_data)
         self.db.sites.add(site)
         self.load_sites()
-        if form_data['crawling']:
-            print('run')
+        if form_data.get('crawling'):
             return SitesState.start_crawl(site.to_dict())
 
     @rx.background
@@ -113,7 +112,7 @@ class SitesState(rx.State):
         else:
             return rx.toast.error(f'Crawling failed: {stats}')
 
-    def load_job_site(self, s: TargetWebsiteDto):
+    def load_job_site(self, s: JobSiteDto):
         return JobSite(**(s.to_dict()))
 
     @rx.var(cache=True)

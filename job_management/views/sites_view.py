@@ -14,7 +14,7 @@ def show_site(site: JobSite):
         rx.table.cell(rx.link(site.url, href=site.url, target='_blank')),
         rx.table.cell(rx.moment(site.last_scanned, from_now=True)),
         rx.table.cell(
-            rx.button(rx.hstack(rx.text(site.num_jobs_unseen), rx.text(' / '), rx.text(site.num_jobs)),
+            rx.button(rx.hstack(rx.text(site.jobs.unseen), rx.text(' / '), rx.text(site.jobs.total)),
                       on_click=rx.redirect(f'/jobs/?site={site.url}'),
                       size="2",
                       variant="solid")

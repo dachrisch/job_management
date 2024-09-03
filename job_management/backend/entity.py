@@ -1,18 +1,30 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Any, Type
 
 import reflex as rx
+from pydantic.v1 import Field, validator, BaseConfig
+from pydantic.v1.fields import ModelField
+
+
+class Statistics(rx.Base):
+    total: int = 0
+    unseen: int = 0
 
 
 class JobSite(rx.Base):
     title: str = ''
     url: str = ''
-    num_jobs: int = 0
-    num_jobs_unseen: int = 0
+    jobs: Statistics = Field(default_factory=lambda: Statistics())
     added: datetime = None
     last_scanned: datetime = None
     crawling: bool = False
     deleting: bool = False
+
+    @validator('jobs', pre=True)
+    def jobs_not_none(cls, value: Any, values: dict[str, Any], config: Type[BaseConfig], field: ModelField):
+        if not value:
+            return field.get_default()
+        return value
 
 
 class JobOffer(rx.Base):

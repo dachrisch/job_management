@@ -9,7 +9,6 @@ from job_offer_spider.db.job_offer import JobOfferDb
 
 
 class JobState(rx.State):
-    num_jobs: int = 0
     jobs: list[JobOffer] = []
     current_site: JobSite = JobSite()
 
@@ -20,8 +19,7 @@ class JobState(rx.State):
 
     def load_jobs(self):
         self.jobs = self.sites_jobs_service.jobs_for_site(self.current_site)
-        self.num_jobs = len(self.jobs)
-        self.info(f'loaded [{self.num_jobs}] jobs for [{self.current_site}]')
+        self.info(f'loaded [{len(self.jobs)}] jobs for [{self.current_site}]')
 
     def update_current_site(self):
         site_url = self.router.page.params.get('site', '')

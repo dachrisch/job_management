@@ -6,7 +6,7 @@ from montydb import MontyClient, MontyCollection, set_storage, DESCENDING, ASCEN
 
 from job_offer_spider.item.db import HasUrl, HasId
 from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto, JobOfferAnalyzeDto
-from job_offer_spider.item.db.target_website import TargetWebsiteDto
+from job_offer_spider.item.db.sites import JobSiteDto
 
 
 class CollectionHandler[T]:
@@ -70,8 +70,8 @@ class JobOfferDb:
         self.log = logging.getLogger(__name__)
 
     @property
-    def sites(self) -> CollectionHandler[TargetWebsiteDto]:
-        return CollectionHandler[TargetWebsiteDto](self.db['target_sites'], TargetWebsiteDto)
+    def sites(self) -> CollectionHandler[JobSiteDto]:
+        return CollectionHandler[JobSiteDto](self.db['target_sites'], JobSiteDto)
 
     @property
     def jobs(self) -> CollectionHandler[JobOfferDto]:

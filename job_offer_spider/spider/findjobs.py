@@ -10,7 +10,7 @@ from scrapy.utils.sitemap import Sitemap, sitemap_urls_from_robots
 
 from job_offer_spider.db.job_offer import JobOfferDb
 from job_offer_spider.item.db import HasUrl
-from job_offer_spider.item.db.target_website import TargetWebsiteDto
+from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
 
 
@@ -93,7 +93,7 @@ class JobsFromUrlSpider(JobsFromUrlListSpider):
 
     def inform_site_scanned(self, site_url):
         if not self.db.sites.contains(HasUrl(site_url)):
-            self.db.sites.add(TargetWebsiteDto(title=site_url, url=site_url))
+            self.db.sites.add(JobSiteDto(title=site_url, url=site_url))
 
         for site in self.db.sites.filter({'url': {'$eq': site_url}}):
             site.last_scanned = datetime.now()

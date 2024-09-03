@@ -145,11 +145,30 @@ def chat_cv_data_received() -> rx.Component:
     )
 
 
-def chat_compose_application() -> rx.Component:
+def chat_compose() -> rx.Component:
     return qa(
         answer=rx.vstack(
             rx.text('Now, everything is ready to compose the application'),
             rx.button('Compose application', on_click=ApplicationState.compose_application)
+        )
+    )
+
+
+def chat_composing() -> rx.Component:
+    return qa(
+        question=rx.vstack(rx.text('Write the application for me')),
+        answer=rx.vstack(
+            rx.text('Now, everything is ready to compose the application'),
+            rx.button('Compose application', loading=ApplicationState.job_offer.state.is_composing,
+                      disabled=ApplicationState.job_offer.state.composed),
+        )
+    )
+
+def chat_composed() -> rx.Component:
+    return qa(
+        answer=rx.vstack(
+            rx.markdown(ApplicationState.application),
+            rx.button('Create Google doc', on_click=ApplicationState.compose_application)
         )
     )
 
@@ -167,8 +186,21 @@ def chat() -> rx.Component:
     chat_history.append((
         ApplicationState.job_offer.state.analyzed
         & CvState.has_cv_data
-        & ~ApplicationState.job_offer.state.composed,
-        chat_compose_application, chat_empty
+        & ~ApplicationState.job_offer.state.composed
+        & ~ApplicationState.job_offer.state.is_composing,
+        chat_compose, chat_empty
+    ))
+    chat_history.append((
+        ApplicationState.job_offer.state.analyzed
+        & CvState.has_cv_data
+        & (ApplicationState.job_offer.state.is_composing | ApplicationState.job_offer.state.composed),
+        chat_composing, chat_empty,
+    ))
+    chat_history.append((
+        ApplicationState.job_offer.state.analyzed
+        & CvState.has_cv_data
+        & ApplicationState.job_offer.state.composed,
+        chat_composed, chat_empty,
     ))
 
     return rx.vstack(

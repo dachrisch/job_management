@@ -1,11 +1,11 @@
 import logging
+import string
 
 from more_itertools import one, first
 
 from job_management.backend.ai.conversation import Conversation
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.offer_analyzed import JobOfferAnalyze
-from job_management.backend.entity.site import JobSite
 from job_management.backend.service.job_offer import JobOfferService
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.job_offer import JobOfferAnalyzeDto
@@ -19,9 +19,10 @@ class JobApplicationService(JobOfferService):
         self.jobs = db.jobs
         self.jobs_body = db.jobs_body
         self.jobs_analyze = db.jobs_analyze
+        self.cvs = db.cvs
         self.log = logging.getLogger(f'{__name__}')
 
-    def job_analysis(self, job_offer: JobOffer):
+    def load_job_analysis(self, job_offer: JobOffer):
         return first(map(lambda a: JobOfferAnalyze(**a.to_dict()),
                          self.jobs_analyze.filter({'url': {'$eq': job_offer.url}})), None)
 
@@ -53,8 +54,8 @@ class JobApplicationService(JobOfferService):
 
         return analyze_dto
 
-    def compose_application(self, job_offer: JobOffer):
-        prompt_template = '''Help me write an application for the job indicated by JOBDESC
+    def compose_application(self, job_offer: JobOffer)->str:
+        prompt_template = string.Template('''Help me write an application for the job indicated by JOBDESC
 
 Use the data from my cv as indicated by CVDATA
 
@@ -79,4 +80,14 @@ ${CVDATA}
 
 <<<<CVDATA
 
-'''
+''')
+        analyzed_job = self.load_job_analysis(job_offer)
+        cv_data = first(self.cvs.all(), None)
+        application_prompt = prompt_template.safe_substitute({
+            'JOBDESC': repr(analyzed_job),
+            'CVDATA': cv_data.text
+        })
+        c = Conversation(openai_api_key=self.openai_api_key, response_format="text")
+        c.as_user(application_prompt)
+
+        return c.complete()

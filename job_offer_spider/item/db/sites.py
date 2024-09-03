@@ -1,6 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
 
 from dataclasses_json import dataclass_json, DataClassJsonMixin
 
@@ -20,4 +19,4 @@ class JobSiteDto(HasUrl, HasId, DataClassJsonMixin):
     title: str = None
     added: datetime = datetime.now()
     last_scanned: datetime = None
-    jobs: Optional[JobStatistic]  = None
+    jobs: JobStatistic = field(default_factory=lambda : JobStatistic())

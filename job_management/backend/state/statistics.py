@@ -6,7 +6,7 @@ import reflex as rx
 from job_offer_spider.db.job_offer import JobOfferDb
 
 
-class JobsState(rx.State):
+class JobsStatisticsState(rx.State):
     num_jobs: int = 0
     num_jobs_yesterday: int = 0
 

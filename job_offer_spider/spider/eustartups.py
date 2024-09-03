@@ -5,7 +5,7 @@ from scrapy.http import Response
 from scrapy.loader import ItemLoader
 from scrapy.spiders import SitemapSpider
 
-from job_offer_spider.item.spider.target_website import TargetWebsiteSpiderItem
+from job_offer_spider.item.spider.site import SiteSpiderItem
 
 
 class EuStartupsSpider(SitemapSpider):
@@ -15,7 +15,7 @@ class EuStartupsSpider(SitemapSpider):
 
     @override
     def parse(self, response: Response, **kwargs) -> Request:
-        item_loader = ItemLoader(item=TargetWebsiteSpiderItem(), response=response)
+        item_loader = ItemLoader(item=SiteSpiderItem(), response=response)
         item_loader.add_xpath('title', '//meta[@property="og:title"]/@content')
         item_loader.add_css('url', 'div.wpbdp-field-website div.value::text')
         if item_loader.get_output_value('url'):

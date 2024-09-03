@@ -2,9 +2,11 @@ import reflex as rx
 
 from ..backend.crawl import JobsCrawlerState
 from ..backend.entity import JobSite
-from ..backend.sites import SitesState
+from ..backend.state.statistics import JobsStatisticsState
+from ..backend.state.sites import SitesState
 from ..components.crawl_button import crawl_eu_sites_button
 from ..components.form import form_field
+from ..components.stats_cards import stats_card
 from ..components.table import header_cell
 
 
@@ -233,4 +235,27 @@ def pagination():
             disabled=SitesState.at_end,
             on_click=SitesState.last_page
         ),
+    )
+
+
+def stats_cards_group() -> rx.Component:
+    return rx.flex(
+        stats_card(
+            'Total Websites',
+            SitesState.num_sites,
+            SitesState.num_sites_yesterday,
+            "building",
+            "blue",
+        ),
+        stats_card(
+            'Total Jobs',
+            JobsStatisticsState.num_jobs,
+            JobsStatisticsState.num_jobs_yesterday,
+            "briefcase",
+            "blue",
+        ),
+        spacing="5",
+        width="100%",
+        wrap="wrap",
+        display=["none", "none", "flex"],
     )

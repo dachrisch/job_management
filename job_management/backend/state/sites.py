@@ -3,8 +3,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import reflex as rx
-from montydb import ASCENDING
-from pymongo import DESCENDING
+from montydb import ASCENDING, DESCENDING
 
 from job_management.backend.crawl import CrochetCrawlerRunner
 from job_management.backend.entity import JobSite, JobOffer

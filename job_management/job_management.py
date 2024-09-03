@@ -7,16 +7,16 @@ from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 from twisted.internet.pollreactor import install
 
-from .backend.job import JobState
-from .backend.jobs import JobsState
+from .backend.state.job import JobState
+from .backend.state.statistics import JobsStatisticsState
 from .components.navbar import navbar
-from .components.stats_cards import stats_cards_group
+from .views.sites_view import stats_cards_group
 from .views import jobs_view, application_view
 from .views import sites_view
 from .views.application_view import ApplicationState
 
 
-@rx.page(route="/", title="Job Management App", on_load=[JobsState.load_jobs])
+@rx.page(route="/", title="Job Management App", on_load=[JobsStatisticsState.load_jobs])
 def index() -> rx.Component:
     return rx.vstack(
         navbar(),

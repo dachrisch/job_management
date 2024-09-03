@@ -6,7 +6,7 @@ from scrapy import Spider, Request
 from scrapy.http import Response
 from scrapy.utils.url import parse_url
 
-from job_offer_spider.item.spider.target_website import TargetWebsiteSpiderItem
+from job_offer_spider.item.spider.site import SiteSpiderItem
 
 
 def jobsuche_url(query, page: int = 1, size: int = 2):
@@ -57,4 +57,4 @@ class ArbeitsamtSpider(Spider):
             for link in response_json.get('links'):
                 parsed_url = parse_url(link['url'])
                 if company_name and link:
-                    yield TargetWebsiteSpiderItem(title=company_name, url=f'{parsed_url.scheme}://{parsed_url.netloc}')
+                    yield SiteSpiderItem(title=company_name, url=f'{parsed_url.scheme}://{parsed_url.netloc}')

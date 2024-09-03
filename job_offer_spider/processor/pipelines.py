@@ -6,7 +6,7 @@
 from scrapy import Item
 
 from job_offer_spider.processor.job_offer import StoreJobOfferPipeline
-from job_offer_spider.processor.target_website import StoreTargetWebsitePipeline
+from job_offer_spider.processor.site import StoreTargetWebsitePipeline
 
 
 class MultiPipesSpiderPipeline:

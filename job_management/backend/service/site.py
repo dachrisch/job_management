@@ -4,11 +4,11 @@ from more_itertools import one
 
 from job_management.backend.entity import JobSite, JobOffer
 from job_management.backend.service.job_offer import JobOfferService
-from job_offer_spider.db.job_offer import JobOfferDb
+from job_offer_spider.db.job_management import JobManagementDb
 
 
 class JobSitesService:
-    def __init__(self, db: JobOfferDb):
+    def __init__(self, db: JobManagementDb):
         self.sites = db.sites
 
     def site_for_url(self, site_url: str) -> JobSite:
@@ -22,7 +22,7 @@ class JobSitesService:
 
 
 class SitesJobsOfferService(JobOfferService, JobSitesService):
-    def __init__(self, db: JobOfferDb):
+    def __init__(self, db: JobManagementDb):
         JobOfferService.__init__(self, db)
         JobSitesService.__init__(self, db)
 

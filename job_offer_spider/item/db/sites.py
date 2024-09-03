@@ -15,7 +15,7 @@ class JobStatistic:
 
 @dataclass_json
 @dataclass
-class JobSiteDto(HasUrl, HasId, DataClassJsonMixin):
+class JobSiteDto(HasId,HasUrl, DataClassJsonMixin):
     title: str = None
     added: datetime = datetime.now()
     last_scanned: datetime = None

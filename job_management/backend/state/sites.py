@@ -9,7 +9,7 @@ from job_management.backend.crawl import CrochetCrawlerRunner
 from job_management.backend.entity import JobSite, JobOffer
 from job_management.backend.service.site import JobSitesService, SitesJobsOfferService
 from job_management.backend.state.statistics import JobsStatisticsState
-from job_offer_spider.db.job_offer import JobOfferDb
+from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.spider.findjobs import JobsFromUrlSpider
 
@@ -28,7 +28,7 @@ class SitesState(rx.State):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.db = JobOfferDb()
+        self.db = JobManagementDb()
         self.info = logging.getLogger(self.__class__.__name__).info
         self.debug = logging.getLogger(self.__class__.__name__).debug
         self.site_service = SitesJobsOfferService(self.db)

@@ -6,12 +6,12 @@ from more_itertools import one, first
 from job_management.backend.ai.conversation import Conversation
 from job_management.backend.entity import JobOffer, JobOfferAnalyze
 from job_management.backend.service.job_offer import JobOfferService
-from job_offer_spider.db.job_offer import JobOfferDb
+from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.job_offer import JobOfferAnalyzeDto
 
 
 class JobApplicationService(JobOfferService):
-    def __init__(self, db: JobOfferDb, openai_api_key=os.getenv('OPENAI_API_KEY')):
+    def __init__(self, db: JobManagementDb, openai_api_key=os.getenv('OPENAI_API_KEY')):
         super().__init__(db)
         self.jobs = db.jobs
         self.jobs_body = db.jobs_body
@@ -49,3 +49,32 @@ class JobApplicationService(JobOfferService):
         self.jobs.update_one({'url': job_offer.url}, {'$set': {'state.analyzed': True}})
 
         return analyze_dto
+
+    def compose_application(self, job_offer:JobOffer):
+        prompt_template='''Help me write an application for the job indicated by JOBDESC
+
+Use the data from my cv as indicated by CVDATA
+
+match the style of the application letter to the tone of the job description, especially if the writing in in german du-style or sie-style.
+don't refer to the company names directly, instead use a general description of the role.
+
+Only output the letter text, dont sign it and with the context
+(no title)
+Greeting to the hiring team
+letter text
+(exclude the final clause)
+
+>>>>JOBDESC
+
+${JOBDESC}
+
+<<<<JOBDESC
+
+>>>>CVDATA
+
+${CVDATA}
+
+<<<<CVDATA
+
+'''
+

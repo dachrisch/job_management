@@ -5,7 +5,7 @@ from threading import Thread
 from rich.console import Console
 from rich.progress import Progress
 
-from job_offer_spider.db.job_offer import JobOfferDb
+from job_offer_spider.db.job_management import JobManagementDb
 
 
 class SitesScannedProgressThread(Thread):
@@ -15,7 +15,7 @@ class SitesScannedProgressThread(Thread):
         console = Console()
         self._l = console.print
         self.daemon = True
-        self.db = JobOfferDb()
+        self.db = JobManagementDb()
 
     def run(self):
         now = datetime.now()

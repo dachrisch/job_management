@@ -1,6 +1,6 @@
 import reflex as rx
 
-from job_management.backend.state.options import OptionsState
+from job_management.backend.state.options import OptionsState, CvState
 from job_management.components.form import form_field
 
 
@@ -13,8 +13,6 @@ def options_menu():
             rx.menu.content(
                 rx.menu.item("OpenAI API Key", shortcut="Strg E",
                              on_click=OptionsState.toggle_openai_key_dialog_open),
-                rx.menu.item("Load CV data", shortcut="Strg C",
-                             on_click=OptionsState.toggle_load_cv_data_open),
             ),
         ),
         rx.dialog.root(
@@ -113,7 +111,7 @@ def options_menu():
                                     variant="soft",
                                     color_scheme="gray",
                                 ),
-                                on_click=OptionsState.toggle_load_cv_data_open
+                                on_click=CvState.toggle_load_cv_data_open
                             ),
                             rx.form.submit(
                                 rx.dialog.close(
@@ -126,13 +124,13 @@ def options_menu():
                             mt="4",
                             justify="end",
                         ),
-                        on_submit=OptionsState.new_cv_data(rx.upload_files(upload_id="cv_upload")),
+                        on_submit=CvState.new_cv_data(rx.upload_files(upload_id="cv_upload")),
                         reset_on_submit=False,
                     ),
 
                 ),
             ),
-            open=OptionsState.load_cv_data_open,
+            open=CvState.load_cv_data_open,
 
         ),
     )

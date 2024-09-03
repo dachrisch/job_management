@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import reflex as rx
 
-from job_offer_spider.db.job_offer import JobOfferDb
+from job_offer_spider.db.job_management import JobManagementDb
 
 
 class JobsStatisticsState(rx.State):
@@ -12,7 +12,7 @@ class JobsStatisticsState(rx.State):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.db = JobOfferDb()
+        self.db = JobManagementDb()
         self.info = logging.getLogger(self.__class__.__name__).info
 
     def load_jobs_statistic(self):

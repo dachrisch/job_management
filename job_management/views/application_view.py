@@ -4,7 +4,7 @@ import reflex as rx
 from reflex import Style, Var
 
 from job_management.backend.state.application import ApplicationState
-from job_management.backend.state.options import OptionsState
+from job_management.backend.state.options import OptionsState, CvState
 from job_management.components.card import card
 
 # Common styles for questions and answers.
@@ -127,7 +127,7 @@ def chat_cv_data() -> rx.Component:
     return qa(
         answer=rx.vstack(
             rx.text('Now we need your CV data'),
-            rx.button('Upload CV', on_click=OptionsState.toggle_load_cv_data_open)
+            rx.button('Upload CV', on_click=CvState.toggle_load_cv_data_open)
         )
     )
 
@@ -135,7 +135,7 @@ def chat_cv_data_received()-> rx.Component:
     return qa(
         question=rx.vstack(
             rx.text('Here is my CV data'),
-            rx.text(OptionsState.cv_data)
+            rx.text(CvState.cv_data.text)
         ),
         answer=rx.vstack(
             rx.text('Now we need your CV data'),
@@ -143,6 +143,13 @@ def chat_cv_data_received()-> rx.Component:
         )
     )
 
+def chat_compose_application()->rx.Component:
+    return qa(
+        answer=rx.vstack(
+            rx.text('Now, everything is ready to compose the application'),
+            rx.button('Compose application', on_click=ApplicationState.compose_application)
+        )
+    )
 
 def chat() -> rx.Component:
     chat_history: list[Tuple[Var | bool, Callable[[], rx.Component], Callable[[], rx.Component]]] = [
@@ -151,12 +158,13 @@ def chat() -> rx.Component:
         (ApplicationState.job_offer.state.analyzed | ApplicationState.job_offer.state.is_analyzing, chat_analyze_load,
          chat_analyze_begin))
     chat_history.append((ApplicationState.job_offer.state.analyzed, chat_analyzed, chat_empty))
-    chat_history.append((ApplicationState.job_offer.state.analyzed & ~OptionsState.has_cv_data, chat_cv_data, chat_empty))
-    chat_history.append((ApplicationState.job_offer.state.analyzed & OptionsState.has_cv_data, chat_cv_data_received, chat_empty))
+    chat_history.append((ApplicationState.job_offer.state.analyzed & ~CvState.has_cv_data, chat_cv_data, chat_empty))
+    chat_history.append((ApplicationState.job_offer.state.analyzed & CvState.has_cv_data, chat_cv_data_received, chat_empty))
     chat_history.append((
         ApplicationState.job_offer.state.analyzed
-        & OptionsState.has_cv_data,
-        chat_cv_data_received, chat_empty
+        & CvState.has_cv_data
+        & ~ApplicationState.job_offer.state.composed,
+        chat_compose_application, chat_empty
     ))
 
     return rx.vstack(

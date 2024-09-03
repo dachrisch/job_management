@@ -8,6 +8,7 @@ from scrapy.utils.project import get_project_settings
 from twisted.internet.pollreactor import install
 
 from .backend.state.job import JobState
+from .backend.state.options import CvService, CvState
 from .backend.state.statistics import JobsStatisticsState
 from .components.navbar import navbar
 from .views.sites_view import stats_cards_group
@@ -50,7 +51,7 @@ def jobs() -> rx.Component:
     )
 
 
-@rx.page(route='/application', title='Job Application', on_load=ApplicationState.load_current_job_offer)
+@rx.page(route='/application', title='Job Application', on_load=[ApplicationState.load_current_job_offer, CvState.load_cv])
 def application() -> rx.Component:
     return rx.vstack(
         navbar(f'/jobs/?site={ApplicationState.job_offer.site_url}'),

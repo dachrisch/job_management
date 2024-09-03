@@ -1,12 +1,10 @@
 import logging
-from typing import Type, Iterable, Union, Any, Dict
+from typing import Union, Type, Iterable, Dict, Any
 
 from dataclasses_json import DataClassJsonMixin
-from montydb import MontyClient, MontyCollection, set_storage, DESCENDING, ASCENDING
+from montydb import MontyCollection, ASCENDING, DESCENDING
 
 from job_offer_spider.item.db import HasUrl, HasId
-from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto, JobOfferAnalyzeDto
-from job_offer_spider.item.db.sites import JobSiteDto
 
 
 class CollectionHandler[T]:
@@ -17,7 +15,7 @@ class CollectionHandler[T]:
         self.log = logging.getLogger(f'{__name__}[{collection.name}]')
 
     def add(self, item: DataClassJsonMixin):
-        self.log.info(f'storing: {item}')
+        self.log.debug(f'storing: {item}')
         self.collection.insert_one(item.to_dict(encode_json=True))
 
     def contains(self, item: HasUrl) -> bool:
@@ -25,18 +23,20 @@ class CollectionHandler[T]:
 
     def all(self, skip: int = None, limit: int = None, sort_key: str = '',
             direction: ASCENDING | DESCENDING = ASCENDING) -> Iterable[T]:
-        return self.filter({'url': {'$exists': True}}, skip, limit, sort_key, direction)
+        return self.filter({}, skip, limit, sort_key, direction)
 
     def filter(self, condition: Dict[str, Any], skip: int = None, limit: int = None, sort_key: str = '',
                direction: ASCENDING | DESCENDING = ASCENDING) -> Iterable[T]:
-        find = self.collection.find(condition)
+        cursor = self.collection.find(condition)
         if skip:
-            find.skip(skip)
+            cursor.skip(skip)
         if limit:
-            find.limit(limit)
+            cursor.limit(limit)
         if sort_key or direction:
-            find.sort(sort_key, direction=direction)
-        return map(lambda c: self.collection_type.from_dict(c), find)
+            cursor.sort(sort_key, direction=direction)
+
+        self.log.debug(f'Filtered with [{condition}]: {cursor}')
+        return map(lambda c: self.collection_type.from_dict(c), cursor)
 
     @property
     def size(self) -> int:
@@ -66,27 +66,3 @@ class CollectionHandler[T]:
         many = self.collection.delete_many(condition)
         self.log.debug(f'Deleting [{condition}] affected [{many.deleted_count}] items')
         return many
-
-
-class JobOfferDb:
-    def __init__(self):
-        set_storage('.mongitadb', storage='sqlite', check_same_thread=False)
-        self.client = MontyClient(repository='.mongitadb')
-        self.db = self.client['job_offers_db']
-        self.log = logging.getLogger(__name__)
-
-    @property
-    def sites(self) -> CollectionHandler[JobSiteDto]:
-        return CollectionHandler[JobSiteDto](self.db['target_sites'], JobSiteDto)
-
-    @property
-    def jobs(self) -> CollectionHandler[JobOfferDto]:
-        return CollectionHandler[JobOfferDto](self.db['job_offers'], JobOfferDto)
-
-    @property
-    def jobs_body(self) -> CollectionHandler[JobOfferBodyDto]:
-        return CollectionHandler[JobOfferBodyDto](self.db['job_offers_body'], JobOfferBodyDto)
-
-    @property
-    def jobs_analyze(self):
-        return CollectionHandler[JobOfferAnalyzeDto](self.db['job_offers_analyze'], JobOfferAnalyzeDto)

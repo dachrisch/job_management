@@ -35,6 +35,8 @@ class JobSite(rx.Base):
 class State(rx.Base):
     is_analyzing: bool = False
     analyzed : bool = False
+    is_composing: bool = False
+    composed : bool = False
 
 class JobOffer(rx.Base):
     title: str = ''

@@ -8,7 +8,7 @@ from scrapy.spiders import SitemapSpider
 from scrapy.spiders.sitemap import iterloc
 from scrapy.utils.sitemap import Sitemap, sitemap_urls_from_robots
 
-from job_offer_spider.db.job_offer import JobOfferDb
+from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db import HasUrl
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
@@ -93,7 +93,7 @@ class JobsFromUrlSpider(JobsFromUrlListSpider):
 
     def __init__(self, site_url: str, *a, **kw):
         super().__init__(scan_urls_callback=lambda: [site_url], *a, **kw)
-        self.db = JobOfferDb()
+        self.db = JobManagementDb()
 
     def inform_site_scanned(self, site_url):
         if not self.db.sites.contains(HasUrl(site_url)):
@@ -109,7 +109,7 @@ class JobsFromDbSpider(JobsFromUrlListSpider):
 
     def __init__(self, *a, **kw):
         super().__init__(scan_urls_callback=self.load_from_database, *a, **kw)
-        self.db = JobOfferDb()
+        self.db = JobManagementDb()
 
     def load_from_database(self) -> Iterable[str]:
         days_offset = self.settings.get('SPIDER_DAYS_OFFSET', 7)

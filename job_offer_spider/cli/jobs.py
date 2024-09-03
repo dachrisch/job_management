@@ -2,12 +2,12 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from job_offer_spider.db.job_offer import JobOfferDb
+from job_offer_spider.db.job_management import JobManagementDb
 
 
 class JobsDbCli:
     def __init__(self):
-        self._db = JobOfferDb()
+        self._db = JobManagementDb()
         console = Console()
         self._l = console.print
         self._spinner = console.status

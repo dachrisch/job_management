@@ -10,13 +10,13 @@ from job_offer_spider.item.db import HasUrl, HasId
 @dataclass_json
 @dataclass
 class JobOfferState:
-    is_analyzing: bool = False
     analyzed: bool = False
+    composed: bool = False
 
 
 @dataclass_json
 @dataclass
-class JobOfferDto(HasUrl, HasId, DataClassJsonMixin):
+class JobOfferDto(HasId, HasUrl, DataClassJsonMixin):
     title: Optional[str] = None
     added: datetime = datetime.now()
     seen: Optional[datetime] = None
@@ -26,14 +26,14 @@ class JobOfferDto(HasUrl, HasId, DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class JobOfferBodyDto(HasUrl, HasId, DataClassJsonMixin):
+class JobOfferBodyDto(HasId, HasUrl, DataClassJsonMixin):
     body: str = field(default=None, repr=False)
     added: datetime = datetime.now()
 
 
 @dataclass_json
 @dataclass
-class JobOfferAnalyzeDto(HasUrl, HasId, DataClassJsonMixin):
+class JobOfferAnalyzeDto(HasId, HasUrl, DataClassJsonMixin):
     title: Optional[str] = None
     about: Optional[str] = None
     company_name: Optional[str] = None

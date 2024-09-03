@@ -8,13 +8,17 @@ from montydb.types.objectid import ObjectId
 @dataclass_json
 @dataclass
 class HasUrl:
-    url: str = None
+    url: str = field()
+
+    def __post_init__(self):
+        if not self.url:
+            raise ValueError(f'No value for url: {self}')
 
 
 @dataclass_json
 @dataclass
 class HasId:
-    id: Optional[ObjectId | None] = field(default=None, metadata=config(field_name='_id', exclude=lambda x: True))
+    id: Optional[ObjectId] = field(default=None, metadata=config(field_name='_id', exclude=lambda x: True))
 
 
 @runtime_checkable

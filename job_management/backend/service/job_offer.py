@@ -4,12 +4,12 @@ from datetime import datetime
 from more_itertools import one
 
 from job_management.backend.entity import JobOffer, JobSite
-from job_offer_spider.db.job_offer import JobOfferDb
+from job_offer_spider.db.job_management import JobManagementDb
 
 
 class JobOfferService:
 
-    def __init__(self, db: JobOfferDb):
+    def __init__(self, db: JobManagementDb):
         self.jobs = db.jobs
         self.jobs_body = db.jobs_body
         self.jobs_analyze = db.jobs_analyze

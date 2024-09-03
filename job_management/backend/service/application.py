@@ -46,8 +46,7 @@ class JobApplicationService(JobOfferService):
         page_content = one(self.jobs_body.filter({'url': {'$eq': job_offer.url}}))
         user_prompt = f'The web page content is: {page_content.body}'
         analyzed_result = c.as_system(system_prompt).as_user(user_prompt).complete()
-        analyze_dto = JobOfferAnalyzeDto(**analyzed_result['job'])
-        analyze_dto.url = job_offer.url
+        analyze_dto = JobOfferAnalyzeDto(url=job_offer.url, **analyzed_result['job'])
         self.log.debug(f'Finished analyzing offer: {analyze_dto}')
         self.jobs_analyze.add(analyze_dto)
         self.jobs.update_one({'url': job_offer.url}, {'$set': {'state.analyzed': True}})

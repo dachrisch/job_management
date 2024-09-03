@@ -38,6 +38,10 @@ class JobsFromUrlListSpider(SitemapSpider):
         if response.url.endswith("/robots.txt"):
             for url in sitemap_urls_from_robots(response.text, base_url=response.url):
                 yield Request(url, callback=self._parse_sitemap, cb_kwargs=kwargs)
+            else:
+                site_url = urlparse(response.url, 'https')
+                yield Request(site_url._replace(path='/sitemap.xml').geturl(), callback=self._parse_sitemap,
+                              cb_kwargs=kwargs)
         else:
             body = self._get_sitemap_body(response)
             if body is None:

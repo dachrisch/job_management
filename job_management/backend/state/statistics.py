@@ -15,7 +15,7 @@ class JobsStatisticsState(rx.State):
         self.db = JobOfferDb()
         self.info = logging.getLogger(self.__class__.__name__).info
 
-    def load_jobs(self):
+    def load_jobs_statistic(self):
         self.num_jobs = self.db.jobs.count({})
         self.num_jobs_yesterday = self.db.jobs.count(
             {'added': {'$lt': (datetime.now() - timedelta(days=1)).timestamp()}})

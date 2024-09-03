@@ -23,8 +23,6 @@ class JobSite(rx.Base):
     jobs: Statistics = Field(default_factory=lambda: Statistics())
     added: datetime = None
     last_scanned: datetime = None
-    crawling: bool = False
-    deleting: bool = False
     status: Status = Field(default_factory=lambda: Status())
 
     @validator('jobs', pre=True)

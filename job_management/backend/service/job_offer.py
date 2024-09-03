@@ -1,18 +1,20 @@
+import logging
 from datetime import datetime
 from typing import override, Optional
 
 from more_itertools import one
 
 from job_management.backend.entity import JobOffer, JobSite
-from job_offer_spider.db.job_offer import CollectionHandler, JobOfferDb
-from job_offer_spider.item.db.job_offer import JobOfferDto
-from job_offer_spider.item.db.sites import JobSiteDto
+from job_offer_spider.db.job_offer import JobOfferDb
 
 
 class JobOfferService:
 
-    def __init__(self, jobs: CollectionHandler[JobOfferDto]):
-        self.jobs = jobs
+    def __init__(self, db: JobOfferDb):
+        self.jobs = db.jobs
+        self.jobs_body = db.jobs_body
+        self.jobs_analyze = db.jobs_analyze
+        self.log = logging.getLogger(f'{__name__}')
 
     def jobs_for_site(self, site: JobSite) -> list[JobOffer]:
         return list(
@@ -36,12 +38,17 @@ class JobOfferService:
         self.jobs.update_one({'url': {'$eq': job.url}}, {'$unset': {'seen': ''}})
 
     def clear_jobs_for_site(self, site: JobSite):
-        self.jobs.delete_many({'site_url': {'$eq': site.url}})
+        jobs_url = list(map(lambda s: s.url, self.jobs.filter({'site_url': {'$eq': site.url}})))
+        self.log.debug(f'clearing jobs for [{site}]: deleting [{len(jobs_url)}] jobs')
+        delete_result = self.jobs.delete_many({'url': {'$in': jobs_url}})
+        assert delete_result.deleted_count == len(jobs_url)
+        self.jobs_body.delete_many({'url': {'$in': jobs_url}})
+        self.jobs_analyze.delete_many({'url': {'$in': jobs_url}})
 
 
 class JobSitesService:
-    def __init__(self, sites: CollectionHandler[JobSiteDto]):
-        self.sites = sites
+    def __init__(self, db: JobOfferDb):
+        self.sites = db.sites
 
     def site_for_url(self, site_url: str) -> JobSite:
         return one(map(lambda s: JobSite(**s.to_dict()), self.sites.filter({'url': {'$eq': site_url}})))
@@ -55,8 +62,8 @@ class JobSitesService:
 
 class SitesJobsOfferService(JobOfferService, JobSitesService):
     def __init__(self, db: JobOfferDb):
-        JobOfferService.__init__(self, db.jobs)
-        JobSitesService.__init__(self, db.sites)
+        JobOfferService.__init__(self, db)
+        JobSitesService.__init__(self, db)
 
     @override
     def hide_job(self, job: JobOffer):
@@ -76,3 +83,7 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
     def clear_jobs(self, site: JobSite):
         self.clear_jobs_for_site(site)
         self.update_jobs_statistics(site, total=0, unseen=0)
+
+    def delete(self, site: JobSite):
+        self.clear_jobs_for_site(site)
+        self.sites.delete_many({'url': {'$eq': site.url}})

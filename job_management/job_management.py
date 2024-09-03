@@ -16,7 +16,7 @@ from .views import sites_view
 from .views.application_view import ApplicationState
 
 
-@rx.page(route="/", title="Job Management App", on_load=[JobsStatisticsState.load_jobs])
+@rx.page(route="/", title="Job Management App", on_load=[JobsStatisticsState.load_jobs_statistic])
 def index() -> rx.Component:
     return rx.vstack(
         navbar(),

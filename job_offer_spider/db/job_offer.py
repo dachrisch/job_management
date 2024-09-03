@@ -88,4 +88,4 @@ class JobOfferDb:
 
     @property
     def jobs_analyze(self):
-        return CollectionHandler[JobOfferBodyDto](self.db['job_offers_analyze'], JobOfferAnalyzeDto)
+        return CollectionHandler[JobOfferAnalyzeDto](self.db['job_offers_analyze'], JobOfferAnalyzeDto)

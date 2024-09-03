@@ -8,6 +8,7 @@ from montydb import ASCENDING, DESCENDING
 from job_management.backend.crawl import CrochetCrawlerRunner
 from job_management.backend.entity import JobSite, JobOffer
 from job_management.backend.service.job_offer import JobSitesService, SitesJobsOfferService
+from job_management.backend.state.statistics import JobsStatisticsState
 from job_offer_spider.db.job_offer import JobOfferDb
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.spider.findjobs import JobsFromUrlSpider
@@ -32,7 +33,7 @@ class SitesState(rx.State):
         self.debug = logging.getLogger(self.__class__.__name__).debug
         self.site_service = SitesJobsOfferService(self.db)
 
-    def load_sites(self):
+    async def load_sites(self):
         self.info('Loading sites...')
         self._sites = list(
             map(self.load_job_site, self.db.sites.all(skip=self.page * self.page_size, limit=self.page_size,
@@ -42,24 +43,25 @@ class SitesState(rx.State):
         self.num_sites = self.db.sites.count({})
         self.num_sites_yesterday = self.db.sites.count(
             {'added': {'$lt': (datetime.now() - timedelta(days=1)).timestamp()}})
+        (await self.get_state(JobsStatisticsState)).load_jobs_statistic()
         self.info(f'Loaded [{len(self._sites)}] sites for page [{self.page + 1} of {self.total_pages}]...')
 
     @rx.var(cache=False)
     def sites(self) -> list[JobSite]:
         return self._sites
 
-    def toggle_sort(self):
+    async def toggle_sort(self):
         self.sort_reverse = not self.sort_reverse
-        self.load_sites()
+        await self.load_sites()
 
-    def change_sort_value(self, new_value: str):
+    async def change_sort_value(self, new_value: str):
         self.sort_value = new_value
-        self.load_sites()
+        await self.load_sites()
 
-    def add_site_to_db(self, form_data: dict):
+    async def add_site_to_db(self, form_data: dict):
         site = JobSiteDto.from_dict(form_data)
         self.db.sites.add(site)
-        self.load_sites()
+        await self.load_sites()
         if form_data.get('crawling'):
             return SitesState.start_crawl(site.to_dict())
 
@@ -67,16 +69,14 @@ class SitesState(rx.State):
     async def delete_site(self, site_dict: dict):
         site = self._find_site(site_dict)
         async with self:
-            site.deleting = True
-        for site in self.db.sites.filter({'url': {'$eq': site_dict['url']}}):
-            self.info(f'Deleting {site}')
-            self.db.sites.delete(site)
-        delete_many_result = self.db.jobs.collection.delete_many({'site_url': {'$eq': site_dict['url']}})
+            site.status.deleting = True
+
+        self.site_service.delete(site)
+
         async with self:
-            self.load_sites()
-        async with self:
-            site.deleting = False
-        return rx.toast.success(f'Deleted [{site_dict["title"]}] and [{delete_many_result.deleted_count}] jobs')
+            site.status.deleting = False
+            await self.load_sites()
+        return rx.toast.success(f'Deleted [{site_dict["title"]}]')
 
     @rx.background
     async def start_crawl(self, site_dict: dict[str, Any]):
@@ -86,15 +86,15 @@ class SitesState(rx.State):
 
         async with self:
             if site:
-                site.crawling = True
+                site.status.crawling = True
 
         crawler = CrochetCrawlerRunner(JobsFromUrlSpider, site.url)
         stats = crawler.crawl().wait(timeout=600)
 
         async with self:
             if site:
-                site.crawling = False
-            self.load_sites()
+                site.status.crawling = False
+            await self.load_sites()
         return self.fire_stats_toast(site.url, stats)
 
     def _find_site(self, site_dict: dict[str, Any]) -> JobSite | None:
@@ -158,5 +158,5 @@ class SitesState(rx.State):
         self.site_service.clear_jobs(site)
 
         async with self:
-            self.load_sites()
+            await self.load_sites()
             site.status.clearing = False

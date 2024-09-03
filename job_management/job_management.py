@@ -13,7 +13,7 @@ from .components.navbar import navbar
 from .views.sites_view import stats_cards_group
 from .views import jobs_view, application_view
 from .views import sites_view
-from .views.application_view import ApplicationState
+from .backend.state.application import ApplicationState
 
 
 @rx.page(route="/", title="Job Management App", on_load=[JobsStatisticsState.load_jobs_statistic])

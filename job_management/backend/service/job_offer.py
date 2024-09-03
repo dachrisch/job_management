@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime
-from typing import override, Optional
 
 from more_itertools import one
 
@@ -19,6 +18,10 @@ class JobOfferService:
     def jobs_for_site(self, site: JobSite) -> list[JobOffer]:
         return list(
             map(lambda s: JobOffer(**s.to_dict()), self.jobs.filter({'site_url': {'$eq': site.url}}, sort_key='seen')))
+
+    def job_from_url(self, job_url:str):
+        return one(
+                map(lambda s: JobOffer(**s.to_dict()), self.jobs.filter({'url': {'$eq': job_url}})))
 
     def count_jobs_unseen_for_site(self, site: JobSite):
         return self.jobs.count(
@@ -46,44 +49,3 @@ class JobOfferService:
         self.jobs_analyze.delete_many({'url': {'$in': jobs_url}})
 
 
-class JobSitesService:
-    def __init__(self, db: JobOfferDb):
-        self.sites = db.sites
-
-    def site_for_url(self, site_url: str) -> JobSite:
-        return one(map(lambda s: JobSite(**s.to_dict()), self.sites.filter({'url': {'$eq': site_url}})))
-
-    def update_jobs_statistics(self, site: JobSite, total: Optional[int] = None, unseen: Optional[int] = None):
-        if total is not None:
-            self.sites.update_one({'url': {'$eq': site.url}}, {'$set': {'jobs.total': total}})
-        if unseen is not None:
-            self.sites.update_one({'url': {'$eq': site.url}}, {'$set': {'jobs.unseen': unseen}})
-
-
-class SitesJobsOfferService(JobOfferService, JobSitesService):
-    def __init__(self, db: JobOfferDb):
-        JobOfferService.__init__(self, db)
-        JobSitesService.__init__(self, db)
-
-    @override
-    def hide_job(self, job: JobOffer):
-        super().hide_job(job)
-        self.update_unseen_for_job(job)
-
-    @override
-    def show_job(self, job: JobOffer):
-        super().show_job(job)
-        self.update_unseen_for_job(job)
-
-    def update_unseen_for_job(self, job):
-        site = self.site_for_url(job.site_url)
-        unseen_jobs = self.count_jobs_unseen_for_site(site)
-        self.update_jobs_statistics(site, unseen=unseen_jobs)
-
-    def clear_jobs(self, site: JobSite):
-        self.clear_jobs_for_site(site)
-        self.update_jobs_statistics(site, total=0, unseen=0)
-
-    def delete(self, site: JobSite):
-        self.clear_jobs_for_site(site)
-        self.sites.delete_many({'url': {'$eq': site.url}})

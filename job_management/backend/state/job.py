@@ -4,7 +4,8 @@ from typing import Any
 import reflex as rx
 
 from job_management.backend.entity import JobOffer, JobSite
-from job_management.backend.service.job_offer import JobOfferService, JobSitesService, SitesJobsOfferService
+from job_management.backend.service.job_offer import JobOfferService
+from job_management.backend.service.site import JobSitesService, SitesJobsOfferService
 from job_offer_spider.db.job_offer import JobOfferDb
 
 

@@ -1,68 +1,8 @@
-import os
-
 import reflex as rx
 from reflex import Style
 
-from job_management.backend.ai.conversation import Conversation
-from job_management.backend.entity import JobOffer, JobOfferAnalyze
+from job_management.backend.state.application import ApplicationState
 from job_management.components.card import card
-from job_offer_spider.db.job_offer import JobOfferDb
-from job_offer_spider.item.db.job_offer import JobOfferAnalyzeDto
-
-
-class ApplicationState(rx.State):
-    job_offer: JobOffer = JobOffer()
-    analyzed_job_offer: JobOfferAnalyze = JobOfferAnalyze()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.db = JobOfferDb()
-
-    def load_current_job_offer(self):
-        job_url = self.router.page.params.get('job', None)
-        if job_url:
-            self.job_offer = next(
-                map(lambda s: JobOffer(**s.to_dict()), self.db.jobs.filter({'url': {'$eq': job_url}})))
-            self.analyzed_job_offer = next(map(lambda a: JobOfferAnalyze(**a.to_dict()),
-                                               self.db.jobs_analyze.filter({'url': {'$eq': self.job_offer.url}})), None)
-            self.job_offer.is_analyzed = self.analyzed_job_offer is not None
-
-    @rx.background
-    async def analyze_job(self):
-        async with self:
-            self.job_offer.is_analyzing = True
-
-        c = Conversation(openai_api_key=os.getenv('OPENAI_API_KEY'))
-        system_prompt = ('Analyze the content of this webpage and find the job description. '
-                         'if no job description is found, return empty json as {}'
-                         'if a job description is found, respond with'
-                         '{'
-                         '"job":{'
-                         '"title": <job title>,'
-                         '"about": <all infos about the company and general job description>,'
-                         '"company_name": <name of the company>,'
-                         '"requirements": <all infos about required skills>,'
-                         '"responsibilities": <all infos about the tasks and responsibilities of this role>,'
-                         '"offers": <what the company is offering in this position>,'
-                         '"additional": <all additional infos not covered before>'
-                         '}'
-                         '}')
-        page_content = list(self.db.jobs_body.filter({'url': {'$eq': self.job_offer.url}}))[0]
-        user_prompt = f'The web page content is: {page_content.body}'
-
-        async with self:
-            analyzed_result = c.as_system(system_prompt).as_user(user_prompt).complete()
-            analyze_dto = JobOfferAnalyzeDto(**analyzed_result['job'])
-            analyze_dto.url = self.job_offer.url
-            self.db.jobs_analyze.add(analyze_dto)
-            self.load_current_job_offer()
-            self.job_offer.is_analyzed = True
-
-
-        async with self:
-            self.job_offer.is_analyzing = False
-
-
 
 # Common styles for questions and answers.
 shadow = "rgba(0, 0, 0, 0.15) 0px 2px 8px"

@@ -5,6 +5,7 @@ from reflex import Style, Var
 
 from job_management.backend.state.application import ApplicationState
 from job_management.backend.state.cv import CvState
+from job_management.backend.state.refinement import RefinementState
 from job_management.components.card import card
 
 # Common styles for questions and answers.
@@ -35,6 +36,58 @@ button_style = Style(
 )
 
 
+def item(step: str, required=True, in_progress=False, complete: bool = False, process_callback: Callable = None,
+         view_callback: Callable[[], rx.Component] = lambda: rx.text('')):
+    return rx.hstack(
+        rx.button(
+            rx.icon('play'),
+            variant=rx.cond(required & ~complete, '', 'surface'),
+            on_click=process_callback,
+            loading=in_progress
+        ),
+        rx.cond(complete, rx.icon('circle-check-big'), rx.icon('circle')),
+        rx.text(step, size="4"),
+        rx.spacer(),
+
+        rx.popover.root(
+            rx.popover.trigger(
+                rx.button(
+                    rx.icon('ellipsis'),
+                )
+            ),
+            rx.popover.content(
+                view_callback(),
+                style={"width": 500, 'height':400},
+    )
+
+        ),
+        width='100%',
+        align='center',
+
+    )
+
+
+def display_analyzed_job():
+    return rx.vstack(
+        rx.heading('Company'),
+        ApplicationState.job_offer_analyzed.company_name,
+        rx.heading('Title'),
+        ApplicationState.job_offer_analyzed.title,
+        rx.heading('About'),
+        ApplicationState.job_offer_analyzed.about,
+        rx.heading('Requirements'),
+        ApplicationState.job_offer_analyzed.requirements,
+        rx.heading('Offers'),
+        ApplicationState.job_offer_analyzed.offers,
+    )
+
+def display_cv():
+    return rx.vstack(
+        rx.text('Filename'),
+        rx.text(CvState.cv_data.title),
+        rx.text(CvState.cv_data.text)
+    )
+
 def header():
     return rx.vstack(
         card(
@@ -42,6 +95,75 @@ def header():
             'green',
             ApplicationState.job_offer.title,
             ApplicationState.job_offer.url,
+        ), rx.card(
+            rx.vstack(
+                item('Analyse',
+                     complete=ApplicationState.job_offer.state.analyzed,
+                     in_progress=ApplicationState.job_offer.state.is_analyzing,
+                     process_callback=ApplicationState.analyze_job,
+                     view_callback=display_analyzed_job
+                     ),
+                item('Upload CV',
+                     complete=CvState.has_cv_data,
+                     process_callback=CvState.toggle_load_cv_data_open,
+                     view_callback=display_cv,
+                     required=False
+                     ),
+                item('Prompt Refinements', required=False),
+                item('Generate Application', ),
+                item('Store Document', ),
+                spacing="4",
+                width="100%",
+                align="start"
+            )),
+        rx.hstack(
+            rx.button(rx.icon('search-code'), rx.text('Analyze', size='4')),
+            rx.icon('chevron-right'),
+            rx.button(rx.icon('file-text'), rx.text('Upload CV', size='4'), ),
+            rx.icon('chevron-right'),
+            rx.button(rx.icon('message-circle-more'), rx.text('Refinement', size='4'),
+                      on_click=RefinementState.toggle_dialog,
+                      variant='surface'
+                      ),
+            rx.dialog.root(
+                rx.dialog.content(
+                    rx.dialog.title('Prompt Refinements'),
+                    rx.dialog.description('Enter the prompt to refine the application generation',
+                                          size="2",
+                                          margin_bottom="16px", ),
+                    rx.flex(
+                        rx.text_area(placeholder='Your prompt refinements', name='prompt_refinement',
+                                     value=RefinementState.prompt, on_change=RefinementState.new_prompt),
+                        direction="column",
+                        spacing="3",
+                    ),
+                    rx.flex(
+                        rx.dialog.close(
+                            rx.button(
+                                "Cancel",
+                                color_scheme="gray",
+                                variant="soft",
+                            ),
+                            on_click=RefinementState.cancel_dialog,
+                        ),
+                        rx.dialog.close(
+                            rx.button("Save"),
+                            on_click=RefinementState.save_dialog,
+                        ),
+                        spacing="3",
+                        margin_top="16px",
+                        justify="end",
+                    ),
+                ),
+                open=RefinementState.refinement_open
+            ),
+            rx.icon('chevron-right'),
+            rx.button(rx.icon('notebook-pen'), rx.text('Generate', size='4'),
+                      disabled=True),
+            rx.icon('chevron-right'),
+            rx.button(rx.icon('hard-drive-upload'), rx.text('Store', size='4'),
+                      disabled=True),
+            align='center'
         ),
         align='center'
     )

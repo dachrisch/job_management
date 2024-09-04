@@ -3,6 +3,7 @@ import logging
 from montydb import MontyClient, set_storage
 
 from job_offer_spider.db.collection import CollectionHandler
+from job_offer_spider.item.db.cover_letter import JobOfferCoverLetterDto
 from job_offer_spider.item.db.cv import CvDto
 from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto, JobOfferAnalyzeDto, JobOfferApplicationDto
 from job_offer_spider.item.db.sites import JobSiteDto
@@ -34,6 +35,10 @@ class JobManagementDb:
     @property
     def jobs_application(self):
         return CollectionHandler[JobOfferApplicationDto](self.db['job_offers_application'], JobOfferApplicationDto)
+
+    @property
+    def cover_letter_docs(self):
+        return CollectionHandler[JobOfferCoverLetterDto](self.db['cover_letter_docs'], JobOfferCoverLetterDto)
 
     @property
     def cvs(self):

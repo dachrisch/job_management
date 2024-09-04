@@ -6,3 +6,4 @@ assets/external/
 .idea
 .mongitadb
 *.log
+/google.json

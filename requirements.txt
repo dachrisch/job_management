@@ -8,7 +8,9 @@ itemadapter~=0.9.0
 dataclasses-json
 # ui
 reflex
-crochet
-openai
-more_itertools
-pydantic
+crochet # run scrapy in process
+openai # analyse and composing
+more_itertools # one
+pydantic # rx.Base store
+google-api-python-client # storage
+google-auth-oauthlib # storage auth

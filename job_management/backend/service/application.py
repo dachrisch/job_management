@@ -3,7 +3,7 @@ import string
 
 from more_itertools import one, first
 
-from job_management.backend.ai.conversation import Conversation
+from job_management.backend.api.conversation import Conversation
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.offer_analyzed import JobOfferAnalyze
 from job_management.backend.entity.offer_application import JobOfferApplication
@@ -59,8 +59,8 @@ class JobApplicationService(JobOfferService):
         return first(map(lambda a: JobOfferApplication(**a.to_dict()),
                          self.jobs_application.filter({'url': {'$eq': job_offer.url}})), None)
 
-    def compose_application(self, job_offer: JobOffer) -> JobOfferApplicationDto:
-        self.log.info(f'Composing application for [{job_offer}]')
+    def compose_application(self, job_offer_analyzed: JobOfferAnalyze) -> JobOfferApplicationDto:
+        self.log.info(f'Composing application for [{job_offer_analyzed}]')
         prompt_template = string.Template('''Help me write an application for the job indicated by JOBDESC
 
 Use the data from my cv as indicated by CVDATA
@@ -87,20 +87,20 @@ ${CVDATA}
 <<<<CVDATA
 
 ''')
-        analyzed_job = self.load_job_analysis(job_offer)
         cv_data = first(self.cvs.all(), None)
         application_prompt = prompt_template.safe_substitute({
-            'JOBDESC': repr(analyzed_job),
+            'JOBDESC': repr(job_offer_analyzed),
             'CVDATA': cv_data.text
         })
         c = Conversation(openai_api_key=self.openai_api_key, response_format="text")
         c.as_user(application_prompt)
 
-        application_dto = JobOfferApplicationDto(url=job_offer.url, text=c.complete())
+        application_dto = JobOfferApplicationDto(url=job_offer_analyzed.url, text=c.complete())
 
         self.jobs_application.add(application_dto)
-        self.jobs.update_one({'url': job_offer.url}, {'$set': {'state.composed': True}})
+        self.jobs.update_one({'url': job_offer_analyzed.url}, {'$set': {'state.composed': True}})
 
         self.log.debug(f'Finished composing application: {application_dto}')
 
         return application_dto
+

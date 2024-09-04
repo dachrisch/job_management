@@ -164,11 +164,46 @@ def chat_composing() -> rx.Component:
         )
     )
 
+
 def chat_composed() -> rx.Component:
     return qa(
         answer=rx.vstack(
             rx.markdown(ApplicationState.job_offer_application.text),
+        )
+    )
+
+
+def chat_storable() -> rx.Component:
+    return qa(
+        answer=rx.vstack(
+            rx.text('We are ready to create the cover letter'),
             rx.button('Create Google doc', on_click=ApplicationState.store_in_google_doc)
+        )
+    )
+
+
+def chat_storing() -> rx.Component:
+    return qa(
+        question=rx.text('Create the cover letter in google docs.'),
+        answer=rx.vstack(
+            rx.text('We are ready to store the document'),
+            rx.button('Create Google doc', loading=ApplicationState.job_offer.state.is_storing,
+                      disabled=ApplicationState.job_offer.state.stored)
+        )
+    )
+
+
+def chat_stored() -> rx.Component:
+    return qa(
+        answer=rx.vstack(
+            rx.markdown(
+                'Here we have your document: '
+                f'[{ApplicationState.job_offer_cover_letter_doc.name}]'
+                f'(https://docs.google.com/document/d/{ApplicationState.job_offer_cover_letter_doc.document_id})',
+                component_map={
+                    'a': lambda text, **props: rx.link(text, target='_blank', **props)
+                }
+            ),
         )
     )
 
@@ -197,10 +232,22 @@ def chat() -> rx.Component:
         chat_composing, chat_empty,
     ))
     chat_history.append((
-        ApplicationState.job_offer.state.analyzed
-        & CvState.has_cv_data
-        & ApplicationState.job_offer.state.composed,
+        ApplicationState.job_offer.state.composed,
         chat_composed, chat_empty,
+    ))
+    chat_history.append((
+        ApplicationState.job_offer.state.composed
+        & ~(ApplicationState.job_offer.state.is_storing | ApplicationState.job_offer.state.stored),
+        chat_storable, chat_empty,
+    ))
+    chat_history.append((
+        ApplicationState.job_offer.state.composed
+        & (ApplicationState.job_offer.state.is_storing | ApplicationState.job_offer.state.stored),
+        chat_storing, chat_empty,
+    ))
+    chat_history.append((
+        ApplicationState.job_offer.state.stored,
+        chat_stored, chat_empty,
     ))
 
     return rx.vstack(

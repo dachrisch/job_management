@@ -106,15 +106,15 @@ def chat_analyzed() -> rx.Component:
     return qa(
         answer=rx.vstack(
             rx.heading('Company'),
-            ApplicationState.analyzed_job_offer.company_name,
+            ApplicationState.job_offer_analyzed.company_name,
             rx.heading('Title'),
-            ApplicationState.analyzed_job_offer.title,
+            ApplicationState.job_offer_analyzed.title,
             rx.heading('About'),
-            ApplicationState.analyzed_job_offer.about,
+            ApplicationState.job_offer_analyzed.about,
             rx.heading('Requirements'),
-            ApplicationState.analyzed_job_offer.requirements,
+            ApplicationState.job_offer_analyzed.requirements,
             rx.heading('Offers'),
-            ApplicationState.analyzed_job_offer.offers,
+            ApplicationState.job_offer_analyzed.offers,
         )
     )
 
@@ -167,8 +167,8 @@ def chat_composing() -> rx.Component:
 def chat_composed() -> rx.Component:
     return qa(
         answer=rx.vstack(
-            rx.markdown(ApplicationState.application),
-            rx.button('Create Google doc', on_click=ApplicationState.compose_application)
+            rx.markdown(ApplicationState.job_offer_application.text),
+            rx.button('Create Google doc', on_click=ApplicationState.store_in_google_doc)
         )
     )
 

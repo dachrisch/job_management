@@ -12,3 +12,5 @@ class JobStatus(rx.Base):
     analyzed : bool = False
     is_composing: bool = False
     composed : bool = False
+    is_storing: bool = False
+    stored : bool = False

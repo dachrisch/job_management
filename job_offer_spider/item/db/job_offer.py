@@ -12,6 +12,7 @@ from job_offer_spider.item.db import HasUrl, HasId
 class JobOfferState:
     analyzed: bool = False
     composed: bool = False
+    stored: bool = False
 
 
 @dataclass_json
@@ -41,4 +42,11 @@ class JobOfferAnalyzeDto(HasId, HasUrl, DataClassJsonMixin):
     responsibilities: Optional[str] = None
     offers: Optional[str] = None
     additional: Optional[str] = None
+    added: datetime = datetime.now()
+
+
+@dataclass_json
+@dataclass
+class JobOfferApplicationDto(HasId, HasUrl, DataClassJsonMixin):
+    text: Optional[str] = None
     added: datetime = datetime.now()

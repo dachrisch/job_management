@@ -15,7 +15,7 @@ from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
 
 
 class JobsFromUrlListSpider(SitemapSpider):
-    sitemap_follow = ['/job/', '/jobs/', '/career/', '/careers/', '/sitemap', '/stellenangebote', 'sitemap']
+    sitemap_follow = ['/job/', '/jobs/', '/career/', '/careers/', '/sitemap', '/stellenangebote', '/stellenmarkt', 'sitemap']
 
     def __init__(self, scan_urls_callback: Callable[[], Iterable[str]], *a, **kw):
         super().__init__(*a, **kw)
@@ -63,6 +63,7 @@ class JobsFromUrlListSpider(SitemapSpider):
                 for loc in iterloc(it, self.sitemap_alternate_links):
                     for r, c in self._cbs:
                         if r.search(loc):
+                            # added cb_kwargs
                             yield Request(loc, callback=c, cb_kwargs=kwargs)
                             break
 
@@ -76,7 +77,7 @@ class JobsFromUrlListSpider(SitemapSpider):
         item_loader.add_css('title', 'h1::text')
         item_loader.add_value('url', response.url)
         item_loader.add_value('body', response.text)
-        item_loader.add_value('site_url', kwargs.get('site_url', None))
+        item_loader.add_value('site_url', kwargs.get('site_url'))
         if not item_loader.get_output_value('title'):
             item_loader.replace_xpath('title', '//meta[@property="og:title"]/@content')
         if not item_loader.get_output_value('title'):

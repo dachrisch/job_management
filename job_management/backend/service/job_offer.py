@@ -14,15 +14,17 @@ class JobOfferService:
         self.jobs = db.jobs
         self.jobs_body = db.jobs_body
         self.jobs_analyze = db.jobs_analyze
+        self.jobs_application = db.jobs_application
+        self.cover_letter_docs = db.cover_letter_docs
         self.log = logging.getLogger(f'{__name__}')
 
     def jobs_for_site(self, site: JobSite) -> list[JobOffer]:
         return list(
             map(lambda s: JobOffer(**s.to_dict()), self.jobs.filter({'site_url': {'$eq': site.url}}, sort_key='seen')))
 
-    def job_from_url(self, job_url:str):
+    def job_from_url(self, job_url: str):
         return one(
-                map(lambda s: JobOffer(**s.to_dict()), self.jobs.filter({'url': {'$eq': job_url}})))
+            map(lambda s: JobOffer(**s.to_dict()), self.jobs.filter({'url': {'$eq': job_url}})))
 
     def count_jobs_unseen_for_site(self, site: JobSite):
         return self.jobs.count(
@@ -48,5 +50,5 @@ class JobOfferService:
         assert delete_result.deleted_count == len(jobs_url)
         self.jobs_body.delete_many({'url': {'$in': jobs_url}})
         self.jobs_analyze.delete_many({'url': {'$in': jobs_url}})
-
-
+        self.jobs_application.delete_many({'url': {'$in': jobs_url}})
+        self.cover_letter_docs.delete_many({'url': {'$in': jobs_url}})

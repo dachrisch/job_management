@@ -104,18 +104,27 @@ def chat_analyze_load() -> rx.Component:
 
 def chat_analyzed() -> rx.Component:
     return qa(
-        answer=rx.vstack(
-            rx.heading('Company'),
-            ApplicationState.job_offer_analyzed.company_name,
-            rx.heading('Title'),
-            ApplicationState.job_offer_analyzed.title,
-            rx.heading('About'),
-            ApplicationState.job_offer_analyzed.about,
-            rx.heading('Requirements'),
-            ApplicationState.job_offer_analyzed.requirements,
-            rx.heading('Offers'),
-            ApplicationState.job_offer_analyzed.offers,
-        )
+        answer=rx.vstack(rx.text('The Job was analyzed. Here is what we found.'),
+                         rx.accordion.root(
+                             rx.accordion.item(header='Job Description',
+                                               content=rx.vstack(
+                                                   rx.heading('Company'),
+                                                   ApplicationState.job_offer_analyzed.company_name,
+                                                   rx.heading('Title'),
+                                                   ApplicationState.job_offer_analyzed.title,
+                                                   rx.heading('About'),
+                                                   ApplicationState.job_offer_analyzed.about,
+                                                   rx.heading('Requirements'),
+                                                   ApplicationState.job_offer_analyzed.requirements,
+                                                   rx.heading('Offers'),
+                                                   ApplicationState.job_offer_analyzed.offers,
+                                               )
+                                               ),
+                             collapsible=True,
+                             width='100%',
+                             variant="surface",
+                         )
+                         )
     )
 
 
@@ -136,7 +145,13 @@ def chat_cv_data_received() -> rx.Component:
     return qa(
         question=rx.vstack(
             rx.text('Here is my CV data'),
-            rx.text(CvState.cv_data.text)
+            rx.accordion.root(
+                rx.accordion.item(header='CV data', content=CvState.cv_data.text),
+                collapsible=True,
+                width='100%',
+                variant="surface",
+
+            )
         ),
         answer=rx.vstack(
             rx.text('Now we need your CV data'),

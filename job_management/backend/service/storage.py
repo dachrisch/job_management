@@ -105,8 +105,9 @@ class JobApplicationStorageService:
 
         ]
 
-        response = docs_service.documents().batchUpdate(
+        docs_service.documents().batchUpdate(
             documentId=cover_letter_file.get('id'), body={'requests': requests}).execute()
+
         return JobOfferCoverLetterDto(url=job_offer_cover_letter.url,
                                       document_id=cover_letter_file.get('id'),
                                       name=cover_letter_file.get('name'))

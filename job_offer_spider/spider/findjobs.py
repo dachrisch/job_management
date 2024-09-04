@@ -15,7 +15,13 @@ from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
 
 
 class JobsFromUrlListSpider(SitemapSpider):
-    sitemap_follow = ['/job/', '/jobs/', '/career/', '/careers/', '/sitemap', '/stellenangebote', '/stellenmarkt', 'sitemap']
+    sitemap_follow = ['/job/', '/jobs/',
+                      '/career/', '/careers/',
+                      '/sitemap',
+                      'sitemap',
+                      'Sitemap',
+                      '/stellenangebote',
+                      ]
 
     def __init__(self, scan_urls_callback: Callable[[], Iterable[str]], *a, **kw):
         super().__init__(*a, **kw)

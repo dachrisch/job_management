@@ -29,6 +29,7 @@ def index() -> rx.Component:
         ),
         width="100%",
         spacing="6",
+        align="center",
         padding_x=["1.5em", "1.5em", "3em"],
     )
 
@@ -37,17 +38,10 @@ def index() -> rx.Component:
 def jobs() -> rx.Component:
     return rx.vstack(
         navbar(rx.Var.create('/', _var_is_string=True)),
-        rx.flex(
-            jobs_view.header(),
-            jobs_view.cards(),
-            spacing="5",
-            width="100%",
-            wrap="wrap",
-            display=["none", "none", "flex"],
-        ),
-
+        jobs_view.render(),
         width="100%",
         spacing="6",
+        align="center",
         padding_x=["1.5em", "1.5em", "3em"],
     )
 
@@ -57,15 +51,10 @@ def jobs() -> rx.Component:
 def application() -> rx.Component:
     return rx.vstack(
         navbar(f'/jobs/?site={ApplicationState.job_offer.site_url}'),
-        rx.flex(
-            application_view.render(),
-            spacing="5",
-            width="100%",
-            wrap="wrap",
-            display=["none", "none", "flex"],
-        ),
+        application_view.render(),
         width="100%",
         spacing="6",
+        align="center",
         padding_x=["1.5em", "1.5em", "3em"],
     )
 

@@ -158,7 +158,6 @@ def navbar(back_link: rx.Var = rx.Var.create('', _var_is_string=True)):
         ),
         rx.spacer(),
         rx.hstack(
-            rx.logo(),
             rx.color_mode.button(),
             options_menu(),
             align="center",

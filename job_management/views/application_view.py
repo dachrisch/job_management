@@ -36,6 +36,78 @@ button_style = Style(
 )
 
 
+def render():
+    return rx.container(
+        rx.flex(
+            header(),
+            rx.vstack(
+                process_steps(),
+                align='center',
+            ),
+            spacing="2",
+            direction="column",
+        ),
+    )
+
+
+def header():
+    return rx.vstack(
+        card(
+            'briefcase',
+            'green',
+            ApplicationState.job_offer.title,
+            ApplicationState.job_offer.url,
+        ),
+        align='center'
+    )
+
+
+def process_steps():
+    return rx.card(
+        rx.vstack(
+            item('Analyse',
+                 'search-code',
+                 complete=ApplicationState.job_offer.state.analyzed,
+                 in_progress=ApplicationState.job_offer.state.is_analyzing,
+                 process_callback=ApplicationState.analyze_job,
+                 view_callback=display_analyzed_job
+                 ),
+            item('Upload CV',
+                 'file-text',
+                 complete=CvState.has_cv_data,
+                 process_callback=CvState.toggle_load_cv_data_open,
+                 view_callback=display_cv,
+                 required=False
+                 ),
+            item('Prompt Refinements',
+                 'message-circle-more',
+                 required=False,
+                 complete=RefinementState.has_prompt,
+                 process_callback=RefinementState.toggle_dialog,
+
+                 ),
+            item('Generate Application',
+                 'notebook-pen',
+                 disabled=~ApplicationState.job_offer.state.analyzed,
+                 complete=ApplicationState.job_offer.state.composed,
+                 in_progress=ApplicationState.job_offer.state.is_composing,
+                 process_callback=ApplicationState.compose_application,
+                 view_callback=display_application
+                 ),
+            item('Store Document',
+                 'hard-drive-upload',
+                 disabled=~ApplicationState.job_offer.state.composed,
+                 complete=ApplicationState.job_offer.state.stored,
+                 in_progress=ApplicationState.job_offer.state.is_storing,
+                 process_callback=ApplicationState.store_in_google_doc,
+                 view_callback=display_stored_doc
+                 ),
+            spacing="4",
+            width="100%",
+            align="start"
+        ))
+
+
 def item(step: str, icon: str = 'play', disabled: bool = False, required=True, in_progress=False,
          complete: bool = False,
          process_callback: Callable = None,
@@ -116,76 +188,4 @@ def display_stored_doc():
                         f'(https://docs.google.com/document/d/{ApplicationState.job_offer_cover_letter_doc.document_id})'),
             align='center'
         )
-    )
-
-
-def process_steps():
-    return rx.card(
-        rx.vstack(
-            item('Analyse',
-                 'search-code',
-                 complete=ApplicationState.job_offer.state.analyzed,
-                 in_progress=ApplicationState.job_offer.state.is_analyzing,
-                 process_callback=ApplicationState.analyze_job,
-                 view_callback=display_analyzed_job
-                 ),
-            item('Upload CV',
-                 'file-text',
-                 complete=CvState.has_cv_data,
-                 process_callback=CvState.toggle_load_cv_data_open,
-                 view_callback=display_cv,
-                 required=False
-                 ),
-            item('Prompt Refinements',
-                 'message-circle-more',
-                 required=False,
-                 complete=RefinementState.has_prompt,
-                 process_callback=RefinementState.toggle_dialog,
-
-                 ),
-            item('Generate Application',
-                 'notebook-pen',
-                 disabled=~ApplicationState.job_offer.state.analyzed,
-                 complete=ApplicationState.job_offer.state.composed,
-                 in_progress=ApplicationState.job_offer.state.is_composing,
-                 process_callback=ApplicationState.compose_application,
-                 view_callback=display_application
-                 ),
-            item('Store Document',
-                 'hard-drive-upload',
-                 disabled=~ApplicationState.job_offer.state.composed,
-                 complete=ApplicationState.job_offer.state.stored,
-                 in_progress=ApplicationState.job_offer.state.is_storing,
-                 process_callback=ApplicationState.store_in_google_doc,
-                 view_callback=display_stored_doc
-                 ),
-            spacing="4",
-            width="100%",
-            align="start"
-        ))
-
-
-def header():
-    return rx.vstack(
-        card(
-            'briefcase',
-            'green',
-            ApplicationState.job_offer.title,
-            ApplicationState.job_offer.url,
-        ),
-        align='center'
-    )
-
-
-def render():
-    return rx.container(
-        rx.flex(
-            header(),
-            rx.vstack(
-                process_steps(),
-                align='center',
-            ),
-            spacing="2",
-            direction="column",
-        ),
     )

@@ -5,6 +5,17 @@ from job_management.backend.state.job import JobState
 from job_management.components.card import card
 
 
+def render():
+    return rx.flex(
+        header(),
+        cards(),
+        spacing="5",
+        width="100%",
+        wrap="wrap",
+        display=["column", "column", "flex"],
+    ),
+
+
 def header():
     return card('building', 'green', JobState.current_site.title, JobState.current_site.url)
 

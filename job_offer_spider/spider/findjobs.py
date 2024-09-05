@@ -3,7 +3,6 @@ from typing import Callable, Iterable
 from urllib.parse import urlparse
 
 from scrapy import Request
-from scrapy.loader import ItemLoader
 from scrapy.spiders import SitemapSpider
 from scrapy.spiders.sitemap import iterloc
 from scrapy.utils.sitemap import Sitemap, sitemap_urls_from_robots
@@ -11,7 +10,7 @@ from scrapy.utils.sitemap import Sitemap, sitemap_urls_from_robots
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db import HasUrl
 from job_offer_spider.item.db.sites import JobSiteDto
-from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
+from job_offer_spider.loader.job_offer_loader import JobOfferItemLoader
 
 
 class JobsFromUrlListSpider(SitemapSpider):
@@ -79,17 +78,10 @@ class JobsFromUrlListSpider(SitemapSpider):
                 yield entry
 
     def parse(self, response, **kwargs):
-        item_loader = ItemLoader(item=JobOfferSpiderItem(), response=response)
-        item_loader.add_css('title', 'h1::text')
-        item_loader.add_value('url', response.url)
-        item_loader.add_value('body', response.text)
-        item_loader.add_value('site_url', kwargs.get('site_url'))
-        if not item_loader.get_output_value('title'):
-            item_loader.replace_xpath('title', '//meta[@property="og:title"]/@content')
-        if not item_loader.get_output_value('title'):
-            item_loader.add_css('title', 'h1::text')
-        if item_loader.get_output_value('title'):
-            yield item_loader.load_item()
+        item_loader = JobOfferItemLoader(response).populate(kwargs.get('site_url'))
+
+        if item_loader.is_valid():
+            yield item_loader.load()
 
     def inform_site_scanned(self, site_url: str):
         pass

@@ -36,12 +36,14 @@ button_style = Style(
 )
 
 
-def item(step: str, required=True, in_progress=False, complete: bool = False, process_callback: Callable = None,
+def item(step: str, icon: str = 'play', enabled: bool = True, required=True, in_progress=False, complete: bool = False,
+         process_callback: Callable = None,
          view_callback: Callable[[], rx.Component] = lambda: rx.text('')):
     return rx.hstack(
         rx.button(
-            rx.icon('play'),
+            rx.icon(icon),
             variant=rx.cond(required & ~complete, '', 'surface'),
+            enabled=enabled,
             on_click=process_callback,
             loading=in_progress
         ),
@@ -49,18 +51,21 @@ def item(step: str, required=True, in_progress=False, complete: bool = False, pr
         rx.text(step, size="4"),
         rx.spacer(),
 
-        rx.popover.root(
-            rx.popover.trigger(
-                rx.button(
-                    rx.icon('ellipsis'),
-                )
-            ),
-            rx.popover.content(
-                view_callback(),
-                style={"width": 500, 'height':400},
-    )
+        rx.cond(complete,
+                rx.popover.root(
+                    rx.popover.trigger(
+                        rx.button(
+                            rx.icon('ellipsis'),
+                        ),
+                    ),
+                    rx.popover.content(
+                        view_callback(),
+                        style={"width": 500, 'height': 400},
+                    )
 
-        ),
+                ),
+                rx.button(rx.icon('ellipsis'), disabled=True)
+                ),
         width='100%',
         align='center',
 
@@ -81,12 +86,14 @@ def display_analyzed_job():
         ApplicationState.job_offer_analyzed.offers,
     )
 
+
 def display_cv():
     return rx.vstack(
         rx.text('Filename'),
         rx.text(CvState.cv_data.title),
         rx.text(CvState.cv_data.text)
     )
+
 
 def header():
     return rx.vstack(
@@ -98,20 +105,38 @@ def header():
         ), rx.card(
             rx.vstack(
                 item('Analyse',
+                     'search-code',
                      complete=ApplicationState.job_offer.state.analyzed,
                      in_progress=ApplicationState.job_offer.state.is_analyzing,
                      process_callback=ApplicationState.analyze_job,
                      view_callback=display_analyzed_job
                      ),
                 item('Upload CV',
+                     'file-text',
                      complete=CvState.has_cv_data,
                      process_callback=CvState.toggle_load_cv_data_open,
                      view_callback=display_cv,
                      required=False
                      ),
-                item('Prompt Refinements', required=False),
-                item('Generate Application', ),
-                item('Store Document', ),
+                item('Prompt Refinements',
+                     'message-circle-more',
+                     required=False,
+                     complete=RefinementState.has_prompt,
+                     process_callback=RefinementState.toggle_dialog,
+
+                     ),
+                item('Generate Application',
+                     'notebook-pen',
+                     enabled=ApplicationState.job_offer.state.analyzed,
+                     complete=ApplicationState.job_offer.state.composed,
+                     process_callback=ApplicationState.analyze_job,
+                     ),
+                item('Store Document',
+                     'hard-drive-upload',
+                     enabled=ApplicationState.job_offer.state.composed,
+                     complete=ApplicationState.job_offer.state.stored,
+                     process_callback=ApplicationState.store_in_google_doc,
+                     ),
                 spacing="4",
                 width="100%",
                 align="start"

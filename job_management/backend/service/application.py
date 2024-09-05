@@ -51,7 +51,7 @@ class JobApplicationService(JobOfferService):
         analyze_dto = JobOfferAnalyzeDto(url=job_offer.url, **analyzed_result['job'])
         self.log.debug(f'Finished analyzing offer: {analyze_dto}')
         self.jobs_analyze.add(analyze_dto)
-        self.jobs.update_one({'url': job_offer.url}, {'$set': {'state.analyzed': True}})
+        self.jobs.update_one({'url': job_offer.url}, {'$set': {'state.analyzed': True}}, expect_modified=False)
 
         return analyze_dto
 
@@ -103,4 +103,3 @@ ${CVDATA}
         self.log.debug(f'Finished composing application: {application_dto}')
 
         return application_dto
-

@@ -3,8 +3,9 @@ import reflex as rx
 
 class RefinementState(rx.State):
     prompt: str = ''
+    _new_prompt: str = ''
     refinement_open: bool = False
-    _new_prompt:str=''
+    has_prompt: bool = False
 
     def toggle_dialog(self):
         self.refinement_open = not self.refinement_open
@@ -16,5 +17,6 @@ class RefinementState(rx.State):
         self.toggle_dialog()
 
     def save_dialog(self):
-        self.prompt=self._new_prompt
+        self.prompt = self._new_prompt
+        self.has_prompt = self.prompt is not None and self.prompt is not ''
         self.toggle_dialog()

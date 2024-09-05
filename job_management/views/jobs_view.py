@@ -17,7 +17,102 @@ def render():
 
 
 def header():
-    return card('building', 'green', JobState.current_site.title, JobState.current_site.url)
+    return rx.container(
+        rx.card(
+            rx.vstack(
+                rx.hstack(
+                    rx.badge(
+                        rx.icon(tag='building', size=34),
+                        radius="full",
+                        padding="0.7rem",
+                    ),
+                    rx.heading(
+                        JobState.current_site.title,
+                        size="6",
+                        weight="bold",
+                    ),
+                    rx.spacer(),
+                    rx.dialog.root(
+                        rx.dialog.trigger(rx.button(rx.icon('briefcase'), rx.text("Add Job"))),
+                        rx.dialog.content(
+                            rx.dialog.title('Add Job Site'),
+                            rx.dialog.description(
+                                'Add a site belonging to this company',
+                                size="2",
+                                margin_bottom="16px",
+                            ),
+                            rx.form.root(
+                                rx.flex(
+                                    rx.text(
+                                        'Job Title',
+                                        as_="div",
+                                        size="2",
+                                        margin_bottom="4px",
+                                        weight="bold",
+                                    ),
+                                    rx.input(
+                                        name='job_title',
+                                        placeholder="Job title...",
+                                    ),
+                                    rx.text(
+                                        'Url',
+                                        as_="div",
+                                        size="2",
+                                        margin_bottom="4px",
+                                        weight="bold",
+                                    ),
+                                    rx.input(
+                                        name='job_url',
+                                        placeholder='Site url with job description',
+                                    ),
+                                    direction="column",
+                                    spacing="3",
+                                ),
+                                rx.flex(
+                                    rx.dialog.close(
+                                        rx.button(
+                                            "Cancel",
+                                            color_scheme="gray",
+                                            variant="soft",
+                                        ),
+                                    ),
+                                    rx.form.submit(
+                                        rx.dialog.close(
+                                            rx.button("Add"),
+                                        ),
+                                        as_child=True,
+                                    ),
+                                    spacing="3",
+                                    margin_top="16px",
+                                    justify="end",
+                                ),
+                                on_submit=JobState.add_job
+                            ),
+                        ),
+                    ),
+                    spacing="1",
+                    height="100%",
+                    align_items="start",
+                    width="100%",
+                ),
+                rx.hstack(
+                    rx.link(
+                        JobState.current_site.url,
+                        href=JobState.current_site.url,
+                        target='_blank',
+                        size="2",
+                        color=rx.color("gray", 10),
+                    ),
+                    align="center",
+                    align_items='start',
+                    width="100%",
+                ),
+                spacing="3",
+            ),
+            size="3",
+            width="100%",
+        )
+    )
 
 
 def cards():
@@ -25,6 +120,7 @@ def cards():
         rx.foreach(JobState.jobs, job_card
                    ),
         gap="1rem",
+
         grid_template_columns=[
             "1fr",
             "repeat(1, 1fr)",
@@ -36,7 +132,7 @@ def cards():
 
 
 def job_card(j: JobOffer):
-    state=rx.cond(j.state.analyzed, 'Analyzed', '')
+    state = rx.cond(j.state.analyzed, 'Analyzed', '')
     return rx.container(
         card('briefcase', 'yellow', j.title, j.url,
              rx.vstack(apply_button(j), hide_button(j)), badge=state),

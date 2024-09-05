@@ -36,3 +36,8 @@ class JobState(rx.State):
         job_offer = JobOffer(**job_dict)
         self.sites_jobs_service.show_job(job_offer)
         self.load_jobs()
+
+    def add_job(self, form_dict: dict[str, Any]):
+        job_offer = JobOffer(site_url=self.current_site.url, title=form_dict['job_title'], url=form_dict['job_url'])
+        self.sites_jobs_service.add_job(job_offer)
+        self.load_jobs()

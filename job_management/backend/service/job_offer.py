@@ -1,11 +1,13 @@
 import logging
 from datetime import datetime
 
+import requests
 from more_itertools import one
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
 from job_offer_spider.db.job_management import JobManagementDb
+from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto
 
 
 class JobOfferService:
@@ -37,6 +39,11 @@ class JobOfferService:
             ]}
         )
 
+    def count_jobs_total_for_site(self, site: JobSite):
+        return self.jobs.count(
+            {'site_url': {'$eq': site.url}}
+        )
+
     def hide_job(self, job: JobOffer):
         self.jobs.update_one({'url': {'$eq': job.url}}, {'$set': {'seen': datetime.now().timestamp()}})
 
@@ -52,3 +59,11 @@ class JobOfferService:
         self.jobs_analyze.delete_many({'url': {'$in': jobs_url}})
         self.jobs_application.delete_many({'url': {'$in': jobs_url}})
         self.cover_letter_docs.delete_many({'url': {'$in': jobs_url}})
+
+    def add_job(self, job: JobOffer):
+        job_body_response = requests.get(job.url)
+        job_body_response.raise_for_status()
+        job_offer_body_dto = JobOfferBodyDto(url=job.url, body=job_body_response.text)
+        job_offer_dto = JobOfferDto.from_dict(job.dict())
+        self.jobs.add(job_offer_dto)
+        self.jobs_body.add(job_offer_body_dto)

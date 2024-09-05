@@ -49,7 +49,7 @@ class CollectionHandler[T]:
 
     def update_one(self, condition: Dict[str, Any], update: Dict[str, Any], expect_modified:bool=True):
         update_result = self.collection.update_one(condition, update)
-        self.log.debug(f'updating [{condition}] with [{update}]: {update_result.modified_count} updated')
+        self.log.debug(f'updating [{condition}] with [{update}]: {update_result.modified_count} updated, {update_result.matched_count} matched')
         assert (not expect_modified or update_result.modified_count == 1) and update_result.matched_count==1
         return update_result
 

@@ -14,3 +14,4 @@ more_itertools # one
 pydantic # rx.Base store
 google-api-python-client # storage
 google-auth-oauthlib # storage auth
+requests

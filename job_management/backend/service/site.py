@@ -17,9 +17,9 @@ class JobSitesService:
 
     def update_jobs_statistics(self, site: JobSite, total: Optional[int] = None, unseen: Optional[int] = None):
         if total is not None:
-            self.sites.update_one({'url': {'$eq': site.url}}, {'$set': {'jobs.total': total}})
+            self.sites.update_one({'url': {'$eq': site.url}}, {'$set': {'jobs.total': total}}, expect_modified=False)
         if unseen is not None:
-            self.sites.update_one({'url': {'$eq': site.url}}, {'$set': {'jobs.unseen': unseen}})
+            self.sites.update_one({'url': {'$eq': site.url}}, {'$set': {'jobs.unseen': unseen}}, expect_modified=False)
 
 
 class SitesJobsOfferService(JobOfferService, JobSitesService):
@@ -30,17 +30,23 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
     @override
     def hide_job(self, job: JobOffer):
         super().hide_job(job)
-        self.update_unseen_for_job(job)
+        self.update_unseen_for_job_site(job)
 
     @override
     def show_job(self, job: JobOffer):
         super().show_job(job)
-        self.update_unseen_for_job(job)
+        self.update_unseen_for_job_site(job)
 
-    def update_unseen_for_job(self, job):
+    def update_unseen_for_job_site(self, job: JobOffer):
         site = self.site_for_url(job.site_url)
         unseen_jobs = self.count_jobs_unseen_for_site(site)
         self.update_jobs_statistics(site, unseen=unseen_jobs)
+
+    def update_statistic_for_job_site(self, job: JobOffer):
+        site = self.site_for_url(job.site_url)
+        unseen_jobs = self.count_jobs_unseen_for_site(site)
+        total_jobs = self.count_jobs_total_for_site(site)
+        self.update_jobs_statistics(site, total=total_jobs, unseen=unseen_jobs)
 
     def clear_jobs(self, site: JobSite):
         self.clear_jobs_for_site(site)
@@ -49,3 +55,8 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
     def delete(self, site: JobSite):
         self.clear_jobs_for_site(site)
         self.sites.delete_many({'url': {'$eq': site.url}})
+
+    @override
+    def add_job(self, job: JobOffer):
+        super().add_job(job)
+        self.update_statistic_for_job_site(job)

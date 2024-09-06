@@ -12,7 +12,7 @@ class JobOfferIdTestCase(TestCase):
         self.assertEqual(dto.id, 1234)
         self.assertEqual(dto.to_dict(encode_json=True),
                          {'added': timestamp, 'url': 'test', 'title': None, 'site_url': None,
-                          'state': {'analyzed': False, 'composed': False},
+                          'state': {'analyzed': False, 'composed': False, 'stored':False},
                           'seen': None})
 
     def test_id_from_kw_constructor(self):
@@ -21,7 +21,7 @@ class JobOfferIdTestCase(TestCase):
         self.assertEqual(dto.id, 1234)
         self.assertEqual(dto.to_dict(encode_json=True),
                          {'added': timestamp, 'url': 'test', 'title': None, 'site_url': None, 'seen': None,
-                          'state': {'analyzed': False, 'composed': False}})
+                          'state': {'analyzed': False, 'composed': False, 'stored':False}})
 
 
 class TargetWebsiteIdTestCase(TestCase):

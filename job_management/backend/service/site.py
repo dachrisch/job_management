@@ -1,4 +1,7 @@
-from typing import Optional, override
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Optional, override, Iterable
 from urllib.parse import urlparse, urlunparse
 
 import requests
@@ -10,6 +13,7 @@ from job_management.backend.entity.site import JobSite
 from job_management.backend.service.job_offer import JobOfferService
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.job_offer import JobOfferDto
+from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.loader.job_offer_loader import JobOfferItemLoader
 
 
@@ -66,9 +70,8 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
         super().add_job(job)
         self.update_statistic_for_job_site(job)
 
-    def parse_and_add_jobs(self, urls: list[str]):
-        sites_to_create: set[JobSite] = set()
-        offer_to_create: set[JobOffer] = set()
+    def parse_sites_and_jobs(self, urls: list[str]) -> SitesAndJobs:
+        sites_and_jobs = SitesAndJobs()
         for url in urls:
             response = requests.get(url)
             try:
@@ -78,8 +81,29 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
                 continue
             page_url = urlparse(url, 'https')
             site_title = page_url.netloc.capitalize()
-            site_url = urlunparse((page_url.scheme, page_url.netloc))
-            item_loader = JobOfferItemLoader(response).populate(site_url)
+            site_url = urlunparse((page_url.scheme, page_url.netloc, '', '', '', ''))
+            item_loader = JobOfferItemLoader.from_requests(response).populate(site_url)
             if item_loader.is_valid():
-                sites_to_create.add(JobSite(title=site_title, url=site_url))
-                offer_to_create.add(JobOffer(**JobOfferDto.from_dict(item_loader.load()).to_dict()))
+                sites_and_jobs.add(JobSite(title=site_title, url=site_url),JobOffer(**JobOfferDto.from_dict(item_loader.load()).to_dict()))
+        return sites_and_jobs
+
+    def add_jobs_from(self, urls: list[str]):
+        sites_and_jobs = self.parse_sites_and_jobs(urls)
+        for site in sites_and_jobs.sites:
+            self.sites.add(JobSiteDto.from_dict(site.dict()))
+            for job in sites_and_jobs.jobs[site.url]:
+                self.jobs.add(JobOfferDto.from_dict(job.dict()))
+
+
+@dataclass
+class SitesAndJobs:
+
+    sites: list[JobSite] = field(default_factory=lambda: [])
+    jobs: dict[str, list[JobOffer]] = field(default_factory=lambda: {})
+
+    def add(self, site:JobSite, offer:JobOffer):
+        self.sites.append(site)
+        if site.url not in self.jobs:
+            self.jobs[site.url] =[]
+
+        self.jobs[site.url].append(offer)

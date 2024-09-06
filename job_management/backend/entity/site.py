@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Type
+from typing import Any, Type, Hashable
 
 import reflex as rx
 from pydantic.v1 import Field, validator, BaseConfig

@@ -165,4 +165,4 @@ class SitesState(rx.State):
     @rx.background
     async def add_jobs_to_db(self, form_dict:dict[str,Any]):
         urls = form_dict['job_urls'].split('\n')
-        self.site_service.parse_and_add_jobs(urls)
+        self.site_service.add_jobs_from(urls)

@@ -51,8 +51,7 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
         unseen_jobs = self.count_jobs_unseen_for_site(site)
         self.update_jobs_statistics(site, unseen=unseen_jobs)
 
-    def update_statistic_for_job_site(self, job: JobOffer):
-        site = self.site_for_url(job.site_url)
+    def update_statistic_for_job_site(self, site: JobSite):
         unseen_jobs = self.count_jobs_unseen_for_site(site)
         total_jobs = self.count_jobs_total_for_site(site)
         self.update_jobs_statistics(site, total=total_jobs, unseen=unseen_jobs)
@@ -68,7 +67,8 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
     @override
     def add_job(self, job: JobOffer):
         super().add_job(job)
-        self.update_statistic_for_job_site(job)
+        site = self.site_for_url(job.site_url)
+        self.update_statistic_for_job_site(site)
 
     def parse_sites_and_jobs(self, urls: list[str]) -> SitesAndJobs:
         sites_and_jobs = SitesAndJobs()
@@ -85,6 +85,8 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
             item_loader = JobOfferItemLoader.from_requests(response).populate(site_url)
             if item_loader.is_valid():
                 sites_and_jobs.add(JobSite(title=site_title, url=site_url),JobOffer(**JobOfferDto.from_dict(item_loader.load()).to_dict()))
+
+        self.log.info(f'Parsed {sites_and_jobs.num_sites} sites and {sites_and_jobs.num_jobs} jobs')
         return sites_and_jobs
 
     def add_jobs_from(self, urls: list[str]):
@@ -93,6 +95,7 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
             self.sites.add(JobSiteDto.from_dict(site.dict()))
             for job in sites_and_jobs.jobs[site.url]:
                 self.jobs.add(JobOfferDto.from_dict(job.dict()))
+            self.update_statistic_for_job_site(site)
 
 
 @dataclass
@@ -107,3 +110,11 @@ class SitesAndJobs:
             self.jobs[site.url] =[]
 
         self.jobs[site.url].append(offer)
+
+    @property
+    def num_sites(self):
+        return len(self.sites)
+
+    @property
+    def num_jobs(self):
+        return sum(len(offer_list) for offer_list in self.jobs.values())

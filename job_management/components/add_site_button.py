@@ -1,5 +1,6 @@
 import reflex as rx
 
+from job_management.backend.state.add_jobs import AddJobsState
 from job_management.backend.state.sites import SitesState
 from job_management.components.form import form_field
 
@@ -168,7 +169,7 @@ def add_jobs_button() -> rx.Component:
                         mt="4",
                         justify="end",
                     ),
-                    on_submit=SitesState.add_jobs_to_db,
+                    on_submit=AddJobsState.add_jobs_to_db,
                     reset_on_submit=False,
                 ),
                 width="100%",

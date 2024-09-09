@@ -11,7 +11,7 @@ from job_management.backend.service.job_offer import JobOfferService
 from job_management.backend.service.site import JobSitesService
 from job_management.backend.service.sites_with_jobs import JobSitesWithJobsService
 from job_management.backend.service.storage import JobApplicationStorageService
-from job_offer_spider.db.job_management import JobManagementDb
+from job_offer_spider.db.job_management import MontyJobManagementDb
 
 
 class Container(DeclarativeContainer):
@@ -20,7 +20,7 @@ class Container(DeclarativeContainer):
         packages=[state, service]
     )
 
-    job_management_db = Singleton(JobManagementDb)
+    job_management_db = Singleton(MontyJobManagementDb)
 
     job_application_service = Factory(JobApplicationService, db=job_management_db)
     job_storage_service = Factory(JobApplicationStorageService, db=job_management_db)

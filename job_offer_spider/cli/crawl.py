@@ -2,6 +2,7 @@ from rich.console import Console
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
+from job_management.backend.service.locator import Locator
 from job_offer_spider.cli.progress import SitesScannedProgressThread
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.spider.eustartups import EuStartupsSpider
@@ -13,7 +14,7 @@ class CrawlCli:
         console = Console()
         self._spinner = console.status
         self._l = console.print
-        self._db = JobManagementDb()
+        self._db = Locator().db
 
     def all(self):
         self.sites(False)

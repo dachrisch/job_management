@@ -1,5 +1,6 @@
 import logging
 
+from job_management.backend.service.locator import Locator
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.item.spider.site import SiteSpiderItem
@@ -10,7 +11,7 @@ class StoreTargetWebsitePipeline(ChainablePipeline[SiteSpiderItem]):
 
     def __init__(self):
         super().__init__(SiteSpiderItem)
-        self.db = JobManagementDb()
+        self.db = Locator().db
         self.log = logging.getLogger(__name__)
 
     def process_item(self, item: SiteSpiderItem, spider):

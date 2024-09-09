@@ -2,6 +2,7 @@ import logging
 
 from scrapy import Item
 
+from job_management.backend.service.locator import Locator
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto
 from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
@@ -12,7 +13,7 @@ class StoreJobOfferPipeline(ChainablePipeline[JobOfferSpiderItem]):
 
     def __init__(self):
         super().__init__(JobOfferSpiderItem)
-        self.db = JobManagementDb()
+        self.db = Locator().db
         self.log = logging.getLogger(__name__)
 
     def process_item(self, item: JobOfferSpiderItem, spider) -> Item:

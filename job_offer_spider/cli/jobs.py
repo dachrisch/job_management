@@ -2,12 +2,13 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
+from job_management.backend.service.locator import Locator
 from job_offer_spider.db.job_management import JobManagementDb
 
 
 class JobsDbCli:
     def __init__(self):
-        self._db = JobManagementDb()
+        self._db = Locator().db
         console = Console()
         self._l = console.print
         self._spinner = console.status

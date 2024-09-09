@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from montydb import MontyClient, set_storage
 
@@ -10,10 +11,8 @@ from job_offer_spider.item.db.sites import JobSiteDto
 
 
 class JobManagementDb:
-    def __init__(self):
-        set_storage('.mongitadb', storage='sqlite', check_same_thread=False)
-        self.client = MontyClient(repository='.mongitadb')
-        self.db = self.client['job_offers_db']
+    def __init__(self, client: Any):
+        self.db = client['job_offers_db']
         self.log = logging.getLogger(__name__)
 
     @property
@@ -43,3 +42,9 @@ class JobManagementDb:
     @property
     def cvs(self):
         return CollectionHandler[CvDto](self.db['cv'], CvDto)
+
+
+class MontyJobManagementDb(JobManagementDb):
+    def __init__(self):
+        super().__init__(MontyClient(repository='.mongitadb'))
+        set_storage('.mongitadb', storage='sqlite', check_same_thread=False)

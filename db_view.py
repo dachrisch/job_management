@@ -5,12 +5,13 @@ from montydb import MontyCollection
 from rich import json
 from rich.console import Console
 
+from job_management.backend.service.locator import Locator
 from job_offer_spider.db.job_management import JobManagementDb
 
 
 class DbViewerCli:
     def __init__(self):
-        self._db = JobManagementDb()
+        self._db = Locator().db
 
     def sites(self):
         return DbCollectionViewer(self._db.sites.collection)

@@ -3,9 +3,6 @@ name: Run Python tests
 on:
   workflow_call:
 
-permissions:
-  contents: read
-
 jobs:
   build:
 

@@ -1,0 +1,20 @@
+# Sample workflow for building and deploying a Jekyll site to GitHub Pages
+name: Build & Deploy
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches:
+      - "*"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Allow one concurrent deployment
+concurrency:
+  group: "live"
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    uses: ./.github/workflows/part_run_tests.yml

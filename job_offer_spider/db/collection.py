@@ -19,7 +19,7 @@ class CollectionHandler[T]:
         self.collection.insert_one(item.to_dict(encode_json=True))
 
     def contains(self, item: HasUrl) -> bool:
-        return self.collection.count_documents({'url': item.url})
+        return self.collection.count_documents({'url': item.url}) > 0
 
     def all(self, skip: int = None, limit: int = None, sort_key: str = '',
             direction: ASCENDING | DESCENDING = ASCENDING) -> Iterable[T]:
@@ -47,10 +47,11 @@ class CollectionHandler[T]:
         self.log.debug(f'found [{count_documents}] document for [{condition}]')
         return count_documents
 
-    def update_one(self, condition: Dict[str, Any], update: Dict[str, Any], expect_modified:bool=True):
+    def update_one(self, condition: Dict[str, Any], update: Dict[str, Any], expect_modified: bool = True):
         update_result = self.collection.update_one(condition, update)
-        self.log.debug(f'updating [{condition}] with [{update}]: {update_result.modified_count} updated, {update_result.matched_count} matched')
-        assert (not expect_modified or update_result.modified_count == 1) and update_result.matched_count==1
+        self.log.debug(
+            f'updating [{condition}] with [{update}]: {update_result.modified_count} updated, {update_result.matched_count} matched')
+        assert (not expect_modified or update_result.modified_count == 1) and update_result.matched_count == 1
         return update_result
 
     def update_item(self, item: Union[HasId, DataClassJsonMixin]):

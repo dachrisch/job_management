@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Optional, override, Iterable
+from typing import Optional, override
 from urllib.parse import urlparse, urlunparse
 
 import requests
@@ -10,6 +9,7 @@ from requests import HTTPError
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
+from job_management.backend.entity.sites_and_jobs import SitesAndJobs
 from job_management.backend.service.job_offer import JobOfferService
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.job_offer import JobOfferDto
@@ -84,37 +84,18 @@ class SitesJobsOfferService(JobOfferService, JobSitesService):
             site_url = urlunparse((page_url.scheme, page_url.netloc, '', '', '', ''))
             item_loader = JobOfferItemLoader.from_requests(response).populate(site_url)
             if item_loader.is_valid():
-                sites_and_jobs.add(JobSite(title=site_title, url=site_url),JobOffer(**JobOfferDto.from_dict(item_loader.load()).to_dict()))
+                sites_and_jobs.add(JobSite(title=site_title, url=site_url),
+                                   JobOffer(**JobOfferDto.from_dict(item_loader.load()).to_dict()))
 
         self.log.info(f'Parsed {sites_and_jobs.num_sites} sites and {sites_and_jobs.num_jobs} jobs')
         return sites_and_jobs
 
     def add_jobs_from(self, urls: list[str]):
         sites_and_jobs = self.parse_sites_and_jobs(urls)
-        for site in sites_and_jobs.sites:
-            self.sites.add(JobSiteDto.from_dict(site.dict()))
-            for job in sites_and_jobs.jobs[site.url]:
-                self.jobs.add(JobOfferDto.from_dict(job.dict()))
+        for site in map(lambda s: JobSiteDto.from_dict(s.dict()), sites_and_jobs.sites):
+            if not self.sites.contains(site):
+                self.sites.add(site)
+            for job in map(lambda j: JobOfferDto.from_dict(j.dict()), sites_and_jobs.jobs[site.url]):
+                if not self.jobs.contains(job):
+                    self.jobs.add(job)
             self.update_statistic_for_job_site(site)
-
-
-@dataclass
-class SitesAndJobs:
-
-    sites: list[JobSite] = field(default_factory=lambda: [])
-    jobs: dict[str, list[JobOffer]] = field(default_factory=lambda: {})
-
-    def add(self, site:JobSite, offer:JobOffer):
-        self.sites.append(site)
-        if site.url not in self.jobs:
-            self.jobs[site.url] =[]
-
-        self.jobs[site.url].append(offer)
-
-    @property
-    def num_sites(self):
-        return len(self.sites)
-
-    @property
-    def num_jobs(self):
-        return sum(len(offer_list) for offer_list in self.jobs.values())

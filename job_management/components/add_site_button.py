@@ -118,6 +118,8 @@ def add_jobs_button() -> rx.Component:
                 rx.icon("copy-plus", size=26),
                 rx.text("Add Jobs", size="4"),
                 size="3",
+                loading=AddJobsState.loading,
+                on_click=AddJobsState.toggle_dialog_open
             ),
         ),
         rx.dialog.content(
@@ -181,5 +183,6 @@ def add_jobs_button() -> rx.Component:
             padding="1.5em",
             border=f"2px solid {rx.color('accent', 7)}",
             border_radius="25px",
+            open=AddJobsState.is_dialog_open
         ),
     )

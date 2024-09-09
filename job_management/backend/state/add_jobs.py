@@ -9,6 +9,7 @@ from job_offer_spider.db.job_management import JobManagementDb
 
 class AddJobsState(rx.State):
     loading: bool = False
+    is_dialog_open:bool = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -24,3 +25,6 @@ class AddJobsState(rx.State):
         async with self:
             await (await self.get_state(SitesState)).load_sites()
             self.loading = False
+
+    def toggle_dialog_open(self):
+        self.is_dialog_open=not self.is_dialog_open

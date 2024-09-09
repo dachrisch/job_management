@@ -3,7 +3,7 @@ from typing import Any
 
 import reflex as rx
 
-from job_management.backend.crawl import CrochetCrawlerRunner
+from backend.crawl.crawler import CrochetCrawlerRunner
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
 from job_management.backend.service.locator import Locator

@@ -2,7 +2,7 @@
 *.log
 *.py[cod]
 .idea
-.mongitadb
+.montydb
 .web
 /google.json
 __pycache__

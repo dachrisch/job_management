@@ -11,27 +11,23 @@ from scrapy.http import Response
 from scrapy.spidermiddlewares.httperror import HttpError
 from scrapy.spiders import SitemapSpider
 
-from job_offer_spider.spider.findjobs import JobsFromUrlSpider, JobsFromDbSpider
+from job_offer_spider.spider.findjobs import JobsFromUrlSpider, JobsFromDbSpider, JobsFromUrlListSpider
 
 
 class SitemapWhenRobotsFailsSpiderMiddleware:
     def process_spider_exception(self, response: Response, exception: Exception, spider: Spider):
-        if response.status >= 400 and isinstance(exception, HttpError) and isinstance(spider, SitemapSpider):
+        if response.status >= 400 and isinstance(exception, HttpError) and isinstance(spider, JobsFromUrlListSpider):
             url = urlparse(response.url, 'https')
             sitemap_url = url._replace(path='/sitemap.xml')
             site_url = url._replace(path='')
             yield Request(sitemap_url.geturl(), callback=spider._parse_sitemap,
                           cb_kwargs={'site_url': self.find_site_url(site_url.geturl(), spider)})
 
-    def find_site_url(self, url: str, spider: SitemapSpider):
-        if isinstance(spider, JobsFromUrlSpider):
-            return one(spider.scan_urls_callback())
-        elif isinstance(spider, JobsFromDbSpider):
-            matches: dict[str, float] = {}
-            for scan_url in spider.scan_urls_callback():
-                matches[scan_url] = SequenceMatcher(a=url, b=scan_url).ratio()
-            return max(matches, key=matches.get)
-        raise NotImplementedError
+    def find_site_url(self, url: str, spider: JobsFromUrlListSpider):
+        matches: dict[str, float] = {}
+        for scan_url in spider.scan_urls_callback():
+            matches[scan_url] = SequenceMatcher(a=url, b=scan_url).ratio()
+        return max(matches, key=matches.get)
 
 
 class JobOfferSpiderSpiderMiddleware:

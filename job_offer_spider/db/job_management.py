@@ -56,8 +56,9 @@ class MontyJobManagementDb(JobManagementDb):
     def init(self):
         for c in [self.sites, self.jobs, self.jobs_body, self.jobs_application, self.jobs_analyze, self.cvs,
                   self.cover_letter_docs]:
-            c.collection.insert_one({})
-            c.collection.delete_many({})
+            _id = c.collection.insert_one({}).inserted_id
+            assert c.collection.delete_one({'_id': _id}).deleted_count == 1
+
 
 class MongoJobManagementDb(JobManagementDb):
     def __init__(self, username: str, password: str):

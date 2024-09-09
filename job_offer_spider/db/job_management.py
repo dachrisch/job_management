@@ -13,6 +13,7 @@ from job_offer_spider.item.db.sites import JobSiteDto
 
 
 class JobManagementDb:
+
     def __init__(self, client: Any):
         self.db = client['job_management_db']
         self.log = logging.getLogger(__name__)
@@ -47,10 +48,16 @@ class JobManagementDb:
 
 
 class MontyJobManagementDb(JobManagementDb):
-    def __init__(self):
-        super().__init__(MontyClient(repository='.mongitadb'))
-        set_storage('.mongitadb', storage='sqlite', check_same_thread=False)
+    def __init__(self, repository: str):
+        set_storage(repository, storage='sqlite', check_same_thread=False)
+        super().__init__(MontyClient(repository=repository))
+        self.init()
 
+    def init(self):
+        for c in [self.sites, self.jobs, self.jobs_body, self.jobs_application, self.jobs_analyze, self.cvs,
+                  self.cover_letter_docs]:
+            c.collection.insert_one({})
+            c.collection.delete_many({})
 
 class MongoJobManagementDb(JobManagementDb):
     def __init__(self, username: str, password: str):

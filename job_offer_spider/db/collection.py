@@ -1,6 +1,8 @@
 import logging
 from typing import Union, Type, Iterable, Dict, Any
 
+import montydb.results
+import pymongo.results
 from dataclasses_json import DataClassJsonMixin
 from montydb import MontyCollection
 from pymongo.collection import Collection
@@ -66,10 +68,12 @@ class CollectionHandler[T]:
                                {'$set': {k: v for k, v in item.to_dict(encode_json=True).items() if
                                          k != '_id'}})
 
-    def delete(self, item: Union[HasId, T]):
+    def delete(self, item: Union[HasId, T])-> Union[
+        montydb.results.DeleteResult, pymongo.results.DeleteResult]:
         return self.collection.delete_one({'_id': {'$eq': item.id}})
 
-    def delete_many(self, condition: Dict[str, Any]):
+    def delete_many(self, condition: Dict[str, Any]) -> Union[
+        montydb.results.DeleteResult, pymongo.results.DeleteResult]:
         many = self.collection.delete_many(condition)
         self.log.debug(f'Deleting [{condition}] affected [{many.deleted_count}] items')
         return many

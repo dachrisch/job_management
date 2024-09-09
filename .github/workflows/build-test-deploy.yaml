@@ -19,4 +19,5 @@ jobs:
   build-test:
     uses: ./.github/workflows/part_run_tests.yaml
   deploy:
+    secrets: inherit
     uses: ./.github/workflows/part_deploy.yaml

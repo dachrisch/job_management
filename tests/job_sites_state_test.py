@@ -1,14 +1,19 @@
-import unittest
 from unittest import IsolatedAsyncioTestCase
 
 import mock
 
+from job_management import wire
+from job_management.backend import service
+from job_management.backend.service.container import Container
 from job_offer_spider.item.db.job_offer import JobOfferDto
 from job_offer_spider.item.db.sites import JobSiteDto
 from tests.mocks import SitesStateBypassWrapper, mocked_requests_response, MockDb
 
 
 class JobSitesStateTest(IsolatedAsyncioTestCase):
+    def setUp(self):
+        wire()
+
     @mock.patch('requests.get', side_effect=mocked_requests_response)
     async def test_add_jobs_from_form(self, requests_mock):
         wrapper = SitesStateBypassWrapper()
@@ -28,5 +33,3 @@ class JobSitesStateTest(IsolatedAsyncioTestCase):
                                                           title='Test Title'), ('url', 'title')))
 
 
-if __name__ == '__main__':
-    unittest.main()

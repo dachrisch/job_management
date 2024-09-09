@@ -5,6 +5,7 @@ import reflex as rx
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
+from job_management.backend.service.locator import Locator
 from job_management.backend.service.site import SitesJobsOfferService
 from job_offer_spider.db.job_management import JobManagementDb
 
@@ -15,7 +16,7 @@ class JobState(rx.State):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.sites_jobs_service = SitesJobsOfferService(JobManagementDb())
+        self.sites_jobs_service = Locator.sites_jobs_offer_service
         self.info = logging.getLogger(self.__class__.__name__).info
 
     def load_jobs(self):

@@ -11,8 +11,6 @@ from job_management.backend.service.container import Container
 def wire():
     container = Container()
     container.init_resources()
-    from job_management.backend import state
-    container.wire(packages=[state])
 
 
 def setup_scrapy():

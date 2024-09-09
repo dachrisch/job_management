@@ -7,7 +7,7 @@ from dependency_injector.wiring import inject
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.offer_analyzed import JobOfferAnalyze
 from job_management.backend.entity.offer_application import JobOfferApplication
-from job_management.backend.service.container import Locator
+from job_management.backend.service.locator import Locator
 from job_management.backend.service.storage import JobApplicationCoverLetter, \
     JobApplicationCoverLetterDoc
 
@@ -21,8 +21,8 @@ class ApplicationState(rx.State):
     def __init__(self,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.application_service = Locator().application_service
-        self.storage_service = Locator().storage_service
+        self.application_service = Locator.application_service
+        self.storage_service = Locator.storage_service
         self.log = logging.getLogger(f'{__name__}')
 
     def load_current_job_offer(self):

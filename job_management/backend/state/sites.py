@@ -8,6 +8,7 @@ from montydb import ASCENDING, DESCENDING
 from job_management.backend.crawl import CrochetCrawlerRunner
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
+from job_management.backend.service.locator import Locator
 from job_management.backend.service.site import SitesJobsOfferService
 from job_management.backend.state.statistics import JobsStatisticsState
 from job_offer_spider.db.job_management import JobManagementDb
@@ -32,7 +33,7 @@ class SitesState(rx.State):
         self.db = JobManagementDb()
         self.info = logging.getLogger(self.__class__.__name__).info
         self.debug = logging.getLogger(self.__class__.__name__).debug
-        self.site_service = SitesJobsOfferService(self.db)
+        self.site_service = Locator.sites_jobs_offer_service
 
     async def load_sites(self):
         self.info('Loading sites...')

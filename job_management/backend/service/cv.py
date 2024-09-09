@@ -3,12 +3,13 @@ from more_itertools import first
 
 from job_management.backend.entity.cv import CvData
 from job_offer_spider.db.collection import CollectionHandler
+from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.cv import CvDto
 
 
 class CvService:
-    def __init__(self, cvs: CollectionHandler[CvDto]):
-        self.cvs = cvs
+    def __init__(self, db: JobManagementDb):
+        self.cvs = db.cvs
 
     def load_cv(self):
         cv_data = first(self.cvs.all(), None)

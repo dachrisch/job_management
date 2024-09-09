@@ -1,6 +1,7 @@
 import reflex as rx
 from more_itertools import first
 
+from job_management.backend.service.locator import Locator
 from job_management.backend.service.cv import CvService
 from job_management.backend.entity.cv import CvData
 from job_offer_spider.db.job_management import JobManagementDb
@@ -13,7 +14,7 @@ class CvState(rx.State):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.cv_service = CvService(JobManagementDb().cvs)
+        self.cv_service = Locator.cv_service
 
     def toggle_load_cv_data_open(self):
         self.load_cv_data_open = not self.load_cv_data_open

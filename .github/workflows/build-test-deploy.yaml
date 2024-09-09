@@ -18,3 +18,5 @@ concurrency:
 jobs:
   build-test:
     uses: ./.github/workflows/part_run_tests.yaml
+  deploy:
+    uses: ./.github/workflows/part_deploy.yaml

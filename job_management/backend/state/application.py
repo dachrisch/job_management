@@ -2,14 +2,14 @@ import logging
 from typing import Optional
 
 import reflex as rx
+from dependency_injector.wiring import inject
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.offer_analyzed import JobOfferAnalyze
 from job_management.backend.entity.offer_application import JobOfferApplication
-from job_management.backend.service.application import JobApplicationService
-from job_management.backend.service.storage import JobApplicationStorageService, JobApplicationCoverLetter, \
+from job_management.backend.service.container import Locator
+from job_management.backend.service.storage import JobApplicationCoverLetter, \
     JobApplicationCoverLetterDoc
-from job_offer_spider.db.job_management import JobManagementDb
 
 
 class ApplicationState(rx.State):
@@ -18,11 +18,11 @@ class ApplicationState(rx.State):
     job_offer_application: Optional[JobOfferApplication] = None
     job_offer_cover_letter_doc: Optional[JobApplicationCoverLetterDoc] = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,
+                 *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.db = JobManagementDb()
-        self.application_service = JobApplicationService(self.db)
-        self.storage_service = JobApplicationStorageService(self.db)
+        self.application_service = Locator().application_service
+        self.storage_service = Locator().storage_service
         self.log = logging.getLogger(f'{__name__}')
 
     def load_current_job_offer(self):

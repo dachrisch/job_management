@@ -8,10 +8,11 @@ itemadapter~=0.9.0
 dataclasses-json
 # ui
 reflex
-crochet # run scrapy in process
-openai # analyse and composing
-more_itertools # one
-pydantic # rx.Base store
-google-api-python-client # storage
-google-auth-oauthlib # storage auth
-requests
+crochet                         # run scrapy in process
+openai                          # analyse and composing
+more_itertools                  # one, first
+pydantic                        # rx.Base store
+google-api-python-client        # storage
+google-auth-oauthlib            # storage auth
+requests                        # manually add jobs
+dependency-injector==4.42.0b1   # service injection

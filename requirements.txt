@@ -16,3 +16,4 @@ google-api-python-client        # storage
 google-auth-oauthlib            # storage auth
 requests                        # manually add jobs
 dependency-injector==4.42.0b1   # service injection
+pymongo[srv]                    # remote database

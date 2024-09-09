@@ -2,6 +2,8 @@ import logging
 from typing import Any
 
 from montydb import MontyClient, set_storage
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi
 
 from job_offer_spider.db.collection import CollectionHandler
 from job_offer_spider.item.db.cover_letter import JobOfferCoverLetterDto
@@ -12,12 +14,12 @@ from job_offer_spider.item.db.sites import JobSiteDto
 
 class JobManagementDb:
     def __init__(self, client: Any):
-        self.db = client['job_offers_db']
+        self.db = client['job_management_db']
         self.log = logging.getLogger(__name__)
 
     @property
     def sites(self) -> CollectionHandler[JobSiteDto]:
-        return CollectionHandler[JobSiteDto](self.db['target_sites'], JobSiteDto)
+        return CollectionHandler[JobSiteDto](self.db['job_sites'], JobSiteDto)
 
     @property
     def jobs(self) -> CollectionHandler[JobOfferDto]:
@@ -48,3 +50,9 @@ class MontyJobManagementDb(JobManagementDb):
     def __init__(self):
         super().__init__(MontyClient(repository='.mongitadb'))
         set_storage('.mongitadb', storage='sqlite', check_same_thread=False)
+
+
+class MongoJobManagementDb(JobManagementDb):
+    def __init__(self, username: str, password: str):
+        uri = f'mongodb+srv://{username}:{password}@cluster0.mhyen.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+        super().__init__(MongoClient(uri, server_api=ServerApi('1')))

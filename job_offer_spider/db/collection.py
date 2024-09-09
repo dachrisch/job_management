@@ -2,14 +2,17 @@ import logging
 from typing import Union, Type, Iterable, Dict, Any
 
 from dataclasses_json import DataClassJsonMixin
-from montydb import MontyCollection, ASCENDING, DESCENDING
+from montydb import MontyCollection
+from pymongo.collection import Collection
 
 from job_offer_spider.item.db import HasUrl, HasId
 
+ASCENDING = 1
+DESCENDING = -1
 
 class CollectionHandler[T]:
 
-    def __init__(self, collection: MontyCollection, collection_type: Union[Type[T], DataClassJsonMixin]):
+    def __init__(self, collection: Union[Collection, MontyCollection], collection_type: Union[Type[T], DataClassJsonMixin]):
         self.collection_type = collection_type
         self.collection = collection
         self.log = logging.getLogger(f'{__name__}[{collection.name}]')
@@ -22,17 +25,17 @@ class CollectionHandler[T]:
         return self.collection.count_documents({'url': item.url}) > 0
 
     def all(self, skip: int = None, limit: int = None, sort_key: str = '',
-            direction: ASCENDING | DESCENDING = ASCENDING) -> Iterable[T]:
+            direction: int = ASCENDING) -> Iterable[T]:
         return self.filter({}, skip, limit, sort_key, direction)
 
     def filter(self, condition: Dict[str, Any], skip: int = None, limit: int = None, sort_key: str = '',
-               direction: ASCENDING | DESCENDING = ASCENDING) -> Iterable[T]:
+               direction: int = ASCENDING) -> Iterable[T]:
         cursor = self.collection.find(condition)
         if skip:
             cursor.skip(skip)
         if limit:
             cursor.limit(limit)
-        if sort_key or direction:
+        if sort_key and direction:
             cursor.sort(sort_key, direction=direction)
 
         self.log.debug(f'Filtered with [{condition}]: {cursor}')

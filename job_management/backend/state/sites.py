@@ -9,7 +9,7 @@ from job_management.backend.crawl import CrochetCrawlerRunner
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
 from job_management.backend.service.locator import Locator
-from job_management.backend.service.site import SitesJobsOfferService
+from job_management.backend.service.sites_with_jobs import JobSitesWithJobsService
 from job_management.backend.state.statistics import JobsStatisticsState
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.sites import JobSiteDto
@@ -30,21 +30,18 @@ class SitesState(rx.State):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.db = JobManagementDb()
         self.info = logging.getLogger(self.__class__.__name__).info
         self.debug = logging.getLogger(self.__class__.__name__).debug
-        self.site_service = Locator.sites_jobs_offer_service
+        self.site_jobs_service = Locator.jobs_sites_with_jobs_service
+        self.sites_service=Locator.job_sites_service
+        self.offer_service=Locator.job_offer_service
 
     async def load_sites(self):
         self.info('Loading sites...')
-        self._sites = list(
-            map(self.load_job_site, self.db.sites.all(skip=self.page * self.page_size, limit=self.page_size,
-                                                      sort_key=self.sort_value.lower(),
-                                                      direction=DESCENDING if self.sort_reverse else ASCENDING)))
-        self._jobs = list(map(lambda j: JobOffer(**j.to_dict()), self.db.jobs.all()))
-        self.num_sites = self.db.sites.count({})
-        self.num_sites_yesterday = self.db.sites.count(
-            {'added': {'$lt': (datetime.now() - timedelta(days=1)).timestamp()}})
+        self._sites = self.sites_service.load_sites(self.page, self.page_size, self.sort_value, self.sort_reverse)
+        self._jobs = self.offer_service.load_jobs()
+        self.num_sites = self.sites_service.count_sites()
+        self.num_sites_yesterday = self.sites_service.count_sites(days_from_now=1)
         (await self.get_state(JobsStatisticsState)).load_jobs_statistic()
         self.info(f'Loaded [{len(self._sites)}] sites for page [{self.page + 1} of {self.total_pages}]...')
 
@@ -62,7 +59,7 @@ class SitesState(rx.State):
 
     async def add_site_to_db(self, form_data: dict):
         site = JobSiteDto.from_dict(form_data)
-        self.db.sites.add(site)
+        self.sites_service.add_site(site)
         await self.load_sites()
         if form_data.get('crawling'):
             return SitesState.start_crawl(site.to_dict())
@@ -73,7 +70,7 @@ class SitesState(rx.State):
         async with self:
             site.status.deleting = True
 
-        self.site_service.delete(site)
+        self.site_jobs_service.delete(site)
 
         async with self:
             site.status.deleting = False
@@ -115,9 +112,6 @@ class SitesState(rx.State):
         else:
             return rx.toast.error(f'Crawling failed: {stats}')
 
-    def load_job_site(self, s: JobSiteDto):
-        return JobSite(**(s.to_dict()))
-
     @rx.var(cache=True)
     def total_pages(self) -> int:
         return self.num_sites // self.page_size + (
@@ -157,7 +151,7 @@ class SitesState(rx.State):
         async with self:
             site.status.clearing = True
 
-        self.site_service.clear_jobs(site)
+        self.site_jobs_service.clear_jobs(site)
 
         async with self:
             await self.load_sites()

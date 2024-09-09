@@ -1,5 +1,6 @@
 import logging
-from datetime import datetime
+import sys
+from datetime import datetime, timedelta
 
 import requests
 from more_itertools import one
@@ -20,13 +21,19 @@ class JobOfferService:
         self.cover_letter_docs = db.cover_letter_docs
         self.log = logging.getLogger(f'{__name__}')
 
+    def load_jobs(self):
+        return list(map(self.dto_to_job, self.jobs.all()))
+
     def jobs_for_site(self, site: JobSite) -> list[JobOffer]:
         return list(
-            map(lambda s: JobOffer(**s.to_dict()), self.jobs.filter({'site_url': {'$eq': site.url}}, sort_key='seen')))
+            map(self.dto_to_job, self.jobs.filter({'site_url': {'$eq': site.url}}, sort_key='seen')))
 
     def job_from_url(self, job_url: str):
         return one(
-            map(lambda s: JobOffer(**s.to_dict()), self.jobs.filter({'url': {'$eq': job_url}})))
+            map(self.dto_to_job, self.jobs.filter({'url': {'$eq': job_url}})))
+
+    def dto_to_job(self, job_dto: JobOfferDto):
+        return JobOffer(**job_dto.to_dict())
 
     def count_jobs_unseen_for_site(self, site: JobSite):
         return self.jobs.count(
@@ -43,6 +50,12 @@ class JobOfferService:
         return self.jobs.count(
             {'site_url': {'$eq': site.url}}
         )
+
+    def count_jobs(self, days_from_now: int = sys.maxsize) -> int:
+        condition = {}
+        if days_from_now is not sys.maxsize:
+            condition = {'added': {'$lt': (datetime.now() - timedelta(days=days_from_now)).timestamp()}}
+        return self.jobs.count(condition)
 
     def hide_job(self, job: JobOffer):
         self.jobs.update_one({'url': {'$eq': job.url}}, {'$set': {'seen': datetime.now().timestamp()}})

@@ -7,7 +7,7 @@ from job_management.backend import service
 from job_management.backend.service.container import Container
 from job_offer_spider.item.db.job_offer import JobOfferDto
 from job_offer_spider.item.db.sites import JobSiteDto
-from tests.mocks import SitesStateBypassWrapper, mocked_requests_response, MockDb
+from tests.mocks import AddJobsStateBypassWrapper, mocked_requests_response, MockDb
 
 
 class JobSitesStateTest(IsolatedAsyncioTestCase):
@@ -16,7 +16,7 @@ class JobSitesStateTest(IsolatedAsyncioTestCase):
 
     @mock.patch('requests.get', side_effect=mocked_requests_response)
     async def test_add_jobs_from_form(self, requests_mock):
-        wrapper = SitesStateBypassWrapper()
+        wrapper = AddJobsStateBypassWrapper()
         mock_db = MockDb()
         wrapper.instance.site_service.sites = mock_db
         wrapper.instance.site_service.jobs = mock_db

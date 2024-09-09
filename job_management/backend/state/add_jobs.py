@@ -3,7 +3,7 @@ from typing import Any
 import reflex as rx
 
 from job_management.backend.service.locator import Locator
-from job_management.backend.service.site import SitesJobsOfferService
+from job_management.backend.service.sites_with_jobs import JobSitesWithJobsService
 from job_management.backend.state.sites import SitesState
 from job_offer_spider.db.job_management import JobManagementDb
 
@@ -14,7 +14,7 @@ class AddJobsState(rx.State):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.site_service = Locator().sites_jobs_offer_service
+        self.site_service = Locator().jobs_sites_with_jobs_service
 
     @rx.background
     async def add_jobs_to_db(self, form_dict: dict[str, Any]):

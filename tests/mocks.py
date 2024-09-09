@@ -16,11 +16,11 @@ async def get_state_mock(state):
     return SitesStateMock()
 
 
-class SitesStateBypassWrapper:
+class AddJobsStateBypassWrapper:
     def __init__(self):
-        SitesState.__aenter__ = lambda x: x
-        SitesState.__await__ = lambda x: iter(())
-        self.instance = SitesState()
+        AddJobsState.__aenter__ = lambda x: x
+        AddJobsState.__await__ = lambda x: iter(())
+        self.instance = AddJobsState()
         self.instance.get_state = get_state_mock
 
     def add_jobs_to_db(self, form_dict: dict[str, Any]):

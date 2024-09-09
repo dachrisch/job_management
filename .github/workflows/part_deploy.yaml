@@ -8,14 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: 🎉 Push to stable branch
-        uses: s0/git-publish-subdir-action@develop
-        env:
-          REPO: self
-          BRANCH: live
-          FOLDER: .
-          # https://github.com/ad-m/github-push-action/issues/96
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
-          MESSAGE: "Build: ({sha}) {msg}" # The commit message
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 🎉 Push to live branch
+        uses: devmasx/merge-branch@master
+        with:
+          type: now
+          target_branch: live
+          github_token: ${{ secrets.GITHUB_TOKEN }}

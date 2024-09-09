@@ -15,6 +15,13 @@ concurrency:
   group: "live"
   cancel-in-progress: true
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+
 jobs:
   build-test:
     uses: ./.github/workflows/part_run_tests.yaml

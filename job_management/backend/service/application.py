@@ -65,7 +65,8 @@ class JobApplicationService(JobOfferService):
 
 Use the data from my cv as indicated by CVDATA
 
-match the style of the application letter to the tone of the job description, especially if the writing in in german du-style or sie-style.
+match the style of the application letter to the tone of the job description,
+ especially if the writing in in german du-style or sie-style.
 don't refer to the company names directly, instead use a general description of the role.
 
 Only output the letter text, dont sign it and with the context

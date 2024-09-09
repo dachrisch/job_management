@@ -6,8 +6,6 @@ import reflex as rx
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
 from job_management.backend.service.locator import Locator
-from job_management.backend.service.sites_with_jobs import JobSitesWithJobsService
-from job_offer_spider.db.job_management import JobManagementDb
 
 
 class JobState(rx.State):

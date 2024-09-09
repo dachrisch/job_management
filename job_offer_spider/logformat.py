@@ -26,7 +26,7 @@ class NoBodyLogFormatter(LogFormatter):
             },
         }
 
-    def cap_item_fields(self, item: dict[str,Any], max_length=50):
+    def cap_item_fields(self, item: dict[str, Any], max_length=50):
         capped_item = {}
         for f in item.keys():
             if len(item[f]) > max_length:

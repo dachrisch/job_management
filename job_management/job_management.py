@@ -62,4 +62,3 @@ app = rx.App(
 wire()
 
 setup_scrapy()
-

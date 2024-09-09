@@ -3,8 +3,6 @@ from unittest import IsolatedAsyncioTestCase
 import mock
 
 from job_management import wire
-from job_management.backend import service
-from job_management.backend.service.container import Container
 from job_offer_spider.item.db.job_offer import JobOfferDto
 from job_offer_spider.item.db.sites import JobSiteDto
 from tests.mocks import AddJobsStateBypassWrapper, mocked_requests_response, MockDb
@@ -31,5 +29,3 @@ class JobSitesStateTest(IsolatedAsyncioTestCase):
                                                          title='Break-example.com'), ('url', 'title')))
         self.assertTrue(mock_db.test_contains(JobOfferDto(url='http://break-example.com/jobs/title-position',
                                                           title='Test Title'), ('url', 'title')))
-
-

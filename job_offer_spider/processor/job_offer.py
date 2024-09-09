@@ -3,7 +3,6 @@ import logging
 from scrapy import Item
 
 from job_management.backend.service.locator import Locator
-from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto
 from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
 from job_offer_spider.processor.chainable import ChainablePipeline

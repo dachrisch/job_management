@@ -9,8 +9,8 @@ from job_offer_spider.item.spider.job_offer import JobOfferSpiderItem
 
 class JobOfferItemLoader:
     @classmethod
-    def from_requests(cls, r:requests.Response):
-        return cls(TextResponse(url=r.url, body=r.content, status=r.status_code, headers=r.headers,request=r))
+    def from_requests(cls, r: requests.Response):
+        return cls(TextResponse(url=r.url, body=r.content, status=r.status_code, headers=r.headers, request=r))
 
     def __init__(self, response: Response):
         self.response = response
@@ -21,7 +21,7 @@ class JobOfferItemLoader:
         if not self.item_loader.get_output_value('title'):
             self.item_loader.add_css('title', 'h1::text')
 
-    def populate(self, site_url: str)->JobOfferItemLoader:
+    def populate(self, site_url: str) -> JobOfferItemLoader:
         self.item_loader.add_value('url', self.response.url)
         self.item_loader.add_value('body', self.response.text)
         self.item_loader.add_value('site_url', site_url)

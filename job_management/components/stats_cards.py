@@ -24,14 +24,14 @@ def _arrow_badge(arrow_icon: str, percentage_change: float, arrow_color: ColorTy
 
 
 def stats_card(
-    stat_name: str,
-    value: int,
-    prev_value: int,
-    icon: str,
-    icon_color: LiteralAccentColor,
-    extra_char: str = "",
+        stat_name: str,
+        value: int,
+        prev_value: int,
+        icon: str,
+        icon_color: LiteralAccentColor,
+        extra_char: str = "",
 ) -> rx.Component:
-    percentage_change: float= ((value - prev_value) / prev_value) * 100
+    percentage_change: float = ((value - prev_value) / prev_value) * 100
     return rx.card(
         rx.hstack(
             rx.vstack(
@@ -85,5 +85,3 @@ def stats_card(
         width="100%",
         max_width="22rem",
     )
-
-

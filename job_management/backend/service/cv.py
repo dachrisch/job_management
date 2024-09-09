@@ -2,7 +2,6 @@ import reflex as rx
 from more_itertools import first
 
 from job_management.backend.entity.cv import CvData
-from job_offer_spider.db.collection import CollectionHandler
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.cv import CvDto
 

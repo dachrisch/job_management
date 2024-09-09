@@ -10,9 +10,11 @@ from job_offer_spider.item.db import HasUrl, HasId
 ASCENDING = 1
 DESCENDING = -1
 
+
 class CollectionHandler[T]:
 
-    def __init__(self, collection: Union[Collection, MontyCollection], collection_type: Union[Type[T], DataClassJsonMixin]):
+    def __init__(self, collection: Union[Collection, MontyCollection],
+                 collection_type: Union[Type[T], DataClassJsonMixin]):
         self.collection_type = collection_type
         self.collection = collection
         self.log = logging.getLogger(f'{__name__}[{collection.name}]')
@@ -53,7 +55,8 @@ class CollectionHandler[T]:
     def update_one(self, condition: Dict[str, Any], update: Dict[str, Any], expect_modified: bool = True):
         update_result = self.collection.update_one(condition, update)
         self.log.debug(
-            f'updating [{condition}] with [{update}]: {update_result.modified_count} updated, {update_result.matched_count} matched')
+            f'updating [{condition}] with [{update}]: {update_result.modified_count} '
+            f'updated, {update_result.matched_count} matched')
         assert (not expect_modified or update_result.modified_count == 1) and update_result.matched_count == 1
         return update_result
 

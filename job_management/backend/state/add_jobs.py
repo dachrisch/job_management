@@ -3,14 +3,12 @@ from typing import Any
 import reflex as rx
 
 from job_management.backend.service.locator import Locator
-from job_management.backend.service.sites_with_jobs import JobSitesWithJobsService
 from job_management.backend.state.sites import SitesState
-from job_offer_spider.db.job_management import JobManagementDb
 
 
 class AddJobsState(rx.State):
     loading: bool = False
-    is_dialog_open:bool = False
+    is_dialog_open: bool = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -27,4 +25,4 @@ class AddJobsState(rx.State):
             self.loading = False
 
     def toggle_dialog_open(self):
-        self.is_dialog_open=not self.is_dialog_open
+        self.is_dialog_open = not self.is_dialog_open

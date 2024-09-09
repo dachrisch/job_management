@@ -1,17 +1,13 @@
 import logging
-from datetime import datetime, timedelta
 from typing import Any
 
 import reflex as rx
-from montydb import ASCENDING, DESCENDING
 
 from job_management.backend.crawl import CrochetCrawlerRunner
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
 from job_management.backend.service.locator import Locator
-from job_management.backend.service.sites_with_jobs import JobSitesWithJobsService
 from job_management.backend.state.statistics import JobsStatisticsState
-from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.spider.findjobs import JobsFromUrlSpider
 
@@ -33,8 +29,8 @@ class SitesState(rx.State):
         self.info = logging.getLogger(self.__class__.__name__).info
         self.debug = logging.getLogger(self.__class__.__name__).debug
         self.site_jobs_service = Locator.jobs_sites_with_jobs_service
-        self.sites_service=Locator.job_sites_service
-        self.offer_service=Locator.job_offer_service
+        self.sites_service = Locator.job_sites_service
+        self.offer_service = Locator.job_offer_service
 
     async def load_sites(self):
         self.info('Loading sites...')

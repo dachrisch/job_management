@@ -18,5 +18,5 @@ class RefinementState(rx.State):
 
     def save_dialog(self):
         self.prompt = self._new_prompt
-        self.has_prompt = self.prompt is not None and self.prompt is not ''
+        self.has_prompt = self.prompt is not None and self.prompt != ''
         self.toggle_dialog()

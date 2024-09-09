@@ -6,7 +6,6 @@ from rich import json
 from rich.console import Console
 
 from job_management.backend.service.locator import Locator
-from job_offer_spider.db.job_management import JobManagementDb
 
 
 class DbViewerCli:
@@ -21,6 +20,7 @@ class DbViewerCli:
 
     def jobs_body(self):
         return DbCollectionViewer(self._db.jobs_body.collection)
+
 
 class DbCollectionViewer:
     def __init__(self, collection: MontyCollection):

@@ -5,7 +5,7 @@
 from difflib import SequenceMatcher
 from urllib.parse import urlparse
 
-from more_itertools import first, one
+from more_itertools import one
 from scrapy import signals, Request, Spider
 from scrapy.http import Response
 from scrapy.spidermiddlewares.httperror import HttpError
@@ -27,9 +27,9 @@ class SitemapWhenRobotsFailsSpiderMiddleware:
         if isinstance(spider, JobsFromUrlSpider):
             return one(spider.scan_urls_callback())
         elif isinstance(spider, JobsFromDbSpider):
-            matches:dict[str,float] = {}
+            matches: dict[str, float] = {}
             for scan_url in spider.scan_urls_callback():
-                matches[scan_url]=SequenceMatcher(a=url, b=scan_url).ratio()
+                matches[scan_url] = SequenceMatcher(a=url, b=scan_url).ratio()
             return max(matches, key=matches.get)
         raise NotImplementedError
 

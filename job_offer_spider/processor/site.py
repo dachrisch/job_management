@@ -1,7 +1,6 @@
 import logging
 
 from job_management.backend.service.locator import Locator
-from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.item.spider.site import SiteSpiderItem
 from job_offer_spider.processor.chainable import ChainablePipeline

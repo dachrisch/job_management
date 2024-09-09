@@ -13,7 +13,7 @@ class MultiPipesSpiderPipeline:
     def __init__(self):
         self.pipelines = [StoreTargetWebsitePipeline(), StoreJobOfferPipeline()]
 
-    def process_item(self, item: Item, spider)->Item:
+    def process_item(self, item: Item, spider) -> Item:
         accepting_pipes = filter(lambda p: p.accepts(item), self.pipelines)
         for pipe in accepting_pipes:
             pipe.process_item(item, spider)

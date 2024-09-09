@@ -3,7 +3,6 @@ from rich.console import Console
 from rich.table import Table
 
 from job_management.backend.service.locator import Locator
-from job_offer_spider.db.job_management import JobManagementDb
 
 
 class JobsDbCli:
@@ -21,4 +20,3 @@ class JobsDbCli:
             for job in self._db.jobs.all():
                 table.add_row(job.title, job.url)
             self._l(table)
-

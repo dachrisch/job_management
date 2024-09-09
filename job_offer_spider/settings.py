@@ -48,8 +48,8 @@ TELNETCONSOLE_ENABLED = False
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 SPIDER_MIDDLEWARES = {
-   "job_offer_spider.middlewares.SitemapWhenRobotsFailsSpiderMiddleware": 542,
-   "job_offer_spider.middlewares.JobOfferSpiderSpiderMiddleware": 543,
+    "job_offer_spider.middlewares.SitemapWhenRobotsFailsSpiderMiddleware": 542,
+    "job_offer_spider.middlewares.JobOfferSpiderSpiderMiddleware": 543,
 }
 
 # Enable or disable downloader middlewares

@@ -4,7 +4,6 @@ from reflex import EventHandler
 from reflex.event import BACKGROUND_TASK_MARKER
 
 from job_management.backend.state.add_jobs import AddJobsState
-from job_management.backend.state.sites import SitesState
 
 
 class SitesStateMock:

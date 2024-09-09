@@ -10,7 +10,8 @@ from job_offer_spider.item.spider.site import SiteSpiderItem
 
 
 def jobsuche_url(query, page: int = 1, size: int = 2):
-    return f'https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobs?angebotsart=1&was={query}&page={page}&size={size}&pav=false&facetten=false'
+    return (f'https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobs?angebotsart=1&'
+            f'was={query}&page={page}&size={size}&pav=false&facetten=false')
 
 
 class ArbeitsamtSpider(Spider):

@@ -4,7 +4,6 @@ from scrapy.utils.project import get_project_settings
 
 from job_management.backend.service.locator import Locator
 from job_offer_spider.cli.progress import SitesScannedProgressThread
-from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.spider.eustartups import EuStartupsSpider
 from job_offer_spider.spider.findjobs import JobsFromDbSpider
 

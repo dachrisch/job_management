@@ -8,7 +8,6 @@ from scrapy.spiders.sitemap import iterloc
 from scrapy.utils.sitemap import Sitemap, sitemap_urls_from_robots
 
 from job_management.backend.service.locator import Locator
-from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db import HasUrl
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.loader.job_offer_loader import JobOfferItemLoader

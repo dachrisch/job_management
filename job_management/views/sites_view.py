@@ -21,8 +21,7 @@ def show_site(site: JobSite):
                       on_click=rx.redirect(f'/jobs/?site={site.url}'),
                       size="2",
                       variant="solid")
-        )
-        ,
+        ),
         rx.table.cell(
             rx.hstack(
                 rx.button(

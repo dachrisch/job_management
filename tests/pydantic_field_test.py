@@ -1,16 +1,16 @@
 from unittest import TestCase
 
-from pydantic.v1 import Field
 from pydantic.v1 import BaseModel
+from pydantic.v1 import Field
 
 
 class Address(BaseModel):
-    street: str=None
+    street: str = None
 
 
 class User(BaseModel):
-    name: str=None
-    address: Address=Field(default_factory=lambda : Address())
+    name: str = None
+    address: Address = Field(default_factory=lambda: Address())
 
 
 class PydanticFieldTest(TestCase):

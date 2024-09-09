@@ -6,4 +6,3 @@ class JobOfferCli:
     def __init__(self):
         self.jobs = JobsDbCli()
         self.crawl = CrawlCli()
-

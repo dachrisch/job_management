@@ -6,7 +6,6 @@ from rich.console import Console
 from rich.progress import Progress
 
 from job_management.backend.service.locator import Locator
-from job_offer_spider.db.job_management import JobManagementDb
 
 
 class SitesScannedProgressThread(Thread):

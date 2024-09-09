@@ -17,7 +17,7 @@ class JobOfferTest(TestCase):
 
     def test_jobs_frontend_none(self):
         self.assertEqual(JobSite(title='test', jobs=Statistics(total=0)),
-                         JobSite(**{'title': 'test', 'jobs':None}))
+                         JobSite(**{'title': 'test', 'jobs': None}))
 
     def test_jobs_frontend_none_dict(self):
         site = JobSite(**{'title': 'test'})

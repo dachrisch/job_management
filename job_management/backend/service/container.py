@@ -25,7 +25,7 @@ class Container(DeclarativeContainer):
 
     job_management_db = Selector(
         config.database.location,
-        local=Singleton(MontyJobManagementDb),
+        local=Singleton(MontyJobManagementDb, repository=config.database.repository),
         remote=Singleton(MongoJobManagementDb,
                          username=config.database.username.required(),
                          password=config.database.password.required())

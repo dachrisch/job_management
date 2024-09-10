@@ -30,9 +30,18 @@ jobs:
     needs: build-test
     secrets: inherit
     uses: ./.github/workflows/part_deploy.yaml
-  push:
+  docker-backend:
     needs: deploy
     secrets: inherit
     uses: ./.github/workflows/part_docker_push.yaml
     with:
       image_name: job-management-backend
+      dockerfile: backend.Dockerfile
+  docker-frontend:
+    needs: deploy
+    secrets: inherit
+    uses: ./.github/workflows/part_docker_push.yaml
+    with:
+      image_name: job-management-frontend
+      dockerfile: frontend.Dockerfile
+      backend-api_url: https://api-job.servyy.duckdns.org/

@@ -27,6 +27,7 @@ RUN reflex init
 FROM python:3.12-slim
 WORKDIR /app
 RUN adduser --disabled-password --home /app reflex
+RUN chown reflex:reflex -R /app
 COPY --chown=reflex --from=init /app /app
 
 USER reflex

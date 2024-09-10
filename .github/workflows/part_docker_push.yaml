@@ -11,11 +11,6 @@ on:
         required: true
         description: The dockerfile used to build the image
         type: string
-      build-args:
-        required: false
-        default: [ ]
-        description: List of arguments during docker build
-        type: List
     secrets:
       DOCKER_TOKEN:
         required: true

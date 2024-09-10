@@ -37,5 +37,3 @@ jobs:
     with:
       image_name: job-management-backend
       dockerfile: backend.Dockerfile
-      build-args: |
-        api_url='http://job-backend.servyy.duckdns.org'

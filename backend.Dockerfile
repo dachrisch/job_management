@@ -1,6 +1,3 @@
-                                                  # This docker file is intended to be used with docker compose to deploy a production
-# instance of a Reflex app.
-
 # Stage 1: init
 FROM python:3.12 AS init
 
@@ -25,14 +22,6 @@ RUN $uv pip install -r requirements.txt
 
 # Deploy templates and prepare app
 RUN reflex init
-
-# Export static copy of frontend to /app/.web/_static
-RUN reflex export --frontend-only --no-zip
-
-# Copy static files out of /app to save space in backend image
-RUN mv .web/_static /tmp/_static
-RUN rm -rf .web && mkdir .web
-RUN mv /tmp/_static .web/_static
 
 # Stage 2: copy artifacts into slim image
 FROM python:3.12-slim

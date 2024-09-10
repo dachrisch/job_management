@@ -22,7 +22,7 @@ env:
   DOCKER_IMAGE_NAME: ${{ github.actor }}/${{ inputs.image_name }}
 
 jobs:
-  live:
+  docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

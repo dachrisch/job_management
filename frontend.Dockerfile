@@ -27,6 +27,8 @@ RUN reflex init
 FROM python:3.12-slim AS frontend
 # install curl for healthcheck
 RUN apt-get -y update; apt-get -y install curl
+# for frontend
+RUN apt-get -y install unzip
 WORKDIR /app
 RUN adduser --disabled-password --home /app reflex
 RUN chown reflex:reflex -R /app

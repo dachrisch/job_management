@@ -24,21 +24,21 @@ permissions:
 
 
 jobs:
-#  build-test:
-#    uses: ./.github/workflows/part_run_tests.yaml
-#  deploy:
-#    needs: build-test
-#    secrets: inherit
-#    uses: ./.github/workflows/part_deploy.yaml
+  build-test:
+    uses: ./.github/workflows/part_run_tests.yaml
+  deploy:
+    needs: build-test
+    secrets: inherit
+    uses: ./.github/workflows/part_deploy.yaml
   docker-backend:
-#    needs: deploy
+    needs: deploy
     secrets: inherit
     uses: ./.github/workflows/part_docker_push.yaml
     with:
       image_name: job-management-backend
       dockerfile: backend.Dockerfile
   docker-frontend:
-#    needs: deploy
+    needs: deploy
     secrets: inherit
     uses: ./.github/workflows/part_docker_push.yaml
     with:

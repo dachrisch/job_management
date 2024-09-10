@@ -30,3 +30,9 @@ jobs:
     needs: build-test
     secrets: inherit
     uses: ./.github/workflows/part_deploy.yaml
+  push:
+    needs: deploy
+    secrets: inherit
+    uses: ./.github/workflows/part_docker_push.yaml
+    with:
+      image_name: job-management-backend

@@ -11,6 +11,11 @@ on:
         required: true
         description: The dockerfile used to build the image
         type: string
+      backend-api_url:
+        required: false
+        description: The URL of the backend in production
+        type: String
+        default: 'http://localhost:8000'
     secrets:
       DOCKER_TOKEN:
         required: true
@@ -23,7 +28,7 @@ env:
   DOCKER_IMAGE_NAME: ${{ github.actor }}/${{ inputs.image_name }}
 
 jobs:
-  docker:
+  push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,3 +67,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args:
+            api_url: ${{ inputs.backend-api_url }}

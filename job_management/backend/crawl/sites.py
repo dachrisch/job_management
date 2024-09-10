@@ -1,10 +1,10 @@
 import reflex as rx
 
-from backend.crawl import StatsCrawler
-from backend.crawl.crawler import CrochetCrawlerRunner
-from backend.state.sites import SitesState
-from spider.arbeitsamt import ArbeitsamtSpider
-from spider.eustartups import EuStartupsSpider
+from . import StatsCrawler
+from .crawler import CrochetCrawlerRunner
+from ..state.sites import SitesState
+from job_offer_spider.spider.arbeitsamt import ArbeitsamtSpider
+from job_offer_spider.spider.eustartups import EuStartupsSpider
 
 
 class EuStartupSitesCrawlerState(rx.State, StatsCrawler):

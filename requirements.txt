@@ -5,7 +5,8 @@ dependency-injector==4.42.0
 google-api-python-client==2.144.0
 google-auth-oauthlib==1.2.1
 montydb==2.5.3
+more-itertools==10.5.0
 openai==1.44.1
 pymongo==4.8.0
+reflex==0.5.10
 Scrapy==2.11.2
-more-itertools==10.5.0

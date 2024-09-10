@@ -14,7 +14,7 @@ on:
       backend-api_url:
         required: false
         description: The URL of the backend in production
-        type: String
+        type: string
         default: 'http://localhost:8000'
     secrets:
       DOCKER_TOKEN:

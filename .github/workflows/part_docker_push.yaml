@@ -2,7 +2,7 @@ name: Build and Deploy docker images
 
 on:
   workflow_call:
-    vars:
+    inputs:
       image_name:
         required: true
         description: The name of the image
@@ -18,7 +18,7 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
   # github.repository as <account>/<repo>
-  DOCKER_IMAGE_NAME: ${{github.actor}}/${{ vars.image_name }}
+  DOCKER_IMAGE_NAME: ${{ github.actor }}/${{ inputs.image_name }}
 
 jobs:
   live:

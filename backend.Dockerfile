@@ -36,5 +36,7 @@ ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
 # Needed until Reflex properly passes SIGTERM on backend.
 STOPSIGNAL SIGKILL
 
+EXPOSE 8000
+
 # Always apply migrations before starting the backend.
 ENTRYPOINT ["reflex", "run", "--env", "prod", "--backend-only"]

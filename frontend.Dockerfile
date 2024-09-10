@@ -35,3 +35,4 @@ RUN mv /tmp/_static .web/_static
 FROM nginx:stable
 
 COPY --from=init /app/.web/_static /usr/share/nginx/html
+EXPOSE 80

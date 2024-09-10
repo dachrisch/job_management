@@ -6,12 +6,14 @@ from scrapy.utils.project import get_project_settings
 from twisted.internet.pollreactor import install
 
 from job_management.backend.service.container import Container
+from rxconfig import config
 
 
 def wire():
     container = Container()
     container.init_resources()
-    print(container.config.get('database.location'))
+    print(f"Running with database location: {container.config.get('database.location')}")
+    print(f"API URL: {config.get_value('api_url')}")
 
 
 def setup_scrapy():

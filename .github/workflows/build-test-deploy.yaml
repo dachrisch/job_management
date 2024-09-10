@@ -44,4 +44,3 @@ jobs:
     with:
       image_name: job-management-frontend
       dockerfile: frontend.Dockerfile
-      backend-api_url: https://api-job.servyy.duckdns.org/

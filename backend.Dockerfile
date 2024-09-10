@@ -24,7 +24,7 @@ RUN $uv pip install -r requirements.txt
 RUN reflex init
 
 # Stage 2: copy artifacts into slim image
-FROM python:3.12-slim AS stage-2
+FROM python:3.12-slim AS backend
 # install curl for healthcheck
 RUN apt-get -y update; apt-get -y install curl
 WORKDIR /app
@@ -40,5 +40,4 @@ STOPSIGNAL SIGKILL
 
 EXPOSE 8000
 
-# Always apply migrations before starting the backend.
 ENTRYPOINT ["reflex", "run", "--env", "prod", "--backend-only"]

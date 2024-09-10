@@ -2,7 +2,7 @@
 # instance of a Reflex app.
 
 # Stage 1: init
-FROM python:3.12 as init
+FROM python:3.12 AS init
 
 ARG uv=/root/.cargo/bin/uv
 

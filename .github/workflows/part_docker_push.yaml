@@ -6,6 +6,7 @@ on:
       image_name:
         required: true
         description: The name of the image
+        type: string
     secrets:
       ACTOR:
         required: true

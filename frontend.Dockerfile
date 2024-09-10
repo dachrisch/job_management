@@ -35,8 +35,21 @@ RUN mv .web/_static /tmp/_static
 RUN rm -rf .web && mkdir .web
 RUN mv /tmp/_static .web/_static
 
-# stage 2
-FROM nginx:stable
+# Stage 2: copy artifacts into slim image
+FROM python:3.12-slim AS frontend
+# install curl for healthcheck
+RUN apt-get -y update; apt-get -y install curl
+WORKDIR /app
+RUN adduser --disabled-password --home /app reflex
+RUN chown reflex:reflex -R /app
+COPY --chown=reflex --from=init /app /app
 
-COPY --from=init /app/.web/_static /usr/share/nginx/html
-EXPOSE 80
+USER reflex
+ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
+
+# Needed until Reflex properly passes SIGTERM on backend.
+STOPSIGNAL SIGKILL
+
+EXPOSE 3000
+
+ENTRYPOINT ["reflex", "run", "--env", "prod", "--frontend-only"]

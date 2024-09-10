@@ -11,6 +11,11 @@ on:
         required: true
         description: The dockerfile used to build the image
         type: string
+      build-args:
+        required: false
+        default: [ ]
+        description: List of arguments during docker build
+        type: List
     secrets:
       DOCKER_TOKEN:
         required: true
@@ -62,3 +67,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: ${{ inputs.build-args }}
+          

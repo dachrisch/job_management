@@ -12,7 +12,7 @@ from job_management.backend.service import locator
 from job_management.backend.service.locator import Locator
 from job_offer_spider.db.job_management import MontyJobManagementDb
 from job_management.backend.service.container import Container
-from mocks import mocked_requests_response
+from .mocks import mocked_requests_response
 
 
 # Overriding ``Container`` with ``OverridingContainer``:

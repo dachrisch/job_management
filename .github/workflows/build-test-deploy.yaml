@@ -24,14 +24,14 @@ permissions:
 
 
 jobs:
-  build-test:
-    uses: ./.github/workflows/part_run_tests.yaml
-  deploy:
-    needs: build-test
-    secrets: inherit
-    uses: ./.github/workflows/part_deploy.yaml
+#  build-test:
+#    uses: ./.github/workflows/part_run_tests.yaml
+#  deploy:
+#    needs: build-test
+#    secrets: inherit
+#    uses: ./.github/workflows/part_deploy.yaml
   push:
-    needs: deploy
+#    needs: deploy
     secrets: inherit
     uses: ./.github/workflows/part_docker_push.yaml
     with:

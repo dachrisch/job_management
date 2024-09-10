@@ -8,9 +8,6 @@ on:
         description: The name of the image
         type: string
     secrets:
-      ACTOR:
-        required: true
-        description: Don't know
       DOCKER_TOKEN:
         required: true
         description: API Token for docker hub

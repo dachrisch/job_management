@@ -3,18 +3,16 @@ from unittest import TestCase, mock
 
 from dependency_injector import containers
 from dependency_injector.providers import Singleton
-from montydb import MontyClient, set_storage
+from montydb import set_storage
 
-from backend import service
-from backend.entity.offer import JobOffer
-from backend.entity.site import JobSite
-from backend.service import locator
-from backend.service.job_offer import JobOfferService
-from backend.service.locator import Locator
-from db.job_management import JobManagementDb, MontyJobManagementDb
-from job_management import wire
+from job_management.backend import service
+from job_management.backend.entity.offer import JobOffer
+from job_management.backend.entity.site import JobSite
+from job_management.backend.service import locator
+from job_management.backend.service.locator import Locator
+from job_offer_spider.db.job_management import MontyJobManagementDb
 from job_management.backend.service.container import Container
-from mocks import mocked_requests_response
+from .mocks import mocked_requests_response
 
 
 # Overriding ``Container`` with ``OverridingContainer``:

@@ -11,6 +11,7 @@ from job_management.backend.service.container import Container
 def wire():
     container = Container()
     container.init_resources()
+    print(f"Running with database location: {container.config.get('database.location')}")
 
 
 def setup_scrapy():

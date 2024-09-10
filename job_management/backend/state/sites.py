@@ -3,11 +3,11 @@ from typing import Any
 
 import reflex as rx
 
-from backend.crawl.crawler import CrochetCrawlerRunner
-from job_management.backend.entity.offer import JobOffer
-from job_management.backend.entity.site import JobSite
-from job_management.backend.service.locator import Locator
-from job_management.backend.state.statistics import JobsStatisticsState
+from ..crawl.crawler import CrochetCrawlerRunner
+from ..entity.offer import JobOffer
+from ..entity.site import JobSite
+from ..service.locator import Locator
+from .statistics import JobsStatisticsState
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.spider.findjobs import JobsFromUrlSpider
 

@@ -1,6 +1,6 @@
 import reflex as rx
 
-from backend.crawl.sites import EuStartupSitesCrawlerState, ArbeitsamtSitesCrawlerState
+from ..backend.crawl.sites import EuStartupSitesCrawlerState, ArbeitsamtSitesCrawlerState
 
 
 def crawl_eu_sites_button():

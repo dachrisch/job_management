@@ -1,10 +1,10 @@
 import reflex as rx
 
-from backend.crawl import StatsCrawler
-from backend.crawl.crawler import CrochetCrawlerRunner
-from backend.state.sites import SitesState
-from spider.arbeitsamt import ArbeitsamtSpider
-from spider.eustartups import EuStartupsSpider
+from job_offer_spider.spider.arbeitsamt import ArbeitsamtSpider
+from job_offer_spider.spider.eustartups import EuStartupsSpider
+from . import StatsCrawler
+from .crawler import CrochetCrawlerRunner
+from ..state.sites import SitesState
 
 
 class EuStartupSitesCrawlerState(rx.State, StatsCrawler):
@@ -24,6 +24,7 @@ class EuStartupSitesCrawlerState(rx.State, StatsCrawler):
             self.running = False
             print(f'Stats: {stats}')
         return self.fire_stats_toast(stats)
+
 
 class ArbeitsamtSitesCrawlerState(rx.State, StatsCrawler):
     running: bool = False

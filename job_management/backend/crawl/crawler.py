@@ -24,5 +24,3 @@ class CrochetCrawlerRunner:
 
     def finished(self, stats: StatsCollector, what) -> dict[str, Any]:
         return stats.get_stats()
-
-

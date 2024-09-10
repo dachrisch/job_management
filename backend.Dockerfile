@@ -24,7 +24,7 @@ RUN $uv pip install -r requirements.txt
 RUN reflex init
 
 # Stage 2: copy artifacts into slim image
-FROM python:3.12-slim
+FROM python:3.12-slim AS stage-2
 WORKDIR /app
 RUN adduser --disabled-password --home /app reflex
 RUN chown reflex:reflex -R /app

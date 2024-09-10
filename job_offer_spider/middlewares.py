@@ -5,13 +5,11 @@
 from difflib import SequenceMatcher
 from urllib.parse import urlparse
 
-from more_itertools import one
 from scrapy import signals, Request, Spider
 from scrapy.http import Response
 from scrapy.spidermiddlewares.httperror import HttpError
-from scrapy.spiders import SitemapSpider
 
-from job_offer_spider.spider.findjobs import JobsFromUrlSpider, JobsFromDbSpider, JobsFromUrlListSpider
+from job_offer_spider.spider.findjobs import JobsFromUrlListSpider
 
 
 class SitemapWhenRobotsFailsSpiderMiddleware:

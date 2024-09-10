@@ -6,7 +6,6 @@ from scrapy.utils.project import get_project_settings
 from twisted.internet.pollreactor import install
 
 from job_management.backend.service.container import Container
-from rxconfig import config
 
 
 def wire():

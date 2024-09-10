@@ -8,3 +8,4 @@ montydb==2.5.3
 openai==1.44.1
 pymongo==4.8.0
 Scrapy==2.11.2
+more-itertools==10.5.0

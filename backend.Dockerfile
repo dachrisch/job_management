@@ -25,6 +25,8 @@ RUN reflex init
 
 # Stage 2: copy artifacts into slim image
 FROM python:3.12-slim AS stage-2
+# install curl for healthcheck
+RUN apt-get -y update; apt-get -y install curl
 WORKDIR /app
 RUN adduser --disabled-password --home /app reflex
 RUN chown reflex:reflex -R /app

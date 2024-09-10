@@ -47,4 +47,4 @@ ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
 STOPSIGNAL SIGKILL
 
 # Always apply migrations before starting the backend.
-CMD exec reflex run --env prod --backend-only
+ENTRYPOINT ["reflex", "run", "--env", "prod", "--backend-only"]

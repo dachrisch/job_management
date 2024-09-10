@@ -13,7 +13,6 @@ def wire():
     container = Container()
     container.init_resources()
     print(f"Running with database location: {container.config.get('database.location')}")
-    print(f"API URL: {config.get_value('api_url')}")
 
 
 def setup_scrapy():

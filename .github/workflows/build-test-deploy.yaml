@@ -36,3 +36,4 @@ jobs:
     uses: ./.github/workflows/part_docker_push.yaml
     with:
       image_name: job-management-backend
+      dockerfile: backend.Dockerfile

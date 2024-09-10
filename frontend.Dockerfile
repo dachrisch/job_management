@@ -25,7 +25,6 @@ RUN reflex init
 
 ARG api_url
 
-# in any case, we use the ARG value here:
 ENV JOB_API_URL=$api_url
 
 # Export static copy of frontend to /app/.web/_static

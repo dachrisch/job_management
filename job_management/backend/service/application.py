@@ -47,11 +47,16 @@ class JobApplicationService(JobOfferService):
                          '}')
         page_content = one(self.jobs_body.filter({'url': {'$eq': job_offer.url}}))
         user_prompt = f'The web page content is: {page_content.body}'
+        self.log.debug(f'Analyze prompt: {c}')
         analyzed_result = c.as_system(system_prompt).as_user(user_prompt).complete()
         analyze_dto = JobOfferAnalyzeDto(url=job_offer.url, **analyzed_result['job'])
         self.log.debug(f'Finished analyzing offer: {analyze_dto}')
         self.jobs_analyze.add(analyze_dto)
-        self.jobs.update_one({'url': job_offer.url}, {'$set': {'state.analyzed': True}}, expect_modified=False)
+        self.jobs.update_one({'url': job_offer.url},
+                             {'$set': {'state.analyzed': True,
+                                       'title': analyze_dto.title
+                                       },
+                              }, expect_modified=False)
 
         return analyze_dto
 
@@ -59,7 +64,8 @@ class JobApplicationService(JobOfferService):
         return first(map(lambda a: JobOfferApplication(**a.to_dict()),
                          self.jobs_application.filter({'url': {'$eq': job_offer.url}})), None)
 
-    def compose_application(self, job_offer_analyzed: JobOfferAnalyze) -> JobOfferApplicationDto:
+    def compose_application(self, job_offer_analyzed: JobOfferAnalyze,
+                            refinement_prompt: str = None) -> JobOfferApplicationDto:
         self.log.info(f'Composing application for [{job_offer_analyzed}]')
         prompt_template = string.Template('''Help me write an application for the job indicated by JOBDESC
 
@@ -95,6 +101,9 @@ ${CVDATA}
         })
         c = Conversation(openai_api_key=self.openai_api_key, response_format="text")
         c.as_user(application_prompt)
+
+        if refinement_prompt:
+            c.as_user(refinement_prompt)
 
         self.log.debug(f'Application prompt: {c}')
 

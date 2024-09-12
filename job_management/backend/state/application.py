@@ -1,3 +1,4 @@
+import base64
 import logging
 from typing import Optional
 
@@ -6,8 +7,9 @@ import reflex as rx
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.offer_analyzed import JobOfferAnalyze
 from job_management.backend.entity.offer_application import JobOfferApplication
-from job_management.backend.service.locator import Locator
 from job_management.backend.entity.storage import JobApplicationCoverLetter, JobApplicationCoverLetterDoc
+from job_management.backend.service.locator import Locator
+from job_management.backend.state.refinement import RefinementState
 
 
 class ApplicationState(rx.State):
@@ -24,7 +26,7 @@ class ApplicationState(rx.State):
         self.log = logging.getLogger(f'{__name__}')
 
     def load_current_job_offer(self):
-        job_url = self.router.page.params.get('job', '')
+        job_url = base64.b64decode(self.router.page.params.get('job', '')).decode('ascii')
         if job_url:
             self.job_offer = self.application_service.job_from_url(job_url)
             self.job_offer_analyzed = self.application_service.load_job_analysis(self.job_offer)
@@ -53,7 +55,9 @@ class ApplicationState(rx.State):
         async with self:
             self.job_offer.state.is_composing = True
 
-        self.application_service.compose_application(self.job_offer_analyzed)
+            refinement_state: RefinementState = (await self.get_state(RefinementState))
+
+        self.application_service.compose_application(self.job_offer_analyzed, refinement_state.prompt)
 
         async with self:
             self.load_current_job_offer()

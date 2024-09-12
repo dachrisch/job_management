@@ -1,27 +1,8 @@
 from unittest import TestCase
 
-from job_management.backend.entity.site import JobSite
-from job_management.backend.entity.stat import Statistics
-from job_offer_spider.item.db.sites import JobSiteDto, JobStatistic
+from job_management.backend.entity.offer import JobOffer
 
 
-class JobOfferTest(TestCase):
-
-    def test_jobs_dto(self):
-        self.assertEqual(JobSiteDto(url='test', jobs=JobStatistic(total=1)),
-                         JobSiteDto.from_dict({'url': 'test', 'jobs': {'total': 1}}))
-
-    def test_jobs_frontend(self):
-        self.assertEqual(JobSite(title='test', jobs=Statistics(total=1)),
-                         JobSite.parse_obj({'title': 'test', 'jobs': {'total': 1}}))
-
-    def test_jobs_frontend_none(self):
-        self.assertEqual(JobSite(title='test', jobs=Statistics(total=0)),
-                         JobSite(**{'title': 'test', 'jobs': None}))
-
-    def test_jobs_frontend_none_dict(self):
-        site = JobSite(**{'title': 'test'})
-        statistics = Statistics(total=0)
-        self.assertEqual(statistics, site.jobs)
-        self.assertEqual(JobSite(title='test', jobs=statistics),
-                         site)
+class TestJobOffer(TestCase):
+    def test_job_site_has_base64(self):
+        self.assertEqual('dGVzdCB1cmw=', JobOffer(url='test url').base64_url)

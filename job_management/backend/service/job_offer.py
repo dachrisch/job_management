@@ -7,11 +7,18 @@ from more_itertools import one
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
+from job_offer_spider.db.collection import CollectionHandler
 from job_offer_spider.db.job_management import JobManagementDb
-from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto
+from job_offer_spider.item.db.cover_letter import JobOfferCoverLetterDto
+from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto, JobOfferAnalyzeDto, JobOfferApplicationDto
 
 
 class JobOfferService:
+    jobs: CollectionHandler[JobOfferDto]
+    jobs_body: CollectionHandler[JobOfferBodyDto]
+    jobs_analyze: CollectionHandler[JobOfferAnalyzeDto]
+    jobs_application: CollectionHandler[JobOfferApplicationDto]
+    cover_letter_docs: CollectionHandler[JobOfferCoverLetterDto]
 
     def __init__(self, db: JobManagementDb):
         self.jobs = db.jobs

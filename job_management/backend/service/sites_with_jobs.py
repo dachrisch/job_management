@@ -12,7 +12,7 @@ from job_management.backend.entity.sites_and_jobs import SitesAndJobs
 from job_management.backend.service.job_offer import JobOfferService
 from job_management.backend.service.site import JobSitesService
 from job_offer_spider.db.job_management import JobManagementDb
-from job_offer_spider.item.db.job_offer import JobOfferDto
+from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.loader.job_offer_loader import JobOfferItemLoader
 
@@ -70,18 +70,22 @@ class JobSitesWithJobsService(JobOfferService, JobSitesService):
             site_url = urlunparse((page_url.scheme, page_url.netloc, '', '', '', ''))
             item_loader = JobOfferItemLoader.from_requests(response).populate(site_url)
             if item_loader.is_valid():
-                sites_and_jobs.add(JobSite(title=site_title, url=site_url),
-                                   JobOffer(**JobOfferDto.from_dict(item_loader.load()).to_dict()))
+                job_offer = JobOfferDto.from_dict(item_loader.load())
+                sites_and_jobs.add(JobSiteDto(title=site_title, url=site_url),
+                                   job_offer,
+                                   JobOfferBodyDto(url=job_offer.url, body=response.text))
 
         self.log.info(f'Parsed {sites_and_jobs.num_sites} sites and {sites_and_jobs.num_jobs} jobs')
         return sites_and_jobs
 
     def add_jobs_from(self, urls: list[str]):
         sites_and_jobs = self.parse_sites_and_jobs(urls)
-        for site in map(lambda s: JobSiteDto.from_dict(s.dict()), sites_and_jobs.sites):
+        for site in sites_and_jobs.sites:
             if not self.sites.contains(site):
                 self.sites.add(site)
-            for job in map(lambda j: JobOfferDto.from_dict(j.dict()), sites_and_jobs.jobs[site.url]):
+            for job in sites_and_jobs.jobs[site.url]:
                 if not self.jobs.contains(job):
                     self.jobs.add(job)
-            self.update_statistic_for_job_site(site)
+                if not self.jobs_body.contains(sites_and_jobs.jobs_body[job.url]):
+                    self.jobs_body.add(sites_and_jobs.jobs_body[job.url])
+            self.update_statistic_for_job_site(JobSite(**site.to_dict()))

@@ -226,8 +226,9 @@ def display_stored_doc():
         rx.heading('Application Doc'),
         rx.hstack(
             rx.icon('book-check'),
-            rx.markdown(f'[{ApplicationState.job_offer_cover_letter_doc.name}]'
-                        f'(https://docs.google.com/document/d/{ApplicationState.job_offer_cover_letter_doc.document_id})'),
+            rx.link(rx.text(ApplicationState.job_offer_cover_letter_doc.name),
+                    href=f'https://docs.google.com/document/d/{ApplicationState.job_offer_cover_letter_doc.document_id}',
+                    target='_blank'),
             align='center'
         )
     )

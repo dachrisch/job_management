@@ -60,7 +60,7 @@ class JobApplicationService(JobOfferService):
         return first(map(lambda a: JobOfferApplication(**a.to_dict()),
                          self.jobs_application.filter({'url': {'$eq': job_offer.url}})), None)
 
-    def compose_application(self, job_offer_analyzed: JobOfferAnalyze) -> JobOfferApplicationDto:
+    def compose_application(self, job_offer_analyzed: JobOfferAnalyze, refinement_prompt:str=None) -> JobOfferApplicationDto:
         self.log.info(f'Composing application for [{job_offer_analyzed}]')
         prompt_template = string.Template('''Help me write an application for the job indicated by JOBDESC
 
@@ -96,6 +96,9 @@ ${CVDATA}
         })
         c = Conversation(openai_api_key=self.openai_api_key, response_format="text")
         c.as_user(application_prompt)
+
+        if refinement_prompt:
+            c.as_user(refinement_prompt)
 
         self.log.debug(f'Application prompt: {c}')
 

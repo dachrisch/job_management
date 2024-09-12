@@ -8,11 +8,13 @@ from montydb import ASCENDING, DESCENDING
 from more_itertools import one
 
 from job_management.backend.entity.site import JobSite
+from job_offer_spider.db.collection import CollectionHandler
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.sites import JobSiteDto
 
 
 class JobSitesService:
+    sites: CollectionHandler[JobSiteDto]
     def __init__(self, db: JobManagementDb):
         self.sites = db.sites
 

@@ -22,7 +22,7 @@ class CollectionHandler[T]:
         self.log = logging.getLogger(f'{__name__}[{collection.name}]')
 
     def add(self, item: DataClassJsonMixin):
-        self.log.debug(f'storing: {item}')
+        self.log.info(f'storing: {item}')
         self.collection.insert_one(item.to_dict(encode_json=True))
 
     def contains(self, item: HasUrl) -> bool:

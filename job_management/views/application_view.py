@@ -112,7 +112,6 @@ def process_steps():
                  complete=CvState.has_cv_data,
                  process_callback=CvState.toggle_load_cv_data_open,
                  view_callback=display_cv,
-                 required=False
                  ),
             item('Prompt Refinements',
                  'message-circle-more',
@@ -124,7 +123,7 @@ def process_steps():
             refinement_dialog(),
             item('Generate Application',
                  'notebook-pen',
-                 disabled=~ApplicationState.job_offer.state.analyzed,
+                 disabled=~(ApplicationState.job_offer.state.analyzed & CvState.has_cv_data),
                  complete=ApplicationState.job_offer.state.composed,
                  in_progress=ApplicationState.job_offer.state.is_composing,
                  process_callback=ApplicationState.compose_application,

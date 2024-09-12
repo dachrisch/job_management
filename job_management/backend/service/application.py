@@ -90,16 +90,24 @@ ${CVDATA}
 ''')
         cv_data = first(self.cvs.all(), None)
         application_prompt = prompt_template.safe_substitute({
-            'JOBDESC': repr(job_offer_analyzed),
+            'JOBDESC': str(job_offer_analyzed),
             'CVDATA': cv_data.text
         })
         c = Conversation(openai_api_key=self.openai_api_key, response_format="text")
         c.as_user(application_prompt)
 
+        self.log.debug(f'Application prompt: {c}')
+
         application_dto = JobOfferApplicationDto(url=job_offer_analyzed.url, text=c.complete())
 
-        self.jobs_application.add(application_dto)
-        self.jobs.update_one({'url': job_offer_analyzed.url}, {'$set': {'state.composed': True}})
+        if self.jobs_application.contains(application_dto):
+            item_id = one(self.jobs_application.filter({'url': {'$eq': application_dto.url}})).id
+            application_dto.id = item_id
+            self.jobs_application.update_item(application_dto)
+        else:
+            self.jobs_application.add(application_dto)
+        self.jobs.update_one({'url': job_offer_analyzed.url}, {'$set': {'state.composed': True}},
+                             expect_modified=False)
 
         self.log.debug(f'Finished composing application: {application_dto}')
 

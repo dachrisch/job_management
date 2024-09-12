@@ -3,13 +3,13 @@ from typing import Any
 
 import reflex as rx
 
+from job_offer_spider.item.db.sites import JobSiteDto
+from job_offer_spider.spider.findjobs import JobsFromUrlSpider
+from .statistics import JobsStatisticsState
 from ..crawl.crawler import CrochetCrawlerRunner
 from ..entity.offer import JobOffer
 from ..entity.site import JobSite
 from ..service.locator import Locator
-from .statistics import JobsStatisticsState
-from job_offer_spider.item.db.sites import JobSiteDto
-from job_offer_spider.spider.findjobs import JobsFromUrlSpider
 
 
 class SitesState(rx.State):
@@ -33,7 +33,7 @@ class SitesState(rx.State):
         self.offer_service = Locator.job_offer_service
 
     async def load_sites(self):
-        self.info('Loading sites...')
+        self.info(f'Loading sites for page [{self.page + 1}]...')
         self._sites = self.sites_service.load_sites(self.page, self.page_size, self.sort_value, self.sort_reverse)
         self._jobs = self.offer_service.load_jobs()
         self.num_sites = self.sites_service.count_sites()
@@ -122,23 +122,23 @@ class SitesState(rx.State):
     def at_end(self) -> bool:
         return self.page * self.page_size + self.page_size > self.num_sites
 
-    def first_page(self):
+    async def first_page(self):
         self.page = 0
-        self.load_sites()
+        await self.load_sites()
 
-    def prev_page(self):
+    async def prev_page(self):
         if not self.at_beginning:
             self.page -= 1
-        self.load_sites()
+        await self.load_sites()
 
-    def last_page(self):
+    async def last_page(self):
         self.page = self.num_sites // self.page_size
-        self.load_sites()
+        await self.load_sites()
 
-    def next_page(self):
+    async def next_page(self):
         if not self.at_end:
             self.page += 1
-        self.load_sites()
+        await self.load_sites()
 
     @rx.background
     async def clear_jobs(self, site_dict: dict[str, Any]):

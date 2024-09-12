@@ -10,9 +10,6 @@ from ..state.sites import SitesState
 class EuStartupSitesCrawlerState(rx.State, StatsCrawler):
     running: bool = False
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     @rx.background
     async def start_crawling(self):
         async with self:
@@ -28,9 +25,6 @@ class EuStartupSitesCrawlerState(rx.State, StatsCrawler):
 
 class ArbeitsamtSitesCrawlerState(rx.State, StatsCrawler):
     running: bool = False
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     @rx.background
     async def start_crawling(self):

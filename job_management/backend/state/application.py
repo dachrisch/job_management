@@ -7,8 +7,7 @@ from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.offer_analyzed import JobOfferAnalyze
 from job_management.backend.entity.offer_application import JobOfferApplication
 from job_management.backend.service.locator import Locator
-from job_management.backend.service.storage import JobApplicationCoverLetter, \
-    JobApplicationCoverLetterDoc
+from job_management.backend.entity.storage import JobApplicationCoverLetter, JobApplicationCoverLetterDoc
 
 
 class ApplicationState(rx.State):

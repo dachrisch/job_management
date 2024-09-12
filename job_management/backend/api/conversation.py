@@ -78,3 +78,6 @@ class Conversation:
             generated_tokens = reduce(lambda total, entry: total + entry['n_generated_tokens_total'],
                                       usage_response.json()['data'], 0)
         return Usage(context_tokens=context_tokens, generated_tokens=generated_tokens, model=self.model)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(model={self.model}, messages={self.messages})"

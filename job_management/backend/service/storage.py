@@ -1,39 +1,14 @@
 import logging
-from dataclasses import dataclass
-from datetime import datetime
 from typing import Any
 
-import reflex as rx
 from googleapiclient.discovery import build
 from more_itertools import first
 
 from job_management.backend.api.credentials_helper import GoogleCredentialsHandler
 from job_management.backend.entity.offer import JobOffer
-from job_management.backend.entity.offer_analyzed import JobOfferAnalyze
-from job_management.backend.entity.offer_application import JobOfferApplication
+from job_management.backend.entity.storage import JobApplicationCoverLetter, JobApplicationCoverLetterDoc
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.cover_letter import JobOfferCoverLetterDto
-
-
-@dataclass
-class JobApplicationCoverLetter:
-    url: str
-    title: str
-    company_name: str
-    cover_body: str
-    date: datetime = datetime.now()
-
-    @classmethod
-    def from_analyze(cls, job_offer_analyzed: JobOfferAnalyze, job_offer_application: JobOfferApplication):
-        return cls(url=job_offer_analyzed.url, title=job_offer_analyzed.title,
-                   company_name=job_offer_analyzed.company_name,
-                   cover_body=job_offer_application.text)
-
-
-class JobApplicationCoverLetterDoc(rx.Base):
-    url: str
-    document_id: str
-    name: str
 
 
 class JobApplicationStorageService:
@@ -51,10 +26,10 @@ class JobApplicationStorageService:
                          self.cover_letter_docs.filter({'url': {'$eq': job_offer.url}})), None)
 
     def store_application_in_google_docs(self, job_offer_cover_letter: JobApplicationCoverLetter):
-        job_application_cover_letter_doc = self.copy_replace_doc(self.template_id, job_offer_cover_letter)
-
-        self.cover_letter_docs.add(job_application_cover_letter_doc)
-        self.jobs.update_one({'url': job_offer_cover_letter.url}, {'$set': {'state.stored': True}})
+        job_application_cover_letter_dto = self.copy_replace_doc(self.template_id, job_offer_cover_letter)
+        self.cover_letter_docs.add(job_application_cover_letter_dto)
+        self.jobs.update_one({'url': job_offer_cover_letter.url}, {'$set': {'state.stored': True}},
+                             expect_modified=False)
 
     def copy_replace_doc(self, template_id: str,
                          job_offer_cover_letter: JobApplicationCoverLetter) -> JobOfferCoverLetterDto:

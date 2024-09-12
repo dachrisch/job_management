@@ -23,4 +23,3 @@ class JobOffer(rx.Base):
     @validator('base64_url', always=True)
     def encode_base64(cls, value: Any, values: dict[str, Any], config: Type[BaseConfig], field: ModelField):
         return base64.b64encode(values['url'].encode()).decode('ascii')
-

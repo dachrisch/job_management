@@ -18,7 +18,7 @@ class SitesAndJobs:
             self.jobs[site.url] = []
 
         self.jobs[site.url].append(offer)
-        self.jobs_body[offer.url]=body
+        self.jobs_body[offer.url] = body
 
     @property
     def num_sites(self):

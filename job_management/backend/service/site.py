@@ -15,6 +15,7 @@ from job_offer_spider.item.db.sites import JobSiteDto
 
 class JobSitesService:
     sites: CollectionHandler[JobSiteDto]
+
     def __init__(self, db: JobManagementDb):
         self.sites = db.sites
 

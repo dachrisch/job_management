@@ -1,3 +1,4 @@
+import base64
 import logging
 from typing import Optional
 
@@ -24,7 +25,7 @@ class ApplicationState(rx.State):
         self.log = logging.getLogger(f'{__name__}')
 
     def load_current_job_offer(self):
-        job_url = self.router.page.params.get('job', '')
+        job_url = base64.b64decode(self.router.page.params.get('job', '')).decode('ascii')
         if job_url:
             self.job_offer = self.application_service.job_from_url(job_url)
             self.job_offer_analyzed = self.application_service.load_job_analysis(self.job_offer)

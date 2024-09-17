@@ -3,11 +3,11 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from functools import reduce
-from typing import Literal, List, Dict, Any, Callable
+from typing import Literal, List, Dict, Any, Callable, Awaitable
 
 import requests
 from attr import define
-from openai import OpenAI
+from openai import OpenAI, AsyncOpenAI
 from openai.types import ChatModel
 from openai.types.chat import ChatCompletionMessageParam
 
@@ -57,7 +57,16 @@ class Conversation:
         })
         return self
 
-    def complete(self):
+    async def complete_async(self) -> Dict[str, Any]:
+        client = AsyncOpenAI(api_key=self.openai_api_key)
+        chat_completion = await client.chat.completions.create(
+            messages=self.messages,
+            model=self.model,
+            response_format={"type": self.response_format},
+        )
+        return self.processor[self.response_format](chat_completion.choices[0].message.content)
+
+    def complete(self) -> Dict[str, Any]:
         client = OpenAI(api_key=self.openai_api_key)
         chat_completion = client.chat.completions.create(
             messages=self.messages,

@@ -5,6 +5,7 @@ from montydb import MontyCollection
 from rich import json
 from rich.console import Console
 
+from job_management import wire
 from job_management.backend.service.locator import Locator
 
 
@@ -43,4 +44,5 @@ class DbCollectionViewer:
 
 
 if __name__ == '__main__':
+    wire()
     fire.Fire(DbViewerCli)

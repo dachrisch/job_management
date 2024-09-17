@@ -44,7 +44,7 @@ class ApplicationState(rx.State):
         async with self:
             self.job_offer.state.is_analyzing = True
 
-        self.application_service.analyze_job(self.job_offer)
+        await self.application_service.analyze_job(self.job_offer)
 
         async with self:
             self.load_current_job_offer()
@@ -57,7 +57,7 @@ class ApplicationState(rx.State):
 
             refinement_state: RefinementState = (await self.get_state(RefinementState))
 
-        self.application_service.compose_application(self.job_offer_analyzed, refinement_state.prompt)
+        await self.application_service.compose_application(self.job_offer_analyzed, refinement_state.prompt)
 
         async with self:
             self.load_current_job_offer()
@@ -68,7 +68,7 @@ class ApplicationState(rx.State):
         async with self:
             self.job_offer.state.is_storing = True
 
-        self.storage_service.store_application_in_google_docs(
+        await self.storage_service.store_application_in_google_docs(
             JobApplicationCoverLetter.from_analyze(self.job_offer_analyzed, self.job_offer_application))
 
         async with self:

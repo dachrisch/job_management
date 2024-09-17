@@ -4,7 +4,7 @@ from typing import override
 from urllib.parse import urlparse, urlunparse
 
 import requests
-from requests import HTTPError
+from requests import HTTPError, RequestException
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
@@ -59,10 +59,10 @@ class JobSitesWithJobsService(JobOfferService, JobSitesService):
     def parse_sites_and_jobs(self, urls: list[str]) -> SitesAndJobs:
         sites_and_jobs = SitesAndJobs()
         for url in urls:
-            response = requests.get(url)
             try:
+                response = requests.get(url)
                 response.raise_for_status()
-            except HTTPError as e:
+            except (HTTPError, RequestException) as e:
                 self.log.warning(f'Fetching [{url}] produced error. Skipping', exc_info=e)
                 continue
             page_url = urlparse(url, 'https')

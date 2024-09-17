@@ -3,6 +3,7 @@ from typing import Any
 
 from googleapiclient.discovery import build
 from more_itertools import first
+from openai._utils import asyncify
 
 from job_management.backend.api.credentials_helper import GoogleCredentialsHandler
 from job_management.backend.entity.offer import JobOffer
@@ -25,8 +26,9 @@ class JobApplicationStorageService:
         return first(map(lambda a: JobApplicationCoverLetterDoc(**a.to_dict()),
                          self.cover_letter_docs.filter({'url': {'$eq': job_offer.url}})), None)
 
-    def store_application_in_google_docs(self, job_offer_cover_letter: JobApplicationCoverLetter):
-        job_application_cover_letter_dto = self.copy_replace_doc(self.template_id, job_offer_cover_letter)
+    async def store_application_in_google_docs(self, job_offer_cover_letter: JobApplicationCoverLetter):
+        job_application_cover_letter_dto = await asyncify(self.copy_replace_doc)(self.template_id,
+                                                                                 job_offer_cover_letter)
         self.cover_letter_docs.add(job_application_cover_letter_dto)
         self.jobs.update_one({'url': job_offer_cover_letter.url}, {'$set': {'state.stored': True}},
                              expect_modified=False)

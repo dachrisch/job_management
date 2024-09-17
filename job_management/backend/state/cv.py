@@ -16,6 +16,7 @@ class CvState(rx.State):
 
     def toggle_load_cv_data_open(self):
         self.load_cv_data_open = not self.load_cv_data_open
+        print(f'toggle_load_cv_data_open: {self.load_cv_data_open}')
 
     async def new_cv_data(self, cv_files: list[rx.UploadFile]):
         cv_file = first(cv_files, None)

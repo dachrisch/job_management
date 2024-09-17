@@ -28,7 +28,7 @@ class JobApplicationService(JobOfferService):
         return first(map(lambda a: JobOfferAnalyze(**a.to_dict()),
                          self.jobs_analyze.filter({'url': {'$eq': job_offer.url}})), None)
 
-    def analyze_job(self, job_offer: JobOffer) -> JobOfferAnalyzeDto:
+    async def analyze_job(self, job_offer: JobOffer) -> JobOfferAnalyzeDto:
         c = Conversation(openai_api_key=self.openai_api_key)
         self.log.info(f'Analyzing [{job_offer}]')
         system_prompt = ('Analyze the content of this webpage and find the job description. '
@@ -48,7 +48,7 @@ class JobApplicationService(JobOfferService):
         page_content = one(self.jobs_body.filter({'url': {'$eq': job_offer.url}}))
         user_prompt = f'The web page content is: {page_content.body}'
         self.log.debug(f'Analyze prompt: {c}')
-        analyzed_result = c.as_system(system_prompt).as_user(user_prompt).complete()
+        analyzed_result = await c.as_system(system_prompt).as_user(user_prompt).complete_async()
         analyze_dto = JobOfferAnalyzeDto(url=job_offer.url, **analyzed_result['job'])
         self.log.debug(f'Finished analyzing offer: {analyze_dto}')
         self.jobs_analyze.add(analyze_dto)
@@ -64,8 +64,8 @@ class JobApplicationService(JobOfferService):
         return first(map(lambda a: JobOfferApplication(**a.to_dict()),
                          self.jobs_application.filter({'url': {'$eq': job_offer.url}})), None)
 
-    def compose_application(self, job_offer_analyzed: JobOfferAnalyze,
-                            refinement_prompt: str = None) -> JobOfferApplicationDto:
+    async def compose_application(self, job_offer_analyzed: JobOfferAnalyze,
+                                  refinement_prompt: str = None) -> JobOfferApplicationDto:
         self.log.info(f'Composing application for [{job_offer_analyzed}]')
         prompt_template = string.Template('''Help me write an application for the job indicated by JOBDESC
 
@@ -107,7 +107,8 @@ ${CVDATA}
 
         self.log.debug(f'Application prompt: {c}')
 
-        application_dto = JobOfferApplicationDto(url=job_offer_analyzed.url, text=c.complete())
+        text = await c.complete_async()
+        application_dto = JobOfferApplicationDto(url=job_offer_analyzed.url, text=text)
 
         if self.jobs_application.contains(application_dto):
             item_id = one(self.jobs_application.filter({'url': {'$eq': application_dto.url}})).id

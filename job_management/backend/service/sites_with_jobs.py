@@ -5,7 +5,6 @@ from urllib.parse import urlparse, urlunparse
 
 import requests
 from requests import HTTPError, RequestException
-from requests.exceptions import InvalidSchema
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite

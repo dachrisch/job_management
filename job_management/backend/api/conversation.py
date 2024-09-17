@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from functools import reduce
-from typing import Literal, List, Dict, Any, Callable, Awaitable
+from typing import Literal, List, Dict, Any, Callable
 
 import requests
 from attr import define

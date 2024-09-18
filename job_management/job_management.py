@@ -12,8 +12,13 @@ from .views import sites_view
 from .views.sites_view import stats_cards_group
 
 
-@rx.page(route="/", title="Job Management App", on_load=[JobsStatisticsState.load_jobs_statistic])
+@rx.page('/', on_load=rx.redirect('/sites'))
 def index() -> rx.Component:
+    return rx.heading('redirecting...')
+
+
+@rx.page(route="/sites", title="Sites", on_load=[JobsStatisticsState.load_jobs_statistic])
+def sites() -> rx.Component:
     return rx.vstack(
         navbar(),
         stats_cards_group(),
@@ -28,7 +33,7 @@ def index() -> rx.Component:
     )
 
 
-@rx.page(route="/jobs", title="Job Site", on_load=[JobState.update_current_site, JobState.load_jobs])
+@rx.page(route="/jobs", title="Jobs", on_load=[JobState.update_current_site, JobState.load_jobs])
 def jobs() -> rx.Component:
     return rx.vstack(
         navbar(rx.Var.create('/', _var_is_string=True)),
@@ -40,9 +45,9 @@ def jobs() -> rx.Component:
     )
 
 
-@rx.page(route='/application', title='Job Application',
+@rx.page(route='/applications', title='Applications',
          on_load=[ApplicationState.load_current_job_offer, CvState.load_cv, OpenaiKeyState.inform_openai_api_key])
-def application() -> rx.Component:
+def applications() -> rx.Component:
     return rx.vstack(
         navbar(f'/jobs/?site={ApplicationState.job_offer.site_url}'),
         application_view.render(),
@@ -55,7 +60,7 @@ def application() -> rx.Component:
 
 app = rx.App(
     theme=rx.theme(
-        appearance="light", has_background=True, radius="large", accent_color="grass"
+        appearance="dark", has_background=True, radius="large", accent_color="purple"
     ),
 )
 

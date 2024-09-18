@@ -144,7 +144,7 @@ def apply_button(j: JobOffer):
     return rx.button(
         rx.icon('mail-plus'),
         disabled=rx.cond(j.seen, True, False),
-        on_click=rx.redirect(f'/application?job={j.base64_url}')
+        on_click=rx.redirect(f'/applications?job={j.base64_url}')
     )
 
 

@@ -137,37 +137,92 @@ def options_menu():
     )
 
 
-def navbar(back_link: rx.Var = rx.Var.create('', _var_is_string=True)):
-    return rx.flex(
-        rx.cond(back_link != '',
-                rx.icon_button(
-                    rx.icon("arrow-left", size=22),
-                    on_click=rx.redirect(back_link),
-                    size="2",
-                    variant="ghost",
-                )
-                ),
-        rx.badge(
-            rx.icon(tag="table-2", size=28),
-            rx.heading("Job Management App", size="6"),
-            color_scheme="green",
-            radius="large",
-            align="center",
-            variant="surface",
-            padding="0.65rem",
-        ),
-        rx.spacer(),
+def navbar_icons_item(
+        text: str, icon: str, url: str
+) -> rx.Component:
+    return rx.link(
         rx.hstack(
-            rx.color_mode.button(),
-            options_menu(),
-            align="center",
-            spacing="3",
+            rx.icon(icon),
+            rx.text(text, size="4", weight="medium"),
         ),
+        href=url,
+    )
 
-        spacing="2",
-        flex_direction=["column", "column", "row"],
-        align="center",
+
+def navbar_icons_menu_item(
+        text: str, icon: str, url: str
+) -> rx.Component:
+    return rx.link(
+        rx.hstack(
+            rx.icon(icon, size=16),
+            rx.text(text, size="3", weight="medium"),
+        ),
+        href=url,
+    )
+
+
+def navbar(back_link: rx.Var = rx.Var.create('', _var_is_string=True)):
+    return rx.box(
+        rx.desktop_only(
+            rx.hstack(
+                rx.hstack(
+                    rx.icon('briefcase', color="var(--accent-10)"),
+                    rx.heading(
+                        "Job Management", size="7", weight="bold",
+                    ),
+                    align_items="center",
+                    on_click=rx.redirect('/')
+                ),
+                rx.hstack(
+                    navbar_icons_item("Sites", "building", "/#"),
+                    navbar_icons_item("Jobs", "briefcase", "/#"),
+                    navbar_icons_item("Applications", "notebook-pen", "/#"),
+                    rx.color_mode.button(),
+                    spacing="6",
+                ),
+                justify="between",
+                align_items="center",
+            ),
+        ),
+        rx.mobile_and_tablet(
+            rx.hstack(
+                rx.hstack(
+                    rx.icon('briefcase', size=30),
+                    rx.heading(
+                        "Job Management", size="6", weight="bold"
+                    ),
+                    align_items="center",
+                ),
+                rx.menu.root(
+                    rx.menu.trigger(
+                        rx.icon("menu", size=30)
+                    ),
+                    rx.menu.content(
+                        navbar_icons_menu_item(
+                            "Home", "home", "/#"
+                        ),
+                        navbar_icons_menu_item(
+                            "Pricing", "coins", "/#"
+                        ),
+                        navbar_icons_menu_item(
+                            "Contact", "mail", "/#"
+                        ),
+                        navbar_icons_menu_item(
+                            "Services", "layers", "/#"
+                        ),
+                    ),
+                    justify="end",
+                ),
+                justify="between",
+                align_items="center",
+            ),
+        ),
+        bg=rx.color("accent", 3),
+        padding="1em",
+        # position="fixed",
+        # top="0px",
+        border_radius="20px",
+
+        z_index="5",
         width="100%",
-        top="0px",
-        padding_top="2em",
     )

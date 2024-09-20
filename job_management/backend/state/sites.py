@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 import reflex as rx
+from more_itertools import first
 
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.spider.findjobs import JobsFromUrlSpider
@@ -18,7 +19,7 @@ class SitesState(rx.State):
 
     _sites: list[JobSite] = []
     _jobs: list[JobOffer] = []
-    sort_value: str = 'title'
+    sort_value: str = first(JobSite.sortable_fields())[0]
     sort_reverse: bool = False
 
     page: int = 0

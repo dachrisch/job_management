@@ -38,8 +38,7 @@ USER reflex
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
 
 # make environment variable
-ARG which_end=''
-ENV WHICH_END=$which_end
+# ENV WHICH_END
 
 # Needed until Reflex properly passes SIGTERM on backend.
 STOPSIGNAL SIGKILL

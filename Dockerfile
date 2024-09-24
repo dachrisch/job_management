@@ -37,9 +37,12 @@ COPY --chown=reflex --from=init /app /app
 USER reflex
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
 
+# make environment variable
+# ENV WHICH_END
+
 # Needed until Reflex properly passes SIGTERM on backend.
 STOPSIGNAL SIGKILL
 
 EXPOSE 3000
 
-ENTRYPOINT ["reflex", "run", "--env", "prod", "--frontend-only"]
+ENTRYPOINT ["/app/entrypoint.sh"]

@@ -46,4 +46,4 @@ STOPSIGNAL SIGKILL
 
 EXPOSE 3000
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]

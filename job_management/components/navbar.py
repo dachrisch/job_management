@@ -2,7 +2,6 @@ import reflex as rx
 
 from job_management.backend.state.cv import CvState
 from job_management.backend.state.openai_key import OpenaiKeyState
-from job_management.components.form import form_field
 
 
 def options_menu():
@@ -17,63 +16,40 @@ def options_menu():
         ),
         rx.dialog.root(
             rx.dialog.content(
-                rx.vstack(
-                    rx.dialog.title(
-                        "Add OpenAI API Key",
-                        weight="bold",
-                        margin="0",
-                    ),
-                    rx.dialog.description(
-                        "Please enter your OpenAI API key",
-                    ),
-                    spacing="1",
-                    height="100%",
-                    align_items="start",
+                rx.dialog.title(
+                    'Add OpenAI API Key',
+                    weight='bold',
+                    margin='0', ),
+                rx.dialog.description('Please enter your OpenAI API key',
+                                      size="2",
+                                      margin_bottom="16px", ),
+                rx.flex(
+                    rx.input(placeholder='sk-...', name='openai_api_key',
+                             value=OpenaiKeyState.openai_key, on_change=OpenaiKeyState.new_openai_key),
+                    direction="column",
+                    spacing="3",
                 ),
                 rx.flex(
-                    rx.form.root(
-                        rx.flex(
-                            form_field(
-                                "OpenAI API Key",
-                                "API Key",
-                                "text",
-                                "openai_api_key",
-                                "key",
-                                default_value=OpenaiKeyState.openai_key
-                            ),
-
-                            direction="column",
-                            spacing="3",
+                    rx.dialog.close(
+                        rx.button(
+                            "Cancel",
+                            color_scheme="gray",
+                            variant="soft",
                         ),
-                        rx.flex(
-                            rx.dialog.close(
-                                rx.button(
-                                    "Cancel",
-                                    variant="soft",
-                                    color_scheme="gray",
-                                ),
-                                on_click=OpenaiKeyState.toggle_openai_key_dialog_open
-                            ),
-                            rx.form.submit(
-                                rx.dialog.close(
-                                    rx.button("Submit"),
-                                ),
-                                as_child=True,
-                            ),
-                            padding_top="2em",
-                            spacing="3",
-                            mt="4",
-                            justify="end",
-                        ),
-                        on_submit=OpenaiKeyState.new_openai_key,
-                        reset_on_submit=False,
+                        on_click=OpenaiKeyState.cancel_dialog,
                     ),
-
+                    rx.dialog.close(
+                        rx.button("Save"),
+                        on_click=OpenaiKeyState.save_dialog,
+                    ),
+                    spacing="3",
+                    margin_top="16px",
+                    justify="end",
                 ),
             ),
-            open=OpenaiKeyState.openai_key_dialog_open,
-
+            open=OpenaiKeyState.openai_key_dialog_open
         ),
+
         rx.dialog.root(
             rx.dialog.content(
                 rx.vstack(

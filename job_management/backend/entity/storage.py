@@ -29,3 +29,4 @@ class JobApplicationCoverLetterDoc(rx.Base):
     url: str
     document_id: str
     name: str
+    date: datetime = datetime.now()

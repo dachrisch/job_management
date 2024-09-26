@@ -2,6 +2,7 @@ import asyncio
 
 import reflex as rx
 
+from job_management.backend.entity.storage import JobApplicationCoverLetterDoc
 from job_management.backend.state.application import ApplicationState
 from job_management.backend.state.cv import CvState
 from job_management.backend.state.refinement import RefinementState
@@ -167,14 +168,20 @@ def display_application():
                      )
 
 
+def stored_doc_link(cover_letter: JobApplicationCoverLetterDoc):
+    print(cover_letter)
+    return rx.hstack(
+        rx.icon('book-check'),
+        rx.moment(cover_letter.date, from_now=True),
+        rx.link(rx.text(cover_letter.name),
+                href=f'https://docs.google.com/document/d/{cover_letter.document_id}',
+                target='_blank'),
+        align='center'
+    )
+
+
 def display_stored_doc():
     return rx.vstack(
         rx.heading('Application Doc'),
-        rx.hstack(
-            rx.icon('book-check'),
-            rx.link(rx.text(ApplicationState.job_offer_cover_letter_doc.name),
-                    href=f'https://docs.google.com/document/d/{ApplicationState.job_offer_cover_letter_doc.document_id}',
-                    target='_blank'),
-            align='center'
-        )
+        rx.foreach(ApplicationState.job_offer_cover_letter_docs, stored_doc_link),
     )

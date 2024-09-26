@@ -2,7 +2,6 @@ import logging
 from typing import Any
 
 from googleapiclient.discovery import build
-from more_itertools import first
 from openai._utils import asyncify
 
 from job_management.backend.api.credentials_helper import GoogleCredentialsHandler
@@ -22,9 +21,9 @@ class JobApplicationStorageService:
         self.log = logging.getLogger(f'{__name__}')
         self.credentials_handler = GoogleCredentialsHandler.from_token()
 
-    def load_cover_letter_doc(self, job_offer: JobOffer):
-        return first(map(lambda a: JobApplicationCoverLetterDoc(**a.to_dict()),
-                         self.cover_letter_docs.filter({'url': {'$eq': job_offer.url}})), None)
+    def load_cover_letter_docs(self, job_offer: JobOffer) -> list[JobApplicationCoverLetterDoc]:
+        return list(map(lambda a: JobApplicationCoverLetterDoc(**a.to_dict()),
+                        self.cover_letter_docs.filter({'url': {'$eq': job_offer.url}})))
 
     async def store_application_in_google_docs(self, job_offer_cover_letter: JobApplicationCoverLetter):
         job_application_cover_letter_dto = await asyncify(self.copy_replace_doc)(self.template_id,

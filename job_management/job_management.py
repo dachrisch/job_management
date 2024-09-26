@@ -33,7 +33,8 @@ def sites() -> rx.Component:
     )
 
 
-@rx.page(route="/jobs", title="Jobs", on_load=[JobState.update_current_site, JobState.load_jobs])
+@rx.page(route="/jobs", title="Jobs",
+         on_load=[JobState.update_current_site, JobState.load_jobs, JobsStatisticsState.load_jobs_statistic])
 def jobs() -> rx.Component:
     return rx.vstack(
         navbar(rx.Var.create('/', _var_is_string=True)),

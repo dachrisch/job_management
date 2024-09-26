@@ -18,13 +18,18 @@ class JobState(rx.State):
         self.info = logging.getLogger(self.__class__.__name__).info
 
     def load_jobs(self):
-        self.jobs = self.sites_jobs_service.jobs_for_site(self.current_site)
+        if self.current_site.url:
+            self.jobs = self.sites_jobs_service.jobs_for_site(self.current_site)
+        else:
+            self.jobs = self.sites_jobs_service.load_jobs()
         self.info(f'loaded [{len(self.jobs)}] jobs for [{self.current_site}]')
 
     def update_current_site(self):
         site_url = self.router.page.params.get('site', '')
         if site_url:
             self.current_site = self.sites_jobs_service.site_for_url(site_url)
+        else:
+            self.current_site = JobSite()
 
     def hide_job(self, job_dict: dict[str, Any]):
         job_offer = JobOffer(**job_dict)

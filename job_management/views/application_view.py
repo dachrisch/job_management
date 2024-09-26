@@ -169,7 +169,6 @@ def display_application():
 
 
 def stored_doc_link(cover_letter: JobApplicationCoverLetterDoc):
-    print(cover_letter)
     return rx.hstack(
         rx.icon('book-check'),
         rx.moment(cover_letter.date, from_now=True),

@@ -1,11 +1,10 @@
 import reflex as rx
 
-from ..backend.crawl.jobs import JobsCrawlerState
 from ..backend.entity.site import JobSite
 from ..backend.state.sites import SitesState
 from ..backend.state.statistics import JobsStatisticsState
 from ..components.add_site_button import add_site_button, add_jobs_button
-from ..components.crawl_button import crawl_eu_sites_button, crawl_arbeitsamt_button
+from ..components.crawl_button import crawl_eu_sites_button, crawl_arbeitsamt_button, scan_jobs_button
 from ..components.icon_button import icon_button
 from ..components.stats_cards import stats_card
 from ..components.table import header_cell
@@ -53,16 +52,7 @@ def main_table():
                 rx.spacer(),
                 pagination(),
                 rx.spacer(),
-                rx.button(
-                    rx.cond(JobsCrawlerState.running,
-                            rx.spinner(loading=True),
-                            rx.icon("briefcase", size=26), ),
-                    rx.text("Scan Jobs", size="4", display=[
-                        "none", "none", "block"]),
-                    size="3",
-                    on_click=JobsCrawlerState.start_crawling,
-                    disabled=JobsCrawlerState.running
-                ),
+                scan_jobs_button(),
                 sort_options(),
                 spacing="3",
                 wrap="wrap",

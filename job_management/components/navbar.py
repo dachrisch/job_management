@@ -9,11 +9,10 @@ def options_menu():
     return rx.hstack(
         rx.menu.root(
             rx.menu.trigger(
-                rx.button(rx.icon('cog'), variant="soft"),
+                rx.icon_button(rx.icon('cog'), color='inherit', background='transparent'),
             ),
             rx.menu.content(
-                rx.menu.item("OpenAI API Key", shortcut="Strg E",
-                             on_click=OpenaiKeyState.toggle_openai_key_dialog_open),
+                rx.menu.item("OpenAI API Key", on_click=OpenaiKeyState.toggle_openai_key_dialog_open),
             ),
         ),
         rx.dialog.root(
@@ -40,6 +39,7 @@ def options_menu():
                                 "text",
                                 "openai_api_key",
                                 "key",
+                                default_value=OpenaiKeyState.openai_key
                             ),
 
                             direction="column",
@@ -177,6 +177,7 @@ def navbar(back_link: rx.Var = rx.Var.create('', _var_is_string=True)):
                     navbar_icons_item("Sites", "building", "/#"),
                     navbar_icons_item("Jobs", "briefcase", "/#"),
                     navbar_icons_item("Applications", "notebook-pen", "/#"),
+                    options_menu(),
                     rx.color_mode.button(),
                     spacing="6",
                 ),

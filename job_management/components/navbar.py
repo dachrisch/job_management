@@ -150,9 +150,10 @@ def navbar(back_link: rx.Var = rx.Var.create('', _var_is_string=True)):
                     on_click=rx.redirect('/')
                 ),
                 rx.hstack(
-                    navbar_icons_item("Sites", "building", "/#"),
-                    navbar_icons_item("Jobs", "briefcase", "/#"),
-                    navbar_icons_item("Applications", "notebook-pen", "/#"),
+                    navbar_icons_item("Sites", "building", "/sites"),
+                    navbar_icons_item("Jobs", "briefcase", "/jobs"),
+                    navbar_icons_item("Applications", "notebook-pen", "/applications"),
+                    rx.spacer(),
                     options_menu(),
                     rx.color_mode.button(),
                     spacing="6",
@@ -170,22 +171,22 @@ def navbar(back_link: rx.Var = rx.Var.create('', _var_is_string=True)):
                     ),
                     align_items="center",
                 ),
+                rx.spacer(),
+                options_menu(),
+                rx.color_mode.button(),
                 rx.menu.root(
                     rx.menu.trigger(
                         rx.icon("menu", size=30)
                     ),
                     rx.menu.content(
                         navbar_icons_menu_item(
-                            "Home", "home", "/#"
+                            "Sites", "building", "/sites"
                         ),
                         navbar_icons_menu_item(
-                            "Pricing", "coins", "/#"
+                            "Jobs", "briefcase", "/jobs"
                         ),
                         navbar_icons_menu_item(
-                            "Contact", "mail", "/#"
-                        ),
-                        navbar_icons_menu_item(
-                            "Services", "layers", "/#"
+                            "Applications", "notebook-pen", "/applications"
                         ),
                     ),
                     justify="end",

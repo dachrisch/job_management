@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Iterable
+from typing import Any
 
 from googleapiclient.discovery import build
 from openai._utils import asyncify
@@ -23,7 +23,7 @@ class JobApplicationStorageService:
 
     def load_cover_letter_docs(self, job_offer: JobOffer) -> list[JobApplicationCoverLetterDoc]:
         return list(map(lambda a: JobApplicationCoverLetterDoc(**a.to_dict()),
-                   self.cover_letter_docs.filter({'url': {'$eq': job_offer.url}})))
+                        self.cover_letter_docs.filter({'url': {'$eq': job_offer.url}})))
 
     async def store_application_in_google_docs(self, job_offer_cover_letter: JobApplicationCoverLetter):
         job_application_cover_letter_dto = await asyncify(self.copy_replace_doc)(self.template_id,

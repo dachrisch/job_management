@@ -1,6 +1,6 @@
 import base64
 import logging
-from typing import Optional
+from typing import Optional, Iterable
 
 import reflex as rx
 
@@ -16,7 +16,7 @@ class ApplicationState(rx.State):
     job_offer: JobOffer = JobOffer()
     job_offer_analyzed: Optional[JobOfferAnalyze] = None
     job_offer_application: Optional[JobOfferApplication] = None
-    job_offer_cover_letter_doc: Optional[JobApplicationCoverLetterDoc] = None
+    job_offer_cover_letter_docs: list[JobApplicationCoverLetterDoc] = []
 
     def __init__(self,
                  *args, **kwargs):
@@ -31,7 +31,7 @@ class ApplicationState(rx.State):
             self.job_offer = self.application_service.job_from_url(job_url)
             self.job_offer_analyzed = self.application_service.load_job_analysis(self.job_offer)
             self.job_offer_application = self.application_service.load_job_application(self.job_offer)
-            self.job_offer_cover_letter_doc = self.storage_service.load_cover_letter_doc(self.job_offer)
+            self.job_offer_cover_letter_docs = self.storage_service.load_cover_letter_docs(self.job_offer)
         self.log.info(
             f'Loaded [{self.job_offer}] (analyzed={self.job_offer_analyzed is not None}, '
             f'composed={self.job_offer_application is not None})')

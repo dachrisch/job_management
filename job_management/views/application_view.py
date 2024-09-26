@@ -1,39 +1,13 @@
-from typing import Callable
+import asyncio
 
 import reflex as rx
-from reflex import Style
 
 from job_management.backend.state.application import ApplicationState
 from job_management.backend.state.cv import CvState
 from job_management.backend.state.refinement import RefinementState
+from job_management.components.application.item import item
 from job_management.components.card import card
-
-# Common styles for questions and answers.
-shadow = "rgba(0, 0, 0, 0.15) 0px 2px 8px"
-chat_margin = "1em"
-message_style = dict(
-    padding="1em",
-    border_radius="5px",
-    margin_y="1em",
-    box_shadow=shadow,
-    max_width="30em",
-    display="inline-block",
-)
-
-# Set specific styles for questions and answers.
-question_style = message_style | dict(
-    margin_left=chat_margin,
-    background_color=rx.color("gray", 4),
-)
-answer_style = message_style | dict(
-    margin_right=chat_margin,
-    background_color=rx.color("accent", 8),
-)
-
-button_style = Style(
-    background_color=rx.color("accent", 10),
-    box_shadow=shadow,
-)
+from job_management.components.refinement import refinement_dialog
 
 
 def render():
@@ -62,46 +36,51 @@ def header():
     )
 
 
-def refinement_dialog():
-    return rx.dialog.root(
-        rx.dialog.content(
-            rx.dialog.title('Prompt Refinements'),
-            rx.dialog.description('Enter the prompt to refine the application generation',
-                                  size="2",
-                                  margin_bottom="16px", ),
-            rx.flex(
-                rx.text_area(placeholder='Your prompt refinements', name='prompt_refinement',
-                             value=RefinementState.prompt, on_change=RefinementState.new_prompt),
-                direction="column",
-                spacing="3",
-            ),
-            rx.flex(
-                rx.dialog.close(
-                    rx.button(
-                        "Cancel",
-                        color_scheme="gray",
-                        variant="soft",
-                    ),
-                    on_click=RefinementState.cancel_dialog,
-                ),
-                rx.dialog.close(
-                    rx.button("Save"),
-                    on_click=RefinementState.save_dialog,
-                ),
-                spacing="3",
-                margin_top="16px",
-                justify="end",
-            ),
-        ),
-        open=RefinementState.refinement_open
-    )
+class AllStepsState(rx.State):
+    running: bool = False
+
+    @rx.background
+    async def run_all_steps(self):
+        async with self:
+            self.running = True
+
+        yield ApplicationState.analyze_job()
+        await asyncio.sleep(.5)
+        async with self:
+            application_state: ApplicationState = (await self.get_state(ApplicationState))
+
+        while application_state.job_offer.state.is_analyzing:
+            await asyncio.sleep(.2)
+
+        yield ApplicationState.compose_application()
+        await asyncio.sleep(.5)
+        while application_state.job_offer.state.is_composing:
+            await asyncio.sleep(.2)
+
+        yield ApplicationState.store_in_google_doc()
+        await asyncio.sleep(.5)
+        while application_state.job_offer.state.is_storing:
+            await asyncio.sleep(.2)
+
+        async with self:
+            self.running = False
 
 
 def process_steps():
     return rx.card(
         rx.vstack(
+            rx.hstack(
+                rx.spacer(),
+                rx.button(rx.icon('play'), 'All Steps', on_click=AllStepsState.run_all_steps,
+                          disabled=~CvState.has_cv_data,
+                          loading=AllStepsState.running),
+                rx.spacer(),
+                align='center',
+                width='100%',
+            ),
             item('Analyse',
                  'search-code',
+                 disabled=AllStepsState.running,
                  complete=ApplicationState.job_offer.state.analyzed,
                  in_progress=ApplicationState.job_offer.state.is_analyzing,
                  process_callback=ApplicationState.analyze_job,
@@ -109,6 +88,7 @@ def process_steps():
                  ),
             item('Upload CV',
                  'file-text',
+                 disabled=AllStepsState.running,
                  complete=CvState.has_cv_data,
                  process_callback=CvState.toggle_load_cv_data_open,
                  view_callback=display_cv,
@@ -116,6 +96,7 @@ def process_steps():
             item('Prompt Refinements',
                  'message-circle-more',
                  required=False,
+                 disabled=AllStepsState.running,
                  complete=RefinementState.has_prompt,
                  process_callback=RefinementState.toggle_dialog,
                  view_callback=display_prompt
@@ -123,7 +104,7 @@ def process_steps():
             refinement_dialog(),
             item('Generate Application',
                  'notebook-pen',
-                 disabled=~(ApplicationState.job_offer.state.analyzed & CvState.has_cv_data),
+                 disabled=~(ApplicationState.job_offer.state.analyzed & CvState.has_cv_data) | AllStepsState.running,
                  complete=ApplicationState.job_offer.state.composed,
                  in_progress=ApplicationState.job_offer.state.is_composing,
                  process_callback=ApplicationState.compose_application,
@@ -131,7 +112,7 @@ def process_steps():
                  ),
             item('Store Document',
                  'hard-drive-upload',
-                 disabled=~ApplicationState.job_offer.state.composed,
+                 disabled=~ApplicationState.job_offer.state.composed | AllStepsState.running,
                  complete=ApplicationState.job_offer.state.stored,
                  in_progress=ApplicationState.job_offer.state.is_storing,
                  process_callback=ApplicationState.store_in_google_doc,
@@ -141,43 +122,6 @@ def process_steps():
             width="100%",
             align="start"
         ))
-
-
-def item(step: str, icon: str = 'play', disabled: bool = False, required=True, in_progress=False,
-         complete: bool = False,
-         process_callback: Callable = None,
-         view_callback: Callable[[], rx.Component] = lambda: rx.text('')):
-    return rx.hstack(
-        rx.button(
-            rx.icon(icon),
-            variant=rx.cond(required & ~complete, '', 'surface'),
-            disabled=disabled,
-            on_click=process_callback,
-            loading=in_progress
-        ),
-        rx.cond(complete, rx.icon('circle-check-big'), rx.cond(required, rx.icon('circle'), rx.icon('circle-dashed'))),
-        rx.text(step, size="4"),
-        rx.spacer(),
-
-        rx.cond(complete,
-                rx.popover.root(
-                    rx.popover.trigger(
-                        rx.button(
-                            rx.icon('ellipsis'),
-                        ),
-                    ),
-                    rx.popover.content(
-                        view_callback(),
-                        style={"max-width": 500, 'max-height': 400},
-                    )
-
-                ),
-                rx.button(rx.icon('ellipsis'), disabled=True)
-                ),
-        width='100%',
-        align='center',
-
-    )
 
 
 def display_analyzed_job():

@@ -1,11 +1,13 @@
 import reflex as rx
 
 from ..backend.entity.site import JobSite
-from ..backend.state.sites import SitesState
+from ..backend.state.sites import SitesState, SitesPaginationState
 from ..backend.state.statistics import JobsStatisticsState
 from ..components.add_site_button import add_site_button, add_jobs_button
 from ..components.crawl_button import crawl_eu_sites_button, crawl_arbeitsamt_button, scan_jobs_button
 from ..components.icon_button import icon_button
+from ..components.pagination import pagination
+from ..components.site.sort import sort_options
 from ..components.stats_cards import stats_card
 from ..components.table import header_cell
 
@@ -50,7 +52,7 @@ def main_table():
                 crawl_eu_sites_button(),
                 crawl_arbeitsamt_button(),
                 rx.spacer(),
-                pagination(),
+                pagination(SitesPaginationState),
                 rx.spacer(),
                 scan_jobs_button(),
                 sort_options(),
@@ -83,64 +85,11 @@ def main_table():
     )
 
 
-def sort_options():
-    return rx.hstack(
-        rx.cond(
-            SitesState.sort_reverse,
-            rx.icon("arrow-up-z-a", size=28, stroke_width=1.5, cursor="pointer",
-                    on_click=SitesState.toggle_sort),
-            rx.icon("arrow-down-a-z", size=28, stroke_width=1.5, cursor="pointer",
-                    on_click=SitesState.toggle_sort),
-        ),
-        rx.select.root(
-            rx.select.trigger(),
-            rx.select.content(
-                rx.select.group(
-                    *[rx.select.item(model_field.field_info.title or field_key, value=field_key) for
-                      field_key, model_field in JobSite.sortable_fields()],
-                ),
-
-            ),
-            default_value=SitesState.sort_value,
-            on_change=SitesState.change_sort_value
-        ),
-        justify='center'
-    )
-
-
-def pagination():
-    return rx.hstack(
-        rx.button(
-            rx.icon('arrow-left-from-line'),
-            disabled=SitesState.at_beginning,
-            on_click=SitesState.first_page
-        ),
-        rx.button(
-            rx.icon('arrow-left'),
-            disabled=SitesState.at_beginning,
-            on_click=SitesState.prev_page
-        ),
-        rx.text(
-            f'Page {SitesState.page + 1} / {SitesState.total_pages}'
-        ),
-        rx.button(
-            rx.icon('arrow-right'),
-            disabled=SitesState.at_end,
-            on_click=SitesState.next_page
-        ),
-        rx.button(
-            rx.icon('arrow-right-from-line'),
-            disabled=SitesState.at_end,
-            on_click=SitesState.last_page
-        ),
-    )
-
-
 def stats_cards_group() -> rx.Component:
     return rx.flex(
         stats_card(
             'Total Websites',
-            SitesState.num_sites,
+            SitesPaginationState.total_items,
             SitesState.num_sites_yesterday,
             "building",
             "blue",

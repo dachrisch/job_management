@@ -6,27 +6,67 @@ from more_itertools import first
 
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.spider.findjobs import JobsFromUrlSpider
+from .pagination import PaginationState
 from .statistics import JobsStatisticsState
 from ..crawl.crawler import CrochetCrawlerRunner
-from ..entity.offer import JobOffer
 from ..entity.site import JobSite
 from ..service.locator import Locator
 
 
-class SitesState(rx.State):
-    num_sites: int = 0
-    num_sites_yesterday: int = 0
-
-    _sites: list[JobSite] = []
-    _jobs: list[JobOffer] = []
-    sort_value: str = first(JobSite.sortable_fields())[0]
-    sort_reverse: bool = False
-
+class SitesPaginationState(rx.State,PaginationState):
+    total_items: int = 0
     page: int = 0
     page_size: int = 50
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    @rx.var(cache=True)
+    def total_pages(self) -> int:
+        return self.total_items // self.page_size + (
+            1 if self.total_items % self.page_size else 0
+        )
+
+    @rx.var(cache=True)
+    def at_beginning(self) -> bool:
+        return self.page * self.page_size - self.page_size < 0
+
+    @rx.var(cache=True)
+    def at_end(self) -> bool:
+        return self.page * self.page_size + self.page_size > self.total_items
+
+    async def first_page(self):
+        self.page = 0
+        await self.refresh()
+
+    async def prev_page(self):
+        if not self.at_beginning:
+            self.page -= 1
+        await self.refresh()
+
+    async def last_page(self):
+        self.page = self.total_items // self.page_size
+        await self.refresh()
+
+    async def next_page(self):
+        if not self.at_end:
+            self.page += 1
+        await self.refresh()
+
+    async def refresh(self):
+        await (await self.get_state(SitesState)).load_sites()
+
+
+class SitesState(rx.State):
+    num_sites_yesterday: int = 0
+
+    _sites: list[JobSite] = []
+    sort_value: str = first(JobSite.sortable_fields())[0]
+    sort_reverse: bool = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.refresh_callback = self.load_sites
         self.info = logging.getLogger(self.__class__.__name__).info
         self.debug = logging.getLogger(self.__class__.__name__).debug
         self.site_jobs_service = Locator.jobs_sites_with_jobs_service
@@ -34,13 +74,16 @@ class SitesState(rx.State):
         self.offer_service = Locator.job_offer_service
 
     async def load_sites(self):
-        self.info(f'Loading sites for page [{self.page + 1}]...')
-        self._sites = self.sites_service.load_sites(self.page, self.page_size, self.sort_value, self.sort_reverse)
-        self._jobs = self.offer_service.load_jobs()
-        self.num_sites = self.sites_service.count_sites()
+        paging_state = (await self.get_state(SitesPaginationState))
+
+        self.info(f'Loading sites for page [{paging_state.page + 1}]...')
+        self._sites = self.sites_service.load_sites(paging_state.page, paging_state.page_size, self.sort_value,
+                                                    self.sort_reverse)
+        paging_state.total_items = self.sites_service.count_sites()
         self.num_sites_yesterday = self.sites_service.count_sites(days_from_now=1)
         (await self.get_state(JobsStatisticsState)).load_jobs_statistic()
-        self.info(f'Loaded [{len(self._sites)}] sites for page [{self.page + 1} of {self.total_pages}]...')
+        self.info(
+            f'Loaded [{len(self._sites)}] sites for page [{paging_state.page + 1} of {paging_state.total_pages}]...')
 
     @rx.var(cache=False)
     def sites(self) -> list[JobSite]:
@@ -108,38 +151,6 @@ class SitesState(rx.State):
                 f'items in {stats["elapsed_time_seconds"]} seconds from [{site_url}]')
         else:
             return rx.toast.error(f'Crawling failed: {stats}')
-
-    @rx.var(cache=True)
-    def total_pages(self) -> int:
-        return self.num_sites // self.page_size + (
-            1 if self.num_sites % self.page_size else 0
-        )
-
-    @rx.var(cache=True)
-    def at_beginning(self) -> bool:
-        return self.page * self.page_size - self.page_size < 0
-
-    @rx.var(cache=True)
-    def at_end(self) -> bool:
-        return self.page * self.page_size + self.page_size > self.num_sites
-
-    async def first_page(self):
-        self.page = 0
-        await self.load_sites()
-
-    async def prev_page(self):
-        if not self.at_beginning:
-            self.page -= 1
-        await self.load_sites()
-
-    async def last_page(self):
-        self.page = self.num_sites // self.page_size
-        await self.load_sites()
-
-    async def next_page(self):
-        if not self.at_end:
-            self.page += 1
-        await self.load_sites()
 
     @rx.background
     async def clear_jobs(self, site_dict: dict[str, Any]):

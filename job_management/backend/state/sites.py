@@ -13,7 +13,7 @@ from ..entity.site import JobSite
 from ..service.locator import Locator
 
 
-class SitesPaginationState(rx.State,PaginationState):
+class SitesPaginationState(rx.State, PaginationState):
     total_items: int = 0
     page: int = 0
     page_size: int = 50

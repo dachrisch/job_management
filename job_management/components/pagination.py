@@ -5,7 +5,7 @@ import reflex as rx
 from job_management.backend.state.pagination import PaginationState
 
 
-def pagination(pagination_state:Type[PaginationState]):
+def pagination(pagination_state: Type[PaginationState]):
     return rx.hstack(
         rx.button(
             rx.icon('arrow-left-from-line'),

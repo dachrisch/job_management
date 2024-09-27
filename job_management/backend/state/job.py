@@ -2,7 +2,6 @@ import logging
 from typing import Any
 
 import reflex as rx
-from more_itertools import first
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
@@ -10,7 +9,7 @@ from job_management.backend.service.locator import Locator
 from job_management.backend.state.pagination import PaginationState
 
 
-class JobPaginationState(rx.State,PaginationState):
+class JobPaginationState(rx.State, PaginationState):
     total_items: int = 0
     page: int = 0
     page_size: int = 50

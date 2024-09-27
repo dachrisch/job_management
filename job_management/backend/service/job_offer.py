@@ -28,8 +28,8 @@ class JobOfferService:
         self.cover_letter_docs = db.cover_letter_docs
         self.log = logging.getLogger(f'{__name__}')
 
-    def load_jobs(self):
-        return list(map(self.dto_to_job, self.jobs.all()))
+    def load_jobs(self, page: int, page_size: int):
+        return list(map(self.dto_to_job, self.jobs.all(skip=page * page_size, limit=page_size)))
 
     def jobs_for_site(self, site: JobSite) -> list[JobOffer]:
         return list(

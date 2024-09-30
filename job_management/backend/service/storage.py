@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 from urllib.parse import urlparse, urlencode, urlunparse, parse_qs
 
 from googleapiclient.discovery import build

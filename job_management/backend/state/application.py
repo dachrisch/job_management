@@ -68,11 +68,6 @@ class ApplicationState(rx.State):
         async with self:
             self.job_offer.state.is_storing = True
 
-        if self.storage_service.needs_login():
-            url = self.storage_service.authorization_url(self.router.page.host)
-            print(url)
-            yield rx.redirect(url, external=True)
-
         await self.storage_service.store_application_in_google_docs(
             JobApplicationCoverLetter.from_analyze(self.job_offer_analyzed, self.job_offer_application))
 

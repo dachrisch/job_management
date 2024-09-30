@@ -1,5 +1,4 @@
 import logging
-from urllib.parse import urlparse, urlencode, urlunparse, parse_qs
 
 from googleapiclient.discovery import build
 from openai._utils import asyncify
@@ -18,7 +17,7 @@ class JobApplicationStorageService:
         self.jobs = db.jobs
         self.cover_letter_docs = db.cover_letter_docs
         self.log = logging.getLogger(f'{__name__}')
-        self.credentials_handler: GoogleCredentialsHandler = GoogleCredentialsHandler.from_token()
+        self.credentials_handler = GoogleCredentialsHandler.from_token()
 
     def load_cover_letter_docs(self, job_offer: JobOffer) -> list[JobApplicationCoverLetterDoc]:
         return list(map(lambda a: JobApplicationCoverLetterDoc(**a.to_dict()),
@@ -86,21 +85,3 @@ class JobApplicationStorageService:
         return JobOfferCoverLetterDto(url=job_offer_cover_letter.url,
                                       document_id=cover_letter_file.get('id'),
                                       name=cover_letter_file.get('name'))
-
-    def needs_login(self) -> bool:
-        return self.credentials_handler.needs_login()
-
-    def authorization_url(self, redirect_uri: str) -> str:
-        # Parse the existing authorization URL
-        parsed_url = urlparse(self.credentials_handler.authorization_url)
-
-        # Parse query parameters and add redirect_url
-        query_params = parse_qs(parsed_url.query)
-        query_params['redirect_uri'] = [redirect_uri]
-
-        # Rebuild the URL with the new query parameter
-        updated_query = urlencode(query_params, doseq=True)
-        new_url = parsed_url._replace(query=updated_query)
-
-        # Return the updated URL
-        return str(urlunparse(new_url))

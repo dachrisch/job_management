@@ -1,5 +1,6 @@
 import json
 import os
+from functools import lru_cache
 from typing import Any
 
 from google.auth.exceptions import RefreshError
@@ -11,7 +12,6 @@ SCOPES = ['https://www.googleapis.com/auth/documents', 'https://www.googleapis.c
 
 
 class GoogleCredentialsHandler(object):
-    google_credentials_json: dict[str, Any] = {}
 
     def __init__(self, credentials: Credentials | None, token_file: str):
         self.token_file = token_file
@@ -33,12 +33,6 @@ class GoogleCredentialsHandler(object):
     def refresh(self):
         self.credentials.refresh(Request())
 
-    def run_flow(self, google_credentials_json: dict[Any, Any]):
-        flow = InstalledAppFlow.from_client_config(
-            google_credentials_json, SCOPES
-        )
-        self.credentials = flow.run_local_server()
-
     def save_token(self):
         with open(self.token_file, "w") as token:
             token.write(self.credentials.to_json())
@@ -46,6 +40,12 @@ class GoogleCredentialsHandler(object):
     def logout(self):
         os.unlink(self.token_file)
         del self.credentials
+
+    def login(self):
+        flow = InstalledAppFlow.from_client_config(
+            self.load_credentials_from_file('google.json'), SCOPES
+        )
+        self.credentials = flow.run_local_server(open_browser=False)
 
     def ensure_logged_in(self):
         if not self.is_logged_in():
@@ -60,11 +60,28 @@ class GoogleCredentialsHandler(object):
             self.save_token()
         return self
 
-    def load_credentials_from_file(self, filename: str):
+    @lru_cache
+    def load_credentials_from_file(self, filename: str) -> dict[str, Any]:
         with open(filename, 'r') as f:
-            self.google_credentials_json = json.load(f)
+            return json.load(f)
 
-    def login(self):
-        if not self.google_credentials_json:
-            self.load_credentials_from_file('google.json')
-        self.run_flow(self.google_credentials_json)
+    def needs_login(self) -> bool:
+        if not self.is_logged_in():
+            if self.need_refresh():
+                try:
+                    self.refresh()
+                except RefreshError:
+                    self.login()
+            else:
+                return True
+
+            return True
+        return False
+
+    @property
+    def authorization_url(self) -> str:
+        flow = InstalledAppFlow.from_client_config(
+            self.load_credentials_from_file('google.json'), SCOPES
+        )
+        url, _ = flow.authorization_url()
+        return url

@@ -1,5 +1,4 @@
 import logging
-from urllib.parse import urlparse, urlencode, urlunparse, parse_qs
 
 from googleapiclient.discovery import build
 from openai._utils import asyncify

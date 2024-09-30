@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 from urllib.parse import urlparse, urlencode, urlunparse, parse_qs
 
 from googleapiclient.discovery import build
@@ -13,7 +12,6 @@ from job_offer_spider.item.db.cover_letter import JobOfferCoverLetterDto
 
 
 class JobApplicationStorageService:
-    google_credentials_json: dict[str, Any] = {}
     template_id: str = "1CVawnjkR2eMJ6pqHlu8su3zvmrIdesfR78DNAUhKubE"
 
     def __init__(self, db: JobManagementDb, ):

@@ -1,3 +1,5 @@
+import asyncio
+
 import reflex as rx
 
 from . import wire, setup_scrapy
@@ -57,6 +59,59 @@ def applications() -> rx.Component:
         align="center",
         padding_x=["1.5em", "1.5em", "3em"],
     )
+
+
+class GoogleTaskState(rx.State):
+    is_running: bool = False
+    is_logged_in: bool = False
+    num: int = 0
+
+    @rx.background
+    async def task_with_login(self):
+        async with self:
+            self.is_running = True
+            self.is_logged_in = False
+            self.num = 0
+
+        rx.button('Login', on_click=GoogleTaskState.task_with_login, loading=GoogleTaskState.is_running)
+
+        if not self.is_logged_in:
+            print('not logged in')
+            yield rx.redirect('/google_login_callback', external=True)
+
+            while not self.is_logged_in:
+                async with self:
+                    self.num += 1
+                yield
+                await asyncio.sleep(1)
+                print('waiting for login...')
+
+        async with self:
+            self.is_running = False
+            print('finished')
+
+    @rx.background
+    async def on_callback1(self):
+        print('logging in...')
+        yield
+        await asyncio.sleep(6)
+        print('Logged in')
+        async with self:
+            self.is_logged_in = True
+
+
+@rx.page(route='/google_login', title='Google Login',
+         on_load=[])
+def google_login() -> rx.Component:
+    return rx.vstack(
+        rx.text(GoogleTaskState.num),
+        rx.button('Login', on_click=GoogleTaskState.task_with_login, loading=GoogleTaskState.is_running))
+
+
+@rx.page(route='/google_login_callback', title='Google Login Callback',
+         on_load=GoogleTaskState.on_callback1)
+def google_login_callback() -> rx.Component:
+    return rx.button('close', on_click=GoogleTaskState.on_callback1)
 
 
 app = rx.App(

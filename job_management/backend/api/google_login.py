@@ -1,6 +1,8 @@
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
+
 SCOPES = ['https://www.googleapis.com/auth/documents', 'https://www.googleapis.com/auth/drive']
+
 
 class GoogleLoginService:
     _credentials: Credentials | None = None

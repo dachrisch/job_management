@@ -5,6 +5,7 @@ from dependency_injector.providers import Singleton, Resource, Configuration, Se
 from scrapy.utils.project import get_project_settings
 
 from job_management.backend import state, service
+from job_management.backend.api.google_login import GoogleLoginService
 from job_management.backend.service.application import JobApplicationService
 from job_management.backend.service.cv import CvService
 from job_management.backend.service.job_offer import JobOfferService
@@ -36,4 +37,5 @@ class Container(DeclarativeContainer):
     job_sites_service = Singleton(JobSitesService, db=job_management_db)
     job_offer_service = Singleton(JobOfferService, db=job_management_db)
     sites_jobs_offer_service = Singleton(JobSitesWithJobsService, db=job_management_db)
+    google_login_service = Singleton(GoogleLoginService)
     cv_service = Singleton(CvService, db=job_management_db)

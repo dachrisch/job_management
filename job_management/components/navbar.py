@@ -26,6 +26,8 @@ def options_menu():
                 rx.flex(
                     rx.input(placeholder='sk-...', name='openai_api_key',
                              value=OpenaiKeyState.openai_key, on_change=OpenaiKeyState.new_openai_key),
+                    rx.cond(OpenaiKeyState.key_validation_error,
+                            rx.callout(OpenaiKeyState.key_validation_error, icon='triangle_alert')),
                     direction="column",
                     spacing="3",
                 ),
@@ -38,9 +40,13 @@ def options_menu():
                         ),
                         on_click=OpenaiKeyState.cancel_dialog,
                     ),
+                    rx.button("Validate",
+                              loading=OpenaiKeyState.is_validating_key,
+                              on_click=OpenaiKeyState.validate_key),
                     rx.dialog.close(
-                        rx.button("Save"),
-                        on_click=OpenaiKeyState.save_dialog,
+                        rx.button("Save", disabled=~OpenaiKeyState.is_valid_key,
+                                  on_click=OpenaiKeyState.save_dialog,
+                                  )
                     ),
                     spacing="3",
                     margin_top="16px",

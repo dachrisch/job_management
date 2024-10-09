@@ -10,6 +10,7 @@ from job_management.backend.entity.offer_analyzed import JobOfferAnalyze
 from job_management.backend.entity.offer_application import JobOfferApplication
 from job_management.backend.entity.storage import JobApplicationCoverLetter, JobApplicationCoverLetterDoc
 from job_management.backend.service.locator import Locator
+from job_management.backend.state.openai_key import OpenaiKeyState
 from job_management.backend.state.refinement import RefinementState
 
 
@@ -45,8 +46,9 @@ class ApplicationState(rx.State):
     async def analyze_job(self):
         async with self:
             self.job_offer.state.is_analyzing = True
+            openai_key: str = (await self.get_state(OpenaiKeyState)).openai_key
 
-        await self.application_service.analyze_job(self.job_offer)
+        await self.application_service.analyze_job(openai_key, self.job_offer)
 
         async with self:
             self.load_current_job_offer()
@@ -57,9 +59,10 @@ class ApplicationState(rx.State):
         async with self:
             self.job_offer.state.is_composing = True
 
-            refinement_state: RefinementState = (await self.get_state(RefinementState))
+            prompt: str = (await self.get_state(RefinementState)).prompt
+            openai_key: str = (await self.get_state(OpenaiKeyState)).openai_key
 
-        await self.application_service.compose_application(self.job_offer_analyzed, refinement_state.prompt)
+        await self.application_service.compose_application(openai_key, self.job_offer_analyzed, prompt)
 
         async with self:
             self.load_current_job_offer()

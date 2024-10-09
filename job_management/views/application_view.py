@@ -1,10 +1,10 @@
-import asyncio
-
 import reflex as rx
 
 from job_management.backend.entity.storage import JobApplicationCoverLetterDoc
+from job_management.backend.state.all_steps import AllStepsState
 from job_management.backend.state.application import ApplicationState
 from job_management.backend.state.cv import CvState
+from job_management.backend.state.openai_key import OpenaiKeyState
 from job_management.backend.state.refinement import RefinementState
 from job_management.components.application.item import item
 from job_management.components.card import card
@@ -16,7 +16,7 @@ def render():
         rx.flex(
             header(),
             rx.vstack(
-                process_steps(),
+                rx.cond(OpenaiKeyState.openai_key, process_steps(), openai_api_key_dialog()),
                 align='center',
             ),
             spacing="2",
@@ -37,36 +37,14 @@ def header():
     )
 
 
-class AllStepsState(rx.State):
-    running: bool = False
-    _ramp_up_delay: float = .5
-    _update_interval: float = .2
-
-    @rx.background
-    async def run_all_steps(self):
-        async with self:
-            self.running = True
-
-        async with self:
-            application_state: ApplicationState = (await self.get_state(ApplicationState))
-
-        yield ApplicationState.analyze_job()
-        await asyncio.sleep(self._ramp_up_delay)
-        while application_state.job_offer.state.is_analyzing:
-            await asyncio.sleep(self._update_interval)
-
-        yield ApplicationState.compose_application()
-        await asyncio.sleep(self._ramp_up_delay)
-        while application_state.job_offer.state.is_composing:
-            await asyncio.sleep(self._update_interval)
-
-        yield ApplicationState.store_in_google_doc()
-        await asyncio.sleep(self._ramp_up_delay)
-        while application_state.job_offer.state.is_storing:
-            await asyncio.sleep(self._update_interval)
-
-        async with self:
-            self.running = False
+def openai_api_key_dialog():
+    return rx.card(
+        rx.vstack(rx.callout('An OpenAI API Key is needed to proceed', icon='info'),
+                  rx.button('Provide Key', on_click=OpenaiKeyState.toggle_openai_key_dialog_open),
+                  spacing="4",
+                  width="100%",
+                  align="center"
+                  ))
 
 
 def process_steps():

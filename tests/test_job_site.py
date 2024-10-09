@@ -8,8 +8,9 @@ from job_offer_spider.item.db.sites import JobSiteDto, JobStatistic
 class JobOfferTest(TestCase):
 
     def test_jobs_dto(self):
-        self.assertEqual(JobSiteDto(url='test', jobs=JobStatistic(total=1)),
-                         JobSiteDto.from_dict({'url': 'test', 'jobs': {'total': 1}}))
+        dto_from_dict = JobSiteDto.from_dict({'url': 'test', 'jobs': {'total': 1}})
+        self.assertEqual(JobSiteDto(url='test', jobs=JobStatistic(total=1), added=dto_from_dict.added),
+                         dto_from_dict)
 
     def test_jobs_frontend(self):
         self.assertEqual(JobSite(title='test', jobs=Statistics(total=1)),

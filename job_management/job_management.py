@@ -47,7 +47,7 @@ def jobs() -> rx.Component:
 
 
 @rx.page(route='/applications', title='Applications',
-         on_load=[ApplicationState.load_current_job_offer, CvState.load_cv, OpenaiKeyState.inform_openai_api_key])
+         on_load=[ApplicationState.load_current_job_offer, CvState.load_cv])
 def applications() -> rx.Component:
     return rx.vstack(
         navbar(f'/jobs/?site={ApplicationState.job_offer.site_url}'),

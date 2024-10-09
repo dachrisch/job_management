@@ -13,9 +13,8 @@ from job_offer_spider.item.db.job_offer import JobOfferAnalyzeDto, JobOfferAppli
 
 
 class JobApplicationService(JobOfferService):
-    openai_api_key: str = None
 
-    def __init__(self, db: JobManagementDb, ):
+    def __init__(self, db: JobManagementDb ):
         super().__init__(db)
         self.jobs = db.jobs
         self.jobs_body = db.jobs_body
@@ -28,8 +27,8 @@ class JobApplicationService(JobOfferService):
         return first(map(lambda a: JobOfferAnalyze(**a.to_dict()),
                          self.jobs_analyze.filter({'url': {'$eq': job_offer.url}})), None)
 
-    async def analyze_job(self, job_offer: JobOffer) -> JobOfferAnalyzeDto:
-        c = Conversation(openai_api_key=self.openai_api_key)
+    async def analyze_job(self, openai_api_key: str, job_offer: JobOffer) -> JobOfferAnalyzeDto:
+        c = Conversation(openai_api_key=openai_api_key)
         self.log.info(f'Analyzing [{job_offer}]')
         system_prompt = ('Analyze the content of this webpage and find the job description. '
                          'if no job description is found, return empty json as {}'
@@ -64,7 +63,7 @@ class JobApplicationService(JobOfferService):
         return first(map(lambda a: JobOfferApplication(**a.to_dict()),
                          self.jobs_application.filter({'url': {'$eq': job_offer.url}})), None)
 
-    async def compose_application(self, job_offer_analyzed: JobOfferAnalyze,
+    async def compose_application(self, openai_api_key: str, job_offer_analyzed: JobOfferAnalyze,
                                   refinement_prompt: str = None) -> JobOfferApplicationDto:
         self.log.info(f'Composing application for [{job_offer_analyzed}]')
         prompt_template = string.Template('''Help me write an application for the job indicated by JOBDESC
@@ -99,7 +98,7 @@ ${CVDATA}
             'JOBDESC': str(job_offer_analyzed),
             'CVDATA': cv_data.text
         })
-        c = Conversation(openai_api_key=self.openai_api_key, response_format="text")
+        c = Conversation(openai_api_key=openai_api_key, response_format="text")
         c.as_user(application_prompt)
 
         if refinement_prompt:

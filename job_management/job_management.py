@@ -4,6 +4,7 @@ from . import wire, setup_scrapy
 from .backend.state.application import ApplicationState
 from .backend.state.cv import CvState
 from .backend.state.job import JobState
+from .backend.state.openai_key import OpenaiKeyState
 from .backend.state.statistics import JobsStatisticsState
 from .components.navbar import navbar
 from .views import jobs_view, application_view
@@ -46,7 +47,7 @@ def jobs() -> rx.Component:
 
 
 @rx.page(route='/applications', title='Applications',
-         on_load=[ApplicationState.load_current_job_offer, CvState.load_cv])
+         on_load=[ApplicationState.load_current_job_offer, CvState.load_cv, OpenaiKeyState.validate_key])
 def applications() -> rx.Component:
     return rx.vstack(
         navbar(f'/jobs/?site={ApplicationState.job_offer.site_url}'),

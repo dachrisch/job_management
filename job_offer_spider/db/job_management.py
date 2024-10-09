@@ -1,56 +1,17 @@
 import logging
-from typing import Union, Dict, Any, Iterable
+from typing import Union
 
-from dataclasses_json import DataClassJsonMixin
 from montydb import MontyClient, set_storage
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
-from job_management.backend.service.google import GoogleCredentialsService, CredentialsService, \
-    AlwaysValidCredentialsService
-from job_offer_spider.db.collection import CollectionHandler, ASCENDING
-from job_offer_spider.item.db import HasId, HasUrl
+from job_management.backend.service.google import GoogleCredentialsService, CredentialsService
+from job_offer_spider.db.access import CheckedAccessWrapper
+from job_offer_spider.db.collection import CollectionHandler
 from job_offer_spider.item.db.cover_letter import JobOfferCoverLetterDto
 from job_offer_spider.item.db.cv import CvDto
 from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto, JobOfferAnalyzeDto, JobOfferApplicationDto
 from job_offer_spider.item.db.sites import JobSiteDto
-
-
-class EmptyCollectionHandler(CollectionHandler):
-    def __init__(self):
-        super().__init__(None, None)
-
-    def add(self, item: DataClassJsonMixin):
-        pass
-
-    def contains(self, item: HasUrl) -> bool:
-        return False
-
-    def all(self, skip: int = None, limit: int = None, sort_key: str = '', direction: int = ASCENDING) -> Iterable:
-        return []
-
-    def filter(self, condition: Dict[str, Any], skip: int = None, limit: int = None, sort_key: str = '',
-               direction: int = ASCENDING) -> Iterable:
-        return []
-
-    @property
-    def size(self) -> int:
-        return 0
-
-    def count(self, condition: Dict[str, Any]):
-        return 0
-
-    def update_one(self, condition: Dict[str, Any], update: Dict[str, Any], expect_modified: bool = True):
-        pass
-
-    def update_item(self, item: Union[HasId, DataClassJsonMixin]):
-        pass
-
-    def delete(self, item):
-        pass
-
-    def delete_many(self, condition: Dict[str, Any]):
-        pass
 
 
 class JobManagementDb:
@@ -61,37 +22,46 @@ class JobManagementDb:
 
     @property
     def sites(self) -> CollectionHandler[JobSiteDto]:
-        return CollectionHandler[JobSiteDto](self.db['job_sites'], JobSiteDto)
+        return CheckedAccessWrapper(CollectionHandler[JobSiteDto](self.db['job_sites'], JobSiteDto),
+                                    self.credentials_service)
 
     @property
     def jobs(self) -> CollectionHandler[JobOfferDto]:
-        return CollectionHandler[JobOfferDto](self.db['job_offers'], JobOfferDto)
+        return CheckedAccessWrapper(CollectionHandler[JobOfferDto](self.db['job_offers'], JobOfferDto),
+                                    self.credentials_service)
 
     @property
     def jobs_body(self) -> CollectionHandler[JobOfferBodyDto]:
-        return CollectionHandler[JobOfferBodyDto](self.db['job_offers_body'], JobOfferBodyDto)
+        return CheckedAccessWrapper(CollectionHandler[JobOfferBodyDto](self.db['job_offers_body'], JobOfferBodyDto),
+                                    self.credentials_service)
 
     @property
     def jobs_analyze(self):
-        return CollectionHandler[JobOfferAnalyzeDto](self.db['job_offers_analyze'], JobOfferAnalyzeDto)
+        return CheckedAccessWrapper(
+            CollectionHandler[JobOfferAnalyzeDto](self.db['job_offers_analyze'], JobOfferAnalyzeDto),
+            self.credentials_service)
 
     @property
     def jobs_application(self):
-        return CollectionHandler[JobOfferApplicationDto](self.db['job_offers_application'], JobOfferApplicationDto)
+        return CheckedAccessWrapper(
+            CollectionHandler[JobOfferApplicationDto](self.db['job_offers_application'], JobOfferApplicationDto),
+            self.credentials_service)
 
     @property
     def cover_letter_docs(self):
-        return CollectionHandler[JobOfferCoverLetterDto](self.db['cover_letter_docs'], JobOfferCoverLetterDto)
+        return CheckedAccessWrapper(
+            CollectionHandler[JobOfferCoverLetterDto](self.db['cover_letter_docs'], JobOfferCoverLetterDto),
+            self.credentials_service)
 
     @property
     def cvs(self):
-        return CollectionHandler[CvDto](self.db['cv'], CvDto)
+        return CheckedAccessWrapper(CollectionHandler[CvDto](self.db['cv'], CvDto), self.credentials_service)
 
 
 class MontyJobManagementDb(JobManagementDb):
-    def __init__(self, repository: str):
+    def __init__(self, repository: str, credentials_service: GoogleCredentialsService):
         set_storage(repository, storage='sqlite', check_same_thread=False)
-        super().__init__(MontyClient(repository=repository), AlwaysValidCredentialsService())
+        super().__init__(MontyClient(repository=repository), credentials_service)
         self.init()
 
     def init(self):

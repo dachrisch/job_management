@@ -21,7 +21,7 @@ RUN $uv venv
 RUN $uv pip install -r requirements.txt
 
 # Upgrade reflex
-RUN pip reflex --upgrade
+RUN $uv pip install reflex --upgrade
 
 # Deploy templates and prepare app
 RUN reflex init

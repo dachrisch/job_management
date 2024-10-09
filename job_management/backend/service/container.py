@@ -36,6 +36,7 @@ class Container(DeclarativeContainer):
     job_application_service = Singleton(JobApplicationService, db=job_management_db)
     job_sites_service = Singleton(JobSitesService, db=job_management_db)
     job_offer_service = Singleton(JobOfferService, db=job_management_db)
-    job_storage_service = Singleton(JobApplicationStorageService, db=job_management_db, credentials_service=credentials_service)
+    job_storage_service = Singleton(JobApplicationStorageService, db=job_management_db,
+                                    credentials_service=credentials_service)
     sites_jobs_offer_service = Singleton(JobSitesWithJobsService, db=job_management_db)
     cv_service = Singleton(CvService, db=job_management_db)

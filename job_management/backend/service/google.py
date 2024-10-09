@@ -8,8 +8,6 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 
-from job_offer_spider.db.collection import CollectionHandler
-
 
 @dataclass
 class GoogleCredentialsDto(DataClassJsonMixin):
@@ -20,7 +18,6 @@ class GoogleCredentialsDto(DataClassJsonMixin):
 class GoogleCredentialsService(object):
     credentials: Credentials = Credentials(None)
     flow: Optional[Flow] = None
-
 
     def auth_url(self, redirect_url: str, next_url: str = '') -> str:
         self.flow = Flow.from_client_secrets_file('google.json', SCOPES,

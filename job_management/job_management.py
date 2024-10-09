@@ -19,7 +19,6 @@ def index() -> rx.Component:
     return rx.heading('redirecting...')
 
 
-
 @rx.page(route="/sites", title="Sites", on_load=[JobsStatisticsState.load_jobs_statistic])
 @require_google_login
 def sites() -> rx.Component:

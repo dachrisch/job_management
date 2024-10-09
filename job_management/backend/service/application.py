@@ -14,7 +14,7 @@ from job_offer_spider.item.db.job_offer import JobOfferAnalyzeDto, JobOfferAppli
 
 class JobApplicationService(JobOfferService):
 
-    def __init__(self, db: JobManagementDb ):
+    def __init__(self, db: JobManagementDb):
         super().__init__(db)
         self.jobs = db.jobs
         self.jobs_body = db.jobs_body

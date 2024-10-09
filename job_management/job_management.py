@@ -4,7 +4,6 @@ from . import wire, setup_scrapy
 from .backend.state.application import ApplicationState
 from .backend.state.cv import CvState
 from .backend.state.job import JobState
-from .backend.state.openai_key import OpenaiKeyState
 from .backend.state.statistics import JobsStatisticsState
 from .components.navbar import navbar
 from .views import jobs_view, application_view

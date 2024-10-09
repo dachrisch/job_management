@@ -2,7 +2,6 @@ import json
 from functools import lru_cache
 from json import JSONDecodeError
 from typing import Optional
-from urllib.parse import urlencode
 
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
@@ -26,16 +25,16 @@ class GoogleCredentialsService(CredentialsService):
     credentials: Credentials = Credentials(None)
     flow: Optional[Flow] = None
 
-    def auth_url(self, redirect_url: str, next_url: str = '') -> str:
-        self.flow = Flow.from_client_secrets_file('google.json', SCOPES,
-                                                  redirect_uri=redirect_url + '?' + urlencode({'next_url': next_url}))
-        return self.flow.authorization_url()[0]
+    def auth_url(self, redirect_url: str, state: str) -> str:
+        flow = Flow.from_client_secrets_file('google.json', SCOPES,
+                                             redirect_uri=redirect_url, state=state)
+        return flow.authorization_url(approval_prompt='force')[0]
 
-    def authorize_code(self, code: str) -> None:
-        self.flow.fetch_token(code=code)
-        self.credentials = self.flow.credentials
-
-        self.flow = None
+    def authorize_code(self, code: str, redirect_url: str, state: str) -> None:
+        flow = Flow.from_client_secrets_file('google.json', SCOPES,
+                                             redirect_uri=redirect_url, state=state)
+        flow.fetch_token(code=code)
+        self.credentials = flow.credentials
 
     @lru_cache
     def get_user_info(self):
@@ -48,10 +47,11 @@ class GoogleCredentialsService(CredentialsService):
         return self.credentials and self.credentials.valid
 
     def load_from_json(self, credentials_json: str):
-        try:
-            self.credentials = Credentials.from_authorized_user_info(json.loads(credentials_json), SCOPES)
-        except JSONDecodeError:
-            self.clear_credentials()
+        if credentials_json:
+            try:
+                self.credentials = Credentials.from_authorized_user_info(json.loads(credentials_json), SCOPES)
+            except JSONDecodeError:
+                self.clear_credentials()
 
     def clear_credentials(self):
         self.credentials = Credentials(None)

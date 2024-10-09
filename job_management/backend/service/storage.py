@@ -1,6 +1,5 @@
 import logging
 
-from googleapiclient.discovery import build
 from openai._utils import asyncify
 
 from job_management.backend.entity.offer import JobOffer
@@ -16,7 +15,7 @@ class JobApplicationStorageService:
     def __init__(self, db: JobManagementDb, credentials_service: GoogleCredentialsService):
         self.jobs = db.jobs
         self.cover_letter_docs = db.cover_letter_docs
-        self.credentials_service = credentials_service
+        self.credentials_service: GoogleCredentialsService = credentials_service
         self.log = logging.getLogger(f'{__name__}')
 
     def load_cover_letter_docs(self, job_offer: JobOffer) -> list[JobApplicationCoverLetterDoc]:
@@ -32,10 +31,8 @@ class JobApplicationStorageService:
 
     def copy_replace_doc(self, template_id: str,
                          job_offer_cover_letter: JobApplicationCoverLetter) -> JobOfferCoverLetterDto:
-        credentials = self.credentials_service.credentials
-
-        docs_service = build("docs", "v1", credentials=credentials)
-        drive_service = build("drive", "v3", credentials=credentials)
+        docs_service = self.credentials_service.load_service("docs", "v1")
+        drive_service = self.credentials_service.load_service("drive", "v3")
         cover_letter_file = drive_service.files().copy(fileId=template_id, body={
             'name': f'Anschreiben - {job_offer_cover_letter.company_name}'}).execute()
 

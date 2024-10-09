@@ -5,7 +5,6 @@ from dependency_injector.providers import Singleton, Resource, Configuration, Se
 from scrapy.utils.project import get_project_settings
 
 from job_management.backend import state, service
-from job_management.backend.api.google_login import GoogleLoginService
 from job_management.backend.service.application import JobApplicationService
 from job_management.backend.service.cv import CvService
 from job_management.backend.service.google import GoogleCredentialsService
@@ -25,12 +24,16 @@ class Container(DeclarativeContainer):
         packages=[state, service]
     )
 
+    credentials_service = Singleton(GoogleCredentialsService)
+
     job_management_db = Selector(
         config.database.location,
         local=Singleton(MontyJobManagementDb, repository=config.database.repository),
         remote=Singleton(MongoJobManagementDb,
                          username=config.database.username.required(),
-                         password=config.database.password.required())
+                         password=config.database.password.required(),
+                         login_service=credentials_service
+                         )
     )
 
     credentials_service = Singleton(GoogleCredentialsService)
@@ -40,5 +43,4 @@ class Container(DeclarativeContainer):
     job_storage_service = Singleton(JobApplicationStorageService, db=job_management_db,
                                     credentials_service=credentials_service)
     sites_jobs_offer_service = Singleton(JobSitesWithJobsService, db=job_management_db)
-    google_login_service = Singleton(GoogleLoginService)
     cv_service = Singleton(CvService, db=job_management_db)

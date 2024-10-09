@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 import reflex as rx
@@ -16,7 +16,7 @@ class JobApplicationCoverLetter:
     title: str
     company_name: str
     cover_body: str
-    date: datetime = datetime.now()
+    date: datetime = field(default_factory=lambda: datetime.now())
 
     @classmethod
     def from_analyze(cls, job_offer_analyzed: JobOfferAnalyze, job_offer_application: JobOfferApplication):
@@ -29,4 +29,4 @@ class JobApplicationCoverLetterDoc(rx.Base):
     url: str
     document_id: str
     name: str
-    date: datetime = datetime.now()
+    date: datetime =  datetime.now()

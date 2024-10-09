@@ -19,7 +19,7 @@ class JobOfferState:
 @dataclass
 class JobOfferDto(HasId, HasUrl, DataClassJsonMixin):
     title: Optional[str] = None
-    added: datetime = datetime.now()
+    added: datetime = field(default_factory=lambda: datetime.now())
     seen: Optional[datetime] = None
     site_url: Optional[str] = None
     state: JobOfferState = field(default_factory=lambda: JobOfferState())
@@ -29,7 +29,7 @@ class JobOfferDto(HasId, HasUrl, DataClassJsonMixin):
 @dataclass
 class JobOfferBodyDto(HasId, HasUrl, DataClassJsonMixin):
     body: str = field(default=None, repr=False)
-    added: datetime = datetime.now()
+    added: datetime = field(default_factory=lambda: datetime.now())
 
 
 @dataclass_json
@@ -42,11 +42,11 @@ class JobOfferAnalyzeDto(HasId, HasUrl, DataClassJsonMixin):
     responsibilities: Optional[str] = None
     offers: Optional[str] = None
     additional: Optional[str] = None
-    added: datetime = datetime.now()
+    added: datetime = field(default_factory=lambda: datetime.now())
 
 
 @dataclass_json
 @dataclass
 class JobOfferApplicationDto(HasId, HasUrl, DataClassJsonMixin):
     text: Optional[str] = None
-    added: datetime = datetime.now()
+    added: datetime = field(default_factory=lambda: datetime.now())

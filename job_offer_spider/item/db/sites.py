@@ -17,6 +17,6 @@ class JobStatistic:
 @dataclass
 class JobSiteDto(HasId, HasUrl, DataClassJsonMixin):
     title: str = None
-    added: datetime = datetime.now()
+    added: datetime = field(default_factory=lambda: datetime.now())
     last_scanned: datetime = None
     jobs: JobStatistic = field(default_factory=lambda: JobStatistic())

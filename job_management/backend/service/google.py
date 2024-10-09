@@ -14,13 +14,6 @@ class CredentialsService:
         return False
 
 
-class AlwaysValidCredentialsService(CredentialsService):
-
-    @property
-    def has_valid_credentials(self) -> bool:
-        return True
-
-
 class GoogleCredentialsService(CredentialsService):
     credentials: Credentials = Credentials(None)
     flow: Optional[Flow] = None

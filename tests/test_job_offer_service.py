@@ -9,16 +9,24 @@ from job_management.backend import service
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
 from job_management.backend.service import locator
+from job_management.backend.service.container import Container
+from job_management.backend.service.google import GoogleCredentialsService
 from job_management.backend.service.locator import Locator
 from job_offer_spider.db.job_management import MontyJobManagementDb
-from job_management.backend.service.container import Container
 from .mocks import mocked_requests_response
 
 
-# Overriding ``Container`` with ``OverridingContainer``:
+class AuthenticatedCredentialsService(GoogleCredentialsService):
+
+    @property
+    def has_valid_credentials(self) -> bool:
+        return True
+
+
 @containers.override(Container)
 class OverridingContainer(containers.DeclarativeContainer):
-    job_management_db = Singleton(MontyJobManagementDb, repository='.monty_test_db')
+    job_management_db = Singleton(MontyJobManagementDb, repository='.monty_test_db',
+                                  credentials_service=AuthenticatedCredentialsService())
 
 
 class JobOfferServiceTest(TestCase):

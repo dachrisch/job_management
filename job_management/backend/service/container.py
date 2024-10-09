@@ -28,7 +28,8 @@ class Container(DeclarativeContainer):
 
     job_management_db = Selector(
         config.database.location,
-        local=Singleton(MontyJobManagementDb, repository=config.database.repository),
+        local=Singleton(MontyJobManagementDb, repository=config.database.repository,
+                        credentials_service=credentials_service),
         remote=Singleton(MongoJobManagementDb,
                          username=config.database.username.required(),
                          password=config.database.password.required(),
@@ -36,7 +37,6 @@ class Container(DeclarativeContainer):
                          )
     )
 
-    credentials_service = Singleton(GoogleCredentialsService)
     job_application_service = Singleton(JobApplicationService, db=job_management_db)
     job_sites_service = Singleton(JobSitesService, db=job_management_db)
     job_offer_service = Singleton(JobOfferService, db=job_management_db)

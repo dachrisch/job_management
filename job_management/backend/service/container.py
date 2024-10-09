@@ -7,11 +7,11 @@ from scrapy.utils.project import get_project_settings
 from job_management.backend import state, service
 from job_management.backend.service.application import JobApplicationService
 from job_management.backend.service.cv import CvService
+from job_management.backend.service.google import GoogleCredentialsService
 from job_management.backend.service.job_offer import JobOfferService
 from job_management.backend.service.site import JobSitesService
 from job_management.backend.service.sites_with_jobs import JobSitesWithJobsService
 from job_management.backend.service.storage import JobApplicationStorageService
-from job_management.backend.service.google import GoogleCredentialsService
 from job_offer_spider.db.job_management import MontyJobManagementDb, MongoJobManagementDb
 
 

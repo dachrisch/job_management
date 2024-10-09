@@ -21,8 +21,6 @@ class GoogleCredentialsService(object):
     credentials: Credentials = Credentials(None)
     flow: Optional[Flow] = None
 
-    def __init__(self, credentials_db: CollectionHandler[GoogleCredentialsDto]):
-        self.credentials_db = credentials_db
 
     def auth_url(self, redirect_url: str, next_url: str = '') -> str:
         self.flow = Flow.from_client_secrets_file('google.json', SCOPES,

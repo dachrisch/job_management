@@ -18,6 +18,6 @@ class Locator:
     application_service: JobApplicationService = Provide[Container.job_application_service]
     storage_service: JobApplicationStorageService = Provide[Container.job_storage_service]
     cv_service: CvService = Provide[Container.cv_service]
-    credentials_handler: GoogleCredentialsService = Provide[Container.credentials_handler]
+    credentials_handler: GoogleCredentialsService = Provide[Container.credentials_service]
 
     db: JobManagementDb = Provide[Container.job_management_db]

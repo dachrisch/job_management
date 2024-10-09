@@ -10,6 +10,7 @@ from .backend.state.statistics import JobsStatisticsState
 from .components.navbar import navbar
 from .views import jobs_view, application_view
 from .views import sites_view
+from .views.login import require_google_login
 from .views.sites_view import stats_cards_group
 
 
@@ -18,7 +19,9 @@ def index() -> rx.Component:
     return rx.heading('redirecting...')
 
 
+
 @rx.page(route="/sites", title="Sites", on_load=[JobsStatisticsState.load_jobs_statistic])
+@require_google_login
 def sites() -> rx.Component:
     return rx.vstack(
         navbar(),
@@ -37,6 +40,7 @@ def sites() -> rx.Component:
 @rx.page(route="/jobs", title="Jobs",
          on_load=[JobState.update_current_site, JobState.load_jobs, JobsStatisticsState.load_jobs_statistic,
                   ])
+@require_google_login
 def jobs() -> rx.Component:
     return rx.vstack(
         navbar(rx.Var.create('/', _var_is_string=True)),
@@ -51,6 +55,7 @@ def jobs() -> rx.Component:
 @rx.page(route='/applications', title='Applications',
          on_load=[ApplicationState.load_current_job_offer, CvState.load_cv, OpenaiKeyState.validate_key,
                   GoogleState.load_credentials_from_store])
+@require_google_login
 def applications() -> rx.Component:
     return rx.vstack(
         navbar(f'/jobs/?site={ApplicationState.job_offer.site_url}'),

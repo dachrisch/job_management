@@ -32,7 +32,7 @@ class Container(DeclarativeContainer):
         remote=Singleton(MongoJobManagementDb,
                          username=config.database.username.required(),
                          password=config.database.password.required(),
-                         login_service=credentials_service
+                         credentials_service=credentials_service
                          )
     )
 

@@ -1,4 +1,5 @@
 import json
+import logging
 
 import reflex as rx
 
@@ -13,14 +14,17 @@ class GoogleState(rx.State):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.credentials_service: GoogleCredentialsService = Locator.credentials_handler
+        self.log = logging.getLogger(f'{__name__}')
 
     @rx.background
     async def login_flow(self):
         async with self:
             self.is_running_flow = True
 
-        yield rx.redirect(self.credentials_service.auth_url(self.router.page.host + '/google_callback',
-                                                            next_url=self.router.page.raw_path))
+        auth_url = self.credentials_service.auth_url(self.router.page.host + '/google_callback',
+                                                     next_url=self.router.page.raw_path)
+        self.log.info(f'redirecting to {auth_url}')
+        yield rx.redirect(auth_url)
 
         async with self:
             self.is_running_flow = False

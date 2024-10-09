@@ -1,12 +1,8 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
-from functools import reduce
 from typing import Literal, List, Dict, Any, Callable
 
-import requests
-from attr import define
 from openai import OpenAI, AsyncOpenAI, AuthenticationError
 from openai.types import ChatModel
 from openai.types.chat import ChatCompletionMessageParam
@@ -47,7 +43,6 @@ class Conversation:
             response_format={"type": self.response_format},
         )
         return self.processor[self.response_format](chat_completion.choices[0].message.content)
-
 
     async def is_valid_key(self) -> bool:
         if not self.openai_api_key:

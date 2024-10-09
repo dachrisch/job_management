@@ -44,4 +44,3 @@ class OpenaiKeyState(rx.State):
 
         async with self:
             self.is_validating_key = False
-

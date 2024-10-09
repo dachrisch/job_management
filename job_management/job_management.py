@@ -19,7 +19,8 @@ def index() -> rx.Component:
     return rx.heading('redirecting...')
 
 
-@rx.page(route="/sites", title="Sites", on_load=[JobsStatisticsState.load_jobs_statistic])
+@rx.page(route="/sites", title="Sites",
+         on_load=[JobsStatisticsState.load_jobs_statistic, GoogleState.load_credentials_from_store])
 @require_google_login
 def sites() -> rx.Component:
     return rx.vstack(
@@ -38,7 +39,7 @@ def sites() -> rx.Component:
 
 @rx.page(route="/jobs", title="Jobs",
          on_load=[JobState.update_current_site, JobState.load_jobs, JobsStatisticsState.load_jobs_statistic,
-                  ])
+                  GoogleState.load_credentials_from_store])
 @require_google_login
 def jobs() -> rx.Component:
     return rx.vstack(

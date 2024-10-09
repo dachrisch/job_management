@@ -5,7 +5,6 @@ from montydb import MontyClient, set_storage
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
-from job_management.backend.service.google import GoogleCredentialsDto
 from job_offer_spider.db.collection import CollectionHandler
 from job_offer_spider.item.db.cover_letter import JobOfferCoverLetterDto
 from job_offer_spider.item.db.cv import CvDto
@@ -46,10 +45,6 @@ class JobManagementDb:
     @property
     def cvs(self):
         return CollectionHandler[CvDto](self.db['cv'], CvDto)
-
-    @property
-    def credentials(self):
-        return CollectionHandler[GoogleCredentialsDto](self.db['credentials'], GoogleCredentialsDto)
 
 
 class MontyJobManagementDb(JobManagementDb):

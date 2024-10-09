@@ -7,7 +7,7 @@ from job_management.components.navbar import navbar
 
 
 @rx.page(route='/login', title='Login',
-         on_load=[])
+         on_load=[GoogleState.load_credentials_from_store])
 def login() -> rx.Component:
     return rx.vstack(
         navbar(),

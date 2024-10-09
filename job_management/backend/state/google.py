@@ -21,7 +21,7 @@ class GoogleState(rx.State):
             self.is_running_flow = True
 
         auth_url = self.credentials_service.auth_url(self.router.page.host + '/google_callback',
-                                                     next_url=self.router.page.raw_path)
+                                                     self.router.session.client_token)
         self.log.info(f'redirecting to {auth_url}')
         yield rx.redirect(auth_url)
 
@@ -33,10 +33,12 @@ class GoogleState(rx.State):
         return self.credentials_service.has_valid_credentials
 
     def on_login_callback(self):
-        self.credentials_service.authorize_code(self.router.page.params.get('code'))
+        self.credentials_service.authorize_code(self.router.page.params.get('code'),
+                                                self.router.page.host + '/google_callback',
+                                                self.router.session.client_token)
         if self.is_logged_in:
             self.credentials_store = self.credentials_service.credentials.to_json()
-        return rx.redirect(self.router.page.params.get('next_url'))
+        return rx.redirect('/')
 
     def load_credentials_from_store(self):
         self.credentials_service.load_from_json(self.credentials_store)

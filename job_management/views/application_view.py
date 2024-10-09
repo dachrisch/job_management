@@ -4,6 +4,7 @@ from job_management.backend.entity.storage import JobApplicationCoverLetterDoc
 from job_management.backend.state.all_steps import AllStepsState
 from job_management.backend.state.application import ApplicationState
 from job_management.backend.state.cv import CvState
+from job_management.backend.state.google import GoogleState
 from job_management.backend.state.openai_key import OpenaiKeyState
 from job_management.backend.state.refinement import RefinementState
 from job_management.components.application.item import item
@@ -16,7 +17,8 @@ def render():
         rx.flex(
             header(),
             rx.vstack(
-                rx.cond(OpenaiKeyState.openai_key, process_steps(), openai_api_key_dialog()),
+                rx.cond(OpenaiKeyState.is_valid_key & GoogleState.is_logged_in, process_steps(),
+                        render_logins()),
                 align='center',
             ),
             spacing="2",
@@ -37,10 +39,21 @@ def header():
     )
 
 
-def openai_api_key_dialog():
+def render_logins():
     return rx.card(
-        rx.vstack(rx.callout('An OpenAI API Key is needed to proceed', icon='info'),
-                  rx.button('Provide Key', on_click=OpenaiKeyState.toggle_openai_key_dialog_open),
+        rx.vstack(rx.cond(~OpenaiKeyState.is_valid_key,
+                          rx.vstack(rx.callout('An OpenAI API Key is needed to proceed', icon='info'),
+                                    rx.button('Provide Key', on_click=OpenaiKeyState.toggle_openai_key_dialog_open),
+                                    align="center"
+                                    )
+                          ),
+                  rx.cond(~GoogleState.is_logged_in,
+                          rx.vstack(rx.callout('Google Drive Login required', icon='info'),
+                                    rx.button('Login to Google', on_click=GoogleState.login_flow,
+                                              loading=GoogleState.is_running_flow),
+                                    align="center"
+                                    )
+                          ),
                   spacing="4",
                   width="100%",
                   align="center"

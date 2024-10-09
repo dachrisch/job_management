@@ -11,6 +11,7 @@ from job_management.backend.service.job_offer import JobOfferService
 from job_management.backend.service.site import JobSitesService
 from job_management.backend.service.sites_with_jobs import JobSitesWithJobsService
 from job_management.backend.service.storage import JobApplicationStorageService
+from job_management.backend.service.google import GoogleCredentialsService
 from job_offer_spider.db.job_management import MontyJobManagementDb, MongoJobManagementDb
 
 
@@ -37,3 +38,4 @@ class Container(DeclarativeContainer):
     job_offer_service = Singleton(JobOfferService, db=job_management_db)
     sites_jobs_offer_service = Singleton(JobSitesWithJobsService, db=job_management_db)
     cv_service = Singleton(CvService, db=job_management_db)
+    credentials_handler = Singleton(GoogleCredentialsService, credentials_db=job_management_db)

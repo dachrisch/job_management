@@ -19,6 +19,17 @@ def index() -> rx.Component:
     return rx.heading('redirecting...')
 
 
+def footer():
+    return rx.el.footer(
+        rx.flex(
+            rx.spacer(),
+            rx.text('Made in 🥨 with ♥️', weight="light"),
+            rx.spacer(),
+            align='center',
+            width='100%')
+    )
+
+
 @rx.page(route="/sites", title="Sites",
          on_load=[JobsStatisticsState.load_jobs_statistic, GoogleState.load_credentials_from_store])
 @require_google_login
@@ -30,6 +41,7 @@ def sites() -> rx.Component:
             sites_view.main_table(),
             width="100%",
         ),
+        footer(),
         width="100%",
         spacing="6",
         align="center",

@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import logging
 from typing import Optional
@@ -24,6 +25,7 @@ class ApplicationState(rx.State):
         super().__init__(*args, **kwargs)
         self.application_service = Locator.application_service
         self.storage_service = Locator.storage_service
+        self.login_service = Locator.google_login_service
         self.log = logging.getLogger(f'{__name__}')
 
     def load_current_job_offer(self):
@@ -70,6 +72,14 @@ class ApplicationState(rx.State):
     async def store_in_google_doc(self):
         async with self:
             self.job_offer.state.is_storing = True
+
+        if not self.login_service.is_logged_in:
+            yield rx.redirect(self.login_service.auth_url(self.router.session.client_token, self.router.page.host),
+                              external=True)
+
+            while not self.login_service.is_logged_in:
+                await asyncio.sleep(2)
+                yield
 
         await self.storage_service.store_application_in_google_docs(
             JobApplicationCoverLetter.from_analyze(self.job_offer_analyzed, self.job_offer_application))

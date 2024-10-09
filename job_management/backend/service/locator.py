@@ -1,5 +1,6 @@
 from dependency_injector.wiring import Provide
 
+from job_management.backend.api.google_login import GoogleLoginService
 from job_management.backend.service.application import JobApplicationService
 from job_management.backend.service.container import Container
 from job_management.backend.service.cv import CvService
@@ -17,6 +18,7 @@ class Locator:
     jobs_sites_with_jobs_service: JobSitesWithJobsService = Provide[Container.sites_jobs_offer_service]
     application_service: JobApplicationService = Provide[Container.job_application_service]
     storage_service: JobApplicationStorageService = Provide[Container.job_storage_service]
+    google_login_service: GoogleLoginService = Provide[Container.google_login_service]
     cv_service: CvService = Provide[Container.cv_service]
     credentials_handler: GoogleCredentialsService = Provide[Container.credentials_service]
 

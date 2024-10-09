@@ -1,4 +1,3 @@
-import json
 import logging
 
 import reflex as rx
@@ -13,7 +12,7 @@ class GoogleState(rx.State):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.credentials_service: GoogleCredentialsService = Locator.credentials_handler
+        self.credentials_service: GoogleCredentialsService = Locator.google_credentials_service
         self.log = logging.getLogger(f'{__name__}')
 
     @rx.background
@@ -45,13 +44,6 @@ class GoogleState(rx.State):
     def logout(self):
         self.credentials_service.clear_credentials()
         return rx.remove_local_storage('credentials')
-
-    @rx.var
-    def user_info(self) -> str:
-        if self.is_logged_in:
-            return json.dumps(self.credentials_service.get_user_info())
-        else:
-            return ''
 
     @rx.var
     def profile_picture(self) -> str:

@@ -9,7 +9,20 @@ from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 
 
-class GoogleCredentialsService(object):
+class CredentialsService:
+    @property
+    def has_valid_credentials(self) -> bool:
+        return False
+
+
+class AlwaysValidCredentialsService(CredentialsService):
+
+    @property
+    def has_valid_credentials(self) -> bool:
+        return True
+
+
+class GoogleCredentialsService(CredentialsService):
     credentials: Credentials = Credentials(None)
     flow: Optional[Flow] = None
 
@@ -26,13 +39,13 @@ class GoogleCredentialsService(object):
 
     @lru_cache
     def get_user_info(self):
-        user_info_service = build('oauth2', 'v2', credentials=self.credentials)
+        user_info_service = self.load_service('oauth2', 'v2')
         user_info = user_info_service.userinfo().get().execute()
         return user_info
 
     @property
     def has_valid_credentials(self) -> bool:
-        return self.credentials.valid
+        return self.credentials and self.credentials.valid
 
     def load_from_json(self, credentials_json: str):
         try:
@@ -42,6 +55,13 @@ class GoogleCredentialsService(object):
 
     def clear_credentials(self):
         self.credentials = Credentials(None)
+
+    def load_service(self, service_name: str, version: str):
+        return self._load_service(service_name, version, self.credentials)
+
+    @lru_cache
+    def _load_service(self, service_name: str, version: str, credentials: Credentials):
+        return build(service_name, version, credentials=credentials)
 
 
 SCOPES = ['https://www.googleapis.com/auth/documents', 'https://www.googleapis.com/auth/drive', 'openid',

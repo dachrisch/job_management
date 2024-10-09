@@ -1,6 +1,7 @@
 import reflex as rx
 
 from job_management.backend.state.cv import CvState
+from job_management.backend.state.google import GoogleState
 from job_management.backend.state.openai_key import OpenaiKeyState
 
 
@@ -8,11 +9,18 @@ def options_menu():
     return rx.hstack(
         rx.menu.root(
             rx.menu.trigger(
-                rx.icon_button(rx.icon('cog'), color='inherit', background='transparent'),
+                rx.icon_button(rx.avatar(src=GoogleState.profile_picture), color='inherit', background='transparent'),
             ),
             rx.menu.content(
-                rx.menu.item("OpenAI API Key", on_click=OpenaiKeyState.toggle_openai_key_dialog_open),
+                rx.menu.item(GoogleState.profile_email, disabled=True),
+                rx.menu.separator(),
+                rx.menu.item("Enter OpenAI API Key", on_click=OpenaiKeyState.toggle_openai_key_dialog_open),
+                rx.menu.separator(),
+                rx.menu.item(rx.hstack(rx.icon('log-out', size=18), rx.text('Logout')),
+                             on_click=GoogleState.logout,
+                             color_scheme='red'),
             ),
+            align='center'
         ),
         rx.dialog.root(
             rx.dialog.content(

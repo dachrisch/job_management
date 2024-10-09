@@ -8,6 +8,7 @@ from job_management.backend.service.job_offer import JobOfferService
 from job_management.backend.service.site import JobSitesService
 from job_management.backend.service.sites_with_jobs import JobSitesWithJobsService
 from job_management.backend.service.storage import JobApplicationStorageService
+from job_management.backend.service.google import GoogleCredentialsService
 from job_offer_spider.db.job_management import JobManagementDb
 
 
@@ -19,5 +20,6 @@ class Locator:
     storage_service: JobApplicationStorageService = Provide[Container.job_storage_service]
     google_login_service: GoogleLoginService = Provide[Container.google_login_service]
     cv_service: CvService = Provide[Container.cv_service]
+    credentials_handler: GoogleCredentialsService = Provide[Container.credentials_service]
 
     db: JobManagementDb = Provide[Container.job_management_db]

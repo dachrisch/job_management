@@ -3,9 +3,9 @@ import logging
 from googleapiclient.discovery import build
 from openai._utils import asyncify
 
-from job_management.backend.api.credentials_helper import GoogleCredentialsHandler
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.storage import JobApplicationCoverLetter, JobApplicationCoverLetterDoc
+from job_management.backend.service.google import GoogleCredentialsService
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.cover_letter import JobOfferCoverLetterDto
 
@@ -13,11 +13,11 @@ from job_offer_spider.item.db.cover_letter import JobOfferCoverLetterDto
 class JobApplicationStorageService:
     template_id: str = "1CVawnjkR2eMJ6pqHlu8su3zvmrIdesfR78DNAUhKubE"
 
-    def __init__(self, db: JobManagementDb, ):
+    def __init__(self, db: JobManagementDb, credentials_service: GoogleCredentialsService):
         self.jobs = db.jobs
         self.cover_letter_docs = db.cover_letter_docs
+        self.credentials_service = credentials_service
         self.log = logging.getLogger(f'{__name__}')
-        self.credentials_handler = GoogleCredentialsHandler.from_token()
 
     def load_cover_letter_docs(self, job_offer: JobOffer) -> list[JobApplicationCoverLetterDoc]:
         return list(map(lambda a: JobApplicationCoverLetterDoc(**a.to_dict()),
@@ -32,7 +32,7 @@ class JobApplicationStorageService:
 
     def copy_replace_doc(self, template_id: str,
                          job_offer_cover_letter: JobApplicationCoverLetter) -> JobOfferCoverLetterDto:
-        credentials = self.credentials_handler.ensure_logged_in().credentials
+        credentials = self.credentials_service.credentials
 
         docs_service = build("docs", "v1", credentials=credentials)
         drive_service = build("drive", "v3", credentials=credentials)

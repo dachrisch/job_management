@@ -8,6 +8,7 @@ from job_management.backend import state, service
 from job_management.backend.api.google_login import GoogleLoginService
 from job_management.backend.service.application import JobApplicationService
 from job_management.backend.service.cv import CvService
+from job_management.backend.service.google import GoogleCredentialsService
 from job_management.backend.service.job_offer import JobOfferService
 from job_management.backend.service.site import JobSitesService
 from job_management.backend.service.sites_with_jobs import JobSitesWithJobsService
@@ -32,10 +33,12 @@ class Container(DeclarativeContainer):
                          password=config.database.password.required())
     )
 
+    credentials_service = Singleton(GoogleCredentialsService)
     job_application_service = Singleton(JobApplicationService, db=job_management_db)
-    job_storage_service = Singleton(JobApplicationStorageService, db=job_management_db)
     job_sites_service = Singleton(JobSitesService, db=job_management_db)
     job_offer_service = Singleton(JobOfferService, db=job_management_db)
+    job_storage_service = Singleton(JobApplicationStorageService, db=job_management_db,
+                                    credentials_service=credentials_service)
     sites_jobs_offer_service = Singleton(JobSitesWithJobsService, db=job_management_db)
     google_login_service = Singleton(GoogleLoginService)
     cv_service = Singleton(CvService, db=job_management_db)

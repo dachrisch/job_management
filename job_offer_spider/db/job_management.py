@@ -88,7 +88,6 @@ class JobManagementDb:
         return CollectionHandler[CvDto](self.db['cv'], CvDto)
 
 
-
 class MontyJobManagementDb(JobManagementDb):
     def __init__(self, repository: str):
         set_storage(repository, storage='sqlite', check_same_thread=False)

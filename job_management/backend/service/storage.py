@@ -1,8 +1,5 @@
 import logging
-from functools import lru_cache
 
-from google.auth.credentials import Credentials
-from googleapiclient.discovery import build
 from openai._utils import asyncify
 
 from job_management.backend.entity.offer import JobOffer
@@ -18,7 +15,7 @@ class JobApplicationStorageService:
     def __init__(self, db: JobManagementDb, credentials_service: GoogleCredentialsService):
         self.jobs = db.jobs
         self.cover_letter_docs = db.cover_letter_docs
-        self.credentials_service:GoogleCredentialsService = credentials_service
+        self.credentials_service: GoogleCredentialsService = credentials_service
         self.log = logging.getLogger(f'{__name__}')
 
     def load_cover_letter_docs(self, job_offer: JobOffer) -> list[JobApplicationCoverLetterDoc]:

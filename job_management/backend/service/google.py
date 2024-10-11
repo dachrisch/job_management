@@ -1,8 +1,10 @@
 import json
+import logging
 from functools import lru_cache
 from json import JSONDecodeError
 from typing import Optional
 
+from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
@@ -17,6 +19,7 @@ class CredentialsService:
 class GoogleCredentialsService(CredentialsService):
     credentials: Credentials = Credentials(None)
     flow: Optional[Flow] = None
+    log = logging.getLogger(__name__)
 
     def auth_url(self, redirect_url: str, state: str) -> str:
         flow = Flow.from_client_secrets_file('google.json', SCOPES,
@@ -43,8 +46,11 @@ class GoogleCredentialsService(CredentialsService):
         if credentials_json:
             try:
                 self.credentials = Credentials.from_authorized_user_info(json.loads(credentials_json), SCOPES)
+                if self.credentials.expired:
+                    self.credentials.refresh(Request())
             except JSONDecodeError:
                 self.clear_credentials()
+        self.log.info(f'Loading credentials from storage successful: {self.has_valid_credentials}')
 
     def clear_credentials(self):
         self.credentials = Credentials(None)

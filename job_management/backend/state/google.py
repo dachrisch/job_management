@@ -41,7 +41,10 @@ class GoogleState(rx.State):
         return rx.redirect('/')
 
     def load_credentials_from_store(self):
-        self.credentials_service.load_from_json(self.credentials_store)
+        if not self.credentials_service.has_valid_credentials:
+            self.credentials_service.load_from_json(self.credentials_store)
+            if self.credentials_service.has_valid_credentials:
+                return rx.redirect('/')
 
     def logout(self):
         self.credentials_service.clear_credentials()

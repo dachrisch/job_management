@@ -63,4 +63,3 @@ class GoogleState(rx.State):
             return self.credentials_service.get_user_info()['email']
         else:
             return ''
-

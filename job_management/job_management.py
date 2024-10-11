@@ -49,6 +49,7 @@ def sites() -> rx.Component:
     )
 
 
+
 @rx.page(route="/jobs", title="Jobs",
          on_load=[JobState.update_current_site, JobState.load_jobs, JobsStatisticsState.load_jobs_statistic,
                   GoogleState.load_credentials_from_store])

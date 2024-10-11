@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 import requests
 from more_itertools import one
+from pydantic.v1 import ValidationError
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
@@ -26,7 +27,7 @@ class JobOfferService:
         self.jobs_analyze = db.jobs_analyze
         self.jobs_application = db.jobs_application
         self.cover_letter_docs = db.cover_letter_docs
-        self.log = logging.getLogger(f'{__name__}')
+        self.log = logging.getLogger(__name__)
 
     def load_jobs(self, page: int, page_size: int):
         return list(map(self.dto_to_job, self.jobs.all(skip=page * page_size, limit=page_size)))
@@ -40,7 +41,11 @@ class JobOfferService:
             map(self.dto_to_job, self.jobs.filter({'url': {'$eq': job_url}})))
 
     def dto_to_job(self, job_dto: JobOfferDto):
-        return JobOffer(**job_dto.to_dict())
+        try:
+            return JobOffer(**job_dto.to_dict())
+        except ValidationError as e:
+            self.log.error(f'Could not load JobOffer from {job_dto}', e)
+            raise
 
     def count_jobs_unseen_for_site(self, site: JobSite):
         return self.jobs.count(

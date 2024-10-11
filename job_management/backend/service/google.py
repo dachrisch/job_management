@@ -4,10 +4,10 @@ from functools import lru_cache
 from json import JSONDecodeError
 from typing import Optional
 
+from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
-from google.auth.transport.requests import Request
 
 
 class CredentialsService:
@@ -19,7 +19,7 @@ class CredentialsService:
 class GoogleCredentialsService(CredentialsService):
     credentials: Credentials = Credentials(None)
     flow: Optional[Flow] = None
-    log=logging.getLogger(__name__)
+    log = logging.getLogger(__name__)
 
     def auth_url(self, redirect_url: str, state: str) -> str:
         flow = Flow.from_client_secrets_file('google.json', SCOPES,

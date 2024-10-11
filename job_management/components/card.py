@@ -3,21 +3,28 @@ from reflex import Var
 from reflex.components.radix.themes.base import LiteralAccentColor
 
 
-def card(icon: str, icon_color: LiteralAccentColor, title: str, link: str, *actions: rx.Component,
+def card(icon: str, icon_color: LiteralAccentColor, title: str, link: str, subtitle: rx.Component = None,
+         *actions: rx.Component,
          badge: Var[str] = Var[str].create('', _var_is_string=True)):
     return rx.card(
         rx.vstack(
             rx.hstack(
                 rx.badge(
-                    rx.icon(tag=icon, size=34),
+                    rx.icon(tag=icon, size=40),
                     color_scheme=icon_color,
                     radius="full",
                     padding="0.7rem",
                 ),
-                rx.heading(
+                rx.vstack(rx.heading(
                     title,
                     size="6",
                     weight="bold",
+                ),
+                    rx.text(subtitle or rx.text(''),
+                            as_='div',
+                            color=rx.color("gray", 10),
+                            ),
+                    spacing="1",
                 ),
                 rx.spacer(),
                 actions,

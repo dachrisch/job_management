@@ -34,6 +34,7 @@ def header():
             'green',
             ApplicationState.job_offer.title,
             ApplicationState.job_offer.url,
+            rx.link(ApplicationState.job_offer.site_url, href=f'/jobs?site={ApplicationState.job_offer.site_url}')
         ),
         align='center'
     )

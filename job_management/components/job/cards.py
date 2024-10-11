@@ -25,7 +25,7 @@ def cards() -> rx.Component:
 def job_card(j: JobOffer) -> rx.Component:
     state = rx.cond(j.state.analyzed, 'Analyzed', '')
     return rx.container(
-        card('briefcase', 'yellow', j.title, j.url,
+        card('briefcase', 'yellow', j.title, j.url,None,
              rx.vstack(apply_button(j), hide_button(j)), badge=state),
         opacity=rx.cond(j.seen, 0.5, 1)
     )

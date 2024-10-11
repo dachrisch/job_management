@@ -13,7 +13,7 @@ def show_job(job: JobOffer):
     return rx.table.row(
         rx.table.cell(rx.link(job.title, href=job.url, target='_blank')),
         rx.table.cell(rx.cond(job.added, rx.moment(job.added, from_now=True), rx.text('Never'))),
-        rx.table.cell(rx.link(job.site_url, href=job.site_url, target='_blank')),
+        rx.table.cell(rx.link(job.site_url, href=f'/jobs?site={job.site_url}', target='_self')),
         rx.table.cell(rx.hstack(
             rx.cond(job.state.analyzed, rx.badge(rx.icon('circle-check', size=18), 'Analyzed')),
             rx.cond(job.state.composed, rx.badge(rx.icon('circle-check', size=18), 'Composed')),

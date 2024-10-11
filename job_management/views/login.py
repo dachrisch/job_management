@@ -11,7 +11,7 @@ from job_management.components.navbar import navbar
 def login() -> rx.Component:
     return rx.vstack(
         navbar(),
-        rx.vstack(rx.callout(f'Please login with your Google Account to use this service: {GoogleState.is_logged_in}', icon='info'),
+        rx.vstack(rx.callout('Please login with your Google Account to use this service', icon='info'),
                   rx.button('Login to Google', on_click=GoogleState.login_flow,
                             loading=GoogleState.is_running_flow),
                   align="center"

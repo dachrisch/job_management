@@ -114,6 +114,6 @@ class JobState(rx.State):
             Locator.job_sites_service.update_site(site)
             yield JobState.load_jobs
 
-    async def on_submit_edit_site(self, form_dict:dict[str,Any]):
+    async def on_submit_edit_site(self, form_dict: dict[str, Any]):
         site_title = form_dict['site_title']
         return self.on_submit_edit_site_title(site_title)

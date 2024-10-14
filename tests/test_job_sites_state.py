@@ -5,7 +5,6 @@ from dependency_injector import containers
 from dependency_injector.providers import Singleton
 
 from job_management import Container
-from job_management.backend.service.google import CredentialsService
 from job_management.backend.service.locator import Locator
 from job_offer_spider.db.collection import CollectionHandler
 from job_offer_spider.db.job_management import JobManagementDb
@@ -13,7 +12,6 @@ from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto
 from job_offer_spider.item.db.sites import JobSiteDto
 from tests.mocks import AddJobsStateBypassWrapper, mocked_requests_response, MockCollectionHandler, \
     AuthenticatedCredentialsService
-
 
 
 class MockJobManagementDb(JobManagementDb):

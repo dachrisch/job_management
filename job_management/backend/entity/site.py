@@ -26,4 +26,4 @@ class JobSite(rx.Base):
     @classmethod
     def sortable_fields(cls) -> Iterable[Tuple[str, ModelField]]:
         return filter(lambda kv: not kv[1].field_info.extra.get('sort_exclude', False),
-                      JobSite.get_fields().items())
+                      cls.get_fields().items())

@@ -1,7 +1,7 @@
 import reflex as rx
 
 from ..backend.entity.site import JobSite
-from ..backend.state.sites import SitesState, SitesPaginationState
+from ..backend.state.sites import SitesState, SitesPaginationState, SitesSortableState
 from ..backend.state.statistics import JobsStatisticsState
 from ..components.add_site_button import add_site_button, add_jobs_button
 from ..components.crawl_button import crawl_eu_sites_button, crawl_arbeitsamt_button, scan_jobs_button
@@ -55,7 +55,7 @@ def main_table():
                 pagination(SitesPaginationState),
                 rx.spacer(),
                 scan_jobs_button(),
-                sort_options(),
+                sort_options(SitesSortableState, JobSite.sortable_fields()),
                 spacing="3",
                 wrap="wrap",
                 width="100%",

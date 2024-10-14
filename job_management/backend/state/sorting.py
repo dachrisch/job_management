@@ -1,8 +1,3 @@
-from typing import Tuple, Iterable
-
-from pydantic.v1.fields import ModelField
-
-
 class SortableState:
     sort_value: str
     sort_reverse: bool
@@ -12,4 +7,3 @@ class SortableState:
 
     async def change_sort_value(self, new_value: str):
         pass
-

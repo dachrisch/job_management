@@ -16,7 +16,7 @@ class JobOffer(rx.Base):
     added: datetime = Field(None, title='Date added')
     seen: datetime = Field(None, title='Date seen')
 
-    state: JobStatus = Field(default_factory=lambda: JobStatus(),title= 'Process State')
+    state: JobStatus = Field(default_factory=lambda: JobStatus(), title='Process State')
 
     base64_url: str = Field(default=None, sort_exclude=True)
 

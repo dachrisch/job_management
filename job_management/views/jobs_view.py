@@ -1,12 +1,10 @@
 import reflex as rx
 
-from job_management.backend.entity.offer import JobOffer
-from job_management.backend.state.job import JobState, JobsSortableState
+from job_management.backend.state.job import JobState
 from job_management.backend.state.statistics import JobsStatisticsState
 from job_management.components.job.cards import cards
 from job_management.components.job.dialog import add_job_dialog
 from job_management.components.job.table import jobs_table
-from job_management.components.site.sort import sort_options
 from job_management.components.stats_cards import stats_card
 
 

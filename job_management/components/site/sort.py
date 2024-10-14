@@ -3,12 +3,10 @@ from typing import Tuple, Iterable
 import reflex as rx
 from pydantic.v1.fields import ModelField
 
-from job_management.backend.entity.site import JobSite
-from job_management.backend.state.sites import SitesState
 from job_management.backend.state.sorting import SortableState
 
 
-def sort_options(sortable_state:type[SortableState], sortable_fields:Iterable[Tuple[str, ModelField]]):
+def sort_options(sortable_state: type[SortableState], sortable_fields: Iterable[Tuple[str, ModelField]]):
     return rx.hstack(
         rx.cond(
             sortable_state.sort_reverse,

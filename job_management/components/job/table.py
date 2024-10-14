@@ -3,7 +3,6 @@ import reflex as rx
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.state.job import JobState, JobPaginationState, JobsSortableState
 from job_management.components.add_site_button import add_jobs_button
-from job_management.components.crawl_button import scan_jobs_button
 from job_management.components.job.buttons import apply_button
 from job_management.components.pagination import pagination
 from job_management.components.site.sort import sort_options

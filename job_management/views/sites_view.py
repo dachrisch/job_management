@@ -39,6 +39,7 @@ def show_site(site: JobSite):
                 )
             )),
         style={"_hover": {"bg": rx.color("gray", 3)}},
+        on_click=rx.redirect(f'/jobs/?site={site.url}'),
         align="center",
     )
 
@@ -49,8 +50,6 @@ def main_table():
             rx.hstack(
                 add_site_button(),
                 add_jobs_button(),
-                crawl_eu_sites_button(),
-                crawl_arbeitsamt_button(),
                 rx.spacer(),
                 pagination(SitesPaginationState),
                 rx.spacer(),

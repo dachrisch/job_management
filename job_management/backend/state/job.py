@@ -14,9 +14,6 @@ class JobPaginationState(rx.State, PaginationState):
     page: int = 0
     page_size: int = 50
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     @rx.var(cache=True)
     def total_pages(self) -> int:
         return self.total_items // self.page_size + (
@@ -57,38 +54,37 @@ class JobState(rx.State):
     jobs: list[JobOffer] = []
     current_site: JobSite = JobSite()
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.sites_jobs_service = Locator.jobs_sites_with_jobs_service
-        self.info = logging.getLogger(self.__class__.__name__).info
+    @property
+    def log(self) -> logging.Logger:
+        return logging.getLogger(__name__)
 
     async def load_jobs(self):
         paging_state = (await self.get_state(JobPaginationState))
         if self.current_site.url:
-            self.jobs = self.sites_jobs_service.jobs_for_site(self.current_site)
+            self.jobs = Locator.jobs_sites_with_jobs_service.jobs_for_site(self.current_site)
         else:
-            self.jobs = self.sites_jobs_service.load_jobs(paging_state.page, paging_state.page_size)
-        paging_state.total_items = self.sites_jobs_service.count_jobs()
-        self.info(f'loaded [{len(self.jobs)}] jobs for [{self.current_site}]')
+            self.jobs = Locator.jobs_sites_with_jobs_service.load_jobs(paging_state.page, paging_state.page_size)
+        paging_state.total_items = Locator.jobs_sites_with_jobs_service.count_jobs()
+        self.log.info(f'loaded [{len(self.jobs)}] jobs for [{self.current_site}]')
 
     def update_current_site(self):
         site_url = self.router.page.params.get('site', '')
         if site_url:
-            self.current_site = self.sites_jobs_service.site_for_url(site_url)
+            self.current_site = Locator.jobs_sites_with_jobs_service.site_for_url(site_url)
         else:
             self.current_site = JobSite()
 
     def hide_job(self, job_dict: dict[str, Any]):
         job_offer = JobOffer(**job_dict)
-        self.sites_jobs_service.hide_job(job_offer)
+        Locator.jobs_sites_with_jobs_service.hide_job(job_offer)
         self.load_jobs()
 
     def show_job(self, job_dict: dict[str, Any]):
         job_offer = JobOffer(**job_dict)
-        self.sites_jobs_service.show_job(job_offer)
+        Locator.jobs_sites_with_jobs_service.show_job(job_offer)
         self.load_jobs()
 
     def add_job(self, form_dict: dict[str, Any]):
         job_offer = JobOffer(site_url=self.current_site.url, title=form_dict['job_title'], url=form_dict['job_url'])
-        self.sites_jobs_service.add_job(job_offer)
+        Locator.jobs_sites_with_jobs_service.add_job(job_offer)
         self.load_jobs()

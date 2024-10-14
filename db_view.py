@@ -11,7 +11,7 @@ from job_management.backend.service.locator import Locator
 
 class DbViewerCli:
     def __init__(self):
-        self._db = Locator().db
+        self._db = Locator().job_management_db
 
     def sites(self):
         return DbCollectionViewer(self._db.sites.collection)

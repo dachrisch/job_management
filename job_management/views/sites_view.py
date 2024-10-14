@@ -80,7 +80,6 @@ def main_table():
             variant="surface",
             size="3",
             width="100%",
-            on_mount=SitesState.load_sites,
         ),
     )
 

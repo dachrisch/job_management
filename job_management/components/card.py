@@ -5,7 +5,7 @@ from reflex.components.radix.themes.base import LiteralAccentColor
 
 def card(icon: str, icon_color: LiteralAccentColor, title: str, link: str, subtitle: rx.Component = None,
          *actions: rx.Component,
-         badge: Var[str] = Var[str].create('', _var_is_string=True)):
+         badge: Var[str] = Var[str].create('')):
     return rx.card(
         rx.vstack(
             rx.hstack(

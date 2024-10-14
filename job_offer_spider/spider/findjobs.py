@@ -92,7 +92,7 @@ class JobsFromUrlSpider(JobsFromUrlListSpider):
 
     def __init__(self, site_url: str, *a, **kw):
         super().__init__(scan_urls_callback=lambda: [site_url], *a, **kw)
-        self.db = Locator().db
+        self.db = Locator().job_management_db
 
     def inform_site_scanned(self, site_url):
         if not self.db.sites.contains(HasUrl(site_url)):
@@ -108,7 +108,7 @@ class JobsFromDbSpider(JobsFromUrlListSpider):
 
     def __init__(self, *a, **kw):
         super().__init__(scan_urls_callback=self.load_from_database, *a, **kw)
-        self.db = Locator().db
+        self.db = Locator().job_management_db
 
     def load_from_database(self) -> Iterable[str]:
         days_offset = self.settings.get('SPIDER_DAYS_OFFSET', 7)

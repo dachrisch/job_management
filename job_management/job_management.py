@@ -6,6 +6,7 @@ from .backend.state.cv import CvState
 from .backend.state.google import GoogleState
 from .backend.state.job import JobState
 from .backend.state.openai_key import OpenaiKeyState
+from .backend.state.sites import SitesState
 from .backend.state.statistics import JobsStatisticsState
 from .components.navbar import navbar
 from .views import jobs_view, application_view
@@ -31,7 +32,8 @@ def footer():
 
 
 @rx.page(route="/sites", title="Sites",
-         on_load=[JobsStatisticsState.load_jobs_statistic, GoogleState.load_credentials_from_store])
+         on_load=[JobsStatisticsState.load_jobs_statistic, GoogleState.load_credentials_from_store,
+                  SitesState.load_sites])
 @require_google_login
 def sites() -> rx.Component:
     return rx.vstack(
@@ -55,7 +57,7 @@ def sites() -> rx.Component:
 @require_google_login
 def jobs() -> rx.Component:
     return rx.vstack(
-        navbar(rx.Var.create('/', _var_is_string=True)),
+        navbar(rx.Var.create('/')),
         jobs_view.render(),
         width="100%",
         spacing="6",

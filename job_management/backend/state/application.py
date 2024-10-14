@@ -19,27 +19,23 @@ class ApplicationState(rx.State):
     job_offer_application: Optional[JobOfferApplication] = None
     job_offer_cover_letter_docs: list[JobApplicationCoverLetterDoc] = []
 
-    def __init__(self,
-                 *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.application_service = Locator.application_service
-        self.storage_service = Locator.storage_service
-        self.login_service = Locator.google_credentials_service
-        self.log = logging.getLogger(f'{__name__}')
+    @property
+    def log(self) -> logging.Logger:
+        return logging.getLogger(__name__)
 
     def load_current_job_offer(self):
         job_url = base64.b64decode(self.router.page.params.get('job', '')).decode('ascii')
         if job_url:
-            self.job_offer = self.application_service.job_from_url(job_url)
-            self.job_offer_analyzed = self.application_service.load_job_analysis(self.job_offer)
-            self.job_offer_application = self.application_service.load_job_application(self.job_offer)
-            self.job_offer_cover_letter_docs = self.storage_service.load_cover_letter_docs(self.job_offer)
+            self.job_offer = Locator.application_service.job_from_url(job_url)
+            self.job_offer_analyzed = Locator.application_service.load_job_analysis(self.job_offer)
+            self.job_offer_application = Locator.application_service.load_job_application(self.job_offer)
+            self.job_offer_cover_letter_docs = Locator.storage_service.load_cover_letter_docs(self.job_offer)
         self.log.info(
             f'Loaded [{self.job_offer}] (analyzed={self.job_offer_analyzed is not None}, '
             f'composed={self.job_offer_application is not None})')
 
     def set_openai_api_key(self, openai_api_key: str):
-        self.application_service.openai_api_key = openai_api_key
+        Locator.application_service.openai_api_key = openai_api_key
 
     @rx.background
     async def analyze_job(self):
@@ -47,7 +43,7 @@ class ApplicationState(rx.State):
             self.job_offer.state.is_analyzing = True
             openai_key: str = (await self.get_state(OpenaiKeyState)).openai_key
 
-        await self.application_service.analyze_job(openai_key, self.job_offer)
+        await Locator.application_service.analyze_job(openai_key, self.job_offer)
 
         async with self:
             self.load_current_job_offer()
@@ -61,7 +57,7 @@ class ApplicationState(rx.State):
             prompt: str = (await self.get_state(RefinementState)).prompt
             openai_key: str = (await self.get_state(OpenaiKeyState)).openai_key
 
-        await self.application_service.compose_application(openai_key, self.job_offer_analyzed, prompt)
+        await Locator.application_service.compose_application(openai_key, self.job_offer_analyzed, prompt)
 
         async with self:
             self.load_current_job_offer()

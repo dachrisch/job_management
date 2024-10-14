@@ -15,7 +15,7 @@ class SitesScannedProgressThread(Thread):
         console = Console()
         self._l = console.print
         self.daemon = True
-        self.db = Locator().db
+        self.db = Locator().job_management_db
 
     def run(self):
         now = datetime.now()

@@ -7,7 +7,7 @@ from job_management.backend.service.locator import Locator
 
 class JobsDbCli:
     def __init__(self):
-        self._db = Locator().db
+        self._db = Locator().job_management_db
         console = Console()
         self._l = console.print
         self._spinner = console.status

@@ -10,7 +10,7 @@ class StoreTargetWebsitePipeline(ChainablePipeline[SiteSpiderItem]):
 
     def __init__(self):
         super().__init__(SiteSpiderItem)
-        self.db = Locator().db
+        self.db = Locator().job_management_db
         self.log = logging.getLogger(__name__)
 
     def process_item(self, item: SiteSpiderItem, spider):

@@ -9,7 +9,7 @@ from job_management.backend.state.openai_key import OpenaiKeyState
 from job_management.backend.state.refinement import RefinementState
 from job_management.components.application.item import item
 from job_management.components.card import card
-from job_management.components.refinement import refinement_dialog
+from job_management.components.dialog.refinement import refinement_dialog
 
 
 def render():

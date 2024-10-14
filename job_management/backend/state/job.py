@@ -106,3 +106,14 @@ class JobState(rx.State):
         job_offer = JobOffer(site_url=self.current_site.url, title=form_dict['job_title'], url=form_dict['job_url'])
         Locator.jobs_sites_with_jobs_service.add_job(job_offer)
         self.load_jobs()
+
+    async def on_submit_edit_site_title(self, title: str):
+        if self.current_site.title != title:
+            site = self.current_site
+            site.title = title
+            Locator.job_sites_service.update_site(site)
+            yield JobState.load_jobs
+
+    async def on_submit_edit_site(self, form_dict: dict[str, Any]):
+        site_title = form_dict['site_title']
+        return self.on_submit_edit_site_title(site_title)

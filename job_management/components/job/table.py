@@ -20,6 +20,7 @@ def show_job(job: JobOffer):
             rx.cond(job.state.stored, rx.badge(rx.icon('circle-check', size=18), 'Stored'))
         )),
         rx.table.cell(apply_button(job)),
+        on_click=rx.redirect(f'/applications?job={job.base64_url}'),
         style={"_hover": {"bg": rx.color("gray", 3)}},
         align="center",
     )

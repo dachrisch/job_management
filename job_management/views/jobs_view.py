@@ -2,9 +2,11 @@ import reflex as rx
 
 from job_management.backend.state.job import JobState
 from job_management.backend.state.statistics import JobsStatisticsState
+from job_management.components.editable_text import EditableText
 from job_management.components.job.cards import cards
-from job_management.components.job.dialog import add_job_dialog
+from job_management.components.dialog.add_job import add_job_dialog
 from job_management.components.job.table import jobs_table
+from job_management.components.dialog.edit_site import edit_site_dialog
 from job_management.components.stats_cards import stats_card
 
 
@@ -55,12 +57,14 @@ def header() -> rx.Component:
                         radius="full",
                         padding="0.7rem",
                     ),
-                    rx.heading(
-                        JobState.current_site.title,
+                    EditableText.create(
+                        value=JobState.current_site.title,
+                        on_submit=JobState.on_submit_edit_site_title,
                         size="6",
                         weight="bold",
                     ),
                     rx.spacer(),
+                    edit_site_dialog(),
                     add_job_dialog(),
                     spacing="1",
                     height="100%",

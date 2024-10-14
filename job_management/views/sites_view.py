@@ -4,7 +4,7 @@ from ..backend.entity.site import JobSite
 from ..backend.state.sites import SitesState, SitesPaginationState, SitesSortableState
 from ..backend.state.statistics import JobsStatisticsState
 from ..components.add_site_button import add_site_button, add_jobs_button
-from ..components.crawl_button import crawl_eu_sites_button, crawl_arbeitsamt_button, scan_jobs_button
+from ..components.crawl_button import scan_jobs_button
 from ..components.icon_button import icon_button
 from ..components.pagination import pagination
 from ..components.site.sort import sort_options
@@ -39,6 +39,7 @@ def show_site(site: JobSite):
                 )
             )),
         style={"_hover": {"bg": rx.color("gray", 3)}},
+        on_click=rx.redirect(f'/jobs/?site={site.url}'),
         align="center",
     )
 
@@ -49,8 +50,6 @@ def main_table():
             rx.hstack(
                 add_site_button(),
                 add_jobs_button(),
-                crawl_eu_sites_button(),
-                crawl_arbeitsamt_button(),
                 rx.spacer(),
                 pagination(SitesPaginationState),
                 rx.spacer(),

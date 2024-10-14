@@ -50,12 +50,13 @@ class ApplicationState(rx.State):
             self.job_offer.state.is_analyzing = False
 
     @rx.background
-    async def edit_analyzed_job(self, job_description_dict:dict[str,Any]):
+    async def edit_analyzed_job(self, job_description_dict: dict[str, Any]):
         async with self:
             self.job_offer.state.is_analyzing = True
             openai_key: str = (await self.get_state(OpenaiKeyState)).openai_key
 
-        await Locator.application_service.analyze_job_description(openai_key, self.job_offer, job_description_dict['job_description'])
+        await Locator.application_service.analyze_job_description(openai_key, self.job_offer,
+                                                                  job_description_dict['job_description'])
 
         async with self:
             await self.load_current_job_offer()

@@ -102,5 +102,4 @@ def stats_cards_group() -> rx.Component:
         spacing="5",
         width="100%",
         wrap="wrap",
-        display=["none", "none", "flex"],
     )

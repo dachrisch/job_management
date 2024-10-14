@@ -159,14 +159,7 @@ def navbar(back_link: rx.Var = rx.Var.create('')):
     return rx.box(
         rx.desktop_only(
             rx.hstack(
-                rx.hstack(
-                    rx.icon('briefcase', color="var(--accent-10)"),
-                    rx.heading(
-                        "Job Management", size="7", weight="bold",
-                    ),
-                    align_items="center",
-                    on_click=rx.redirect('/')
-                ),
+                app_logo(),
                 rx.hstack(
                     navbar_icons_item("Sites", "building", "/sites"),
                     navbar_icons_item("Jobs", "briefcase", "/jobs"),
@@ -182,13 +175,7 @@ def navbar(back_link: rx.Var = rx.Var.create('')):
         ),
         rx.mobile_and_tablet(
             rx.hstack(
-                rx.hstack(
-                    rx.icon('briefcase', size=30),
-                    rx.heading(
-                        "Job Management", size="6", weight="bold"
-                    ),
-                    align_items="center",
-                ),
+                app_logo(),
                 rx.spacer(),
                 options_menu(),
                 rx.color_mode.button(),
@@ -221,4 +208,15 @@ def navbar(back_link: rx.Var = rx.Var.create('')):
 
         z_index="5",
         width="100%",
+    )
+
+
+def app_logo():
+    return rx.hstack(
+        rx.icon('briefcase', size=30, color="var(--accent-10)"),
+        rx.heading(
+            "Job Management", size="6", weight="bold"
+        ),
+        align_items="center",
+        on_click=rx.redirect('/')
     )

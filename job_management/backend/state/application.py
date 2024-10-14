@@ -1,6 +1,6 @@
 import base64
 import logging
-from typing import Optional
+from typing import Optional, Any
 
 import reflex as rx
 
@@ -23,7 +23,7 @@ class ApplicationState(rx.State):
     def log(self) -> logging.Logger:
         return logging.getLogger(__name__)
 
-    def load_current_job_offer(self):
+    async def load_current_job_offer(self):
         job_url = base64.b64decode(self.router.page.params.get('job', '')).decode('ascii')
         if job_url:
             self.job_offer = Locator.application_service.job_from_url(job_url)
@@ -46,7 +46,19 @@ class ApplicationState(rx.State):
         await Locator.application_service.analyze_job(openai_key, self.job_offer)
 
         async with self:
-            self.load_current_job_offer()
+            await self.load_current_job_offer()
+            self.job_offer.state.is_analyzing = False
+
+    @rx.background
+    async def edit_analyzed_job(self, job_description_dict:dict[str,Any]):
+        async with self:
+            self.job_offer.state.is_analyzing = True
+            openai_key: str = (await self.get_state(OpenaiKeyState)).openai_key
+
+        await Locator.application_service.analyze_job_description(openai_key, self.job_offer, job_description_dict['job_description'])
+
+        async with self:
+            await self.load_current_job_offer()
             self.job_offer.state.is_analyzing = False
 
     @rx.background
@@ -60,7 +72,7 @@ class ApplicationState(rx.State):
         await Locator.application_service.compose_application(openai_key, self.job_offer_analyzed, prompt)
 
         async with self:
-            self.load_current_job_offer()
+            await self.load_current_job_offer()
             self.job_offer.state.is_composing = False
 
     @rx.background
@@ -72,5 +84,5 @@ class ApplicationState(rx.State):
             JobApplicationCoverLetter.from_analyze(self.job_offer_analyzed, self.job_offer_application))
 
         async with self:
-            self.load_current_job_offer()
+            await self.load_current_job_offer()
             self.job_offer.state.is_storing = False

@@ -10,6 +10,7 @@ from job_management.backend.state.refinement import RefinementState
 from job_management.components.application.item import item
 from job_management.components.card import card
 from job_management.components.dialog.refinement import refinement_dialog
+from job_management.components.dialog.text_area import TextAreaDialog
 
 
 def render():
@@ -121,7 +122,14 @@ def process_steps():
 
 def display_analyzed_job():
     return rx.vstack(
-        rx.heading('Company'),
+        rx.hstack(rx.heading('Company'), rx.spacer(),
+                  TextAreaDialog.create(title='Analyze from source',
+                                        icon='pencil',
+                                        trigger='paste description',
+                                        description='Paste the job description to be analyzed',
+                                        placeholder='Job description',
+                                        form_field='job_description',
+                                        on_submit=ApplicationState.edit_analyzed_job)),
         ApplicationState.job_offer_analyzed.company_name,
         rx.heading('Title'),
         ApplicationState.job_offer_analyzed.title,
@@ -131,6 +139,8 @@ def display_analyzed_job():
         ApplicationState.job_offer_analyzed.requirements,
         rx.heading('Offers'),
         ApplicationState.job_offer_analyzed.offers,
+
+        width='100%'
     )
 
 

@@ -45,3 +45,8 @@ class JobSitesService:
 
     def add_site(self, site: JobSiteDto):
         self.sites.add(site)
+
+    def update_site(self, site: JobSite):
+        site_id = one(self.sites.filter({'url': site.url})).id
+        site.id = site_id
+        return self.sites.update_item(JobSiteDto.from_dict(site.dict()))

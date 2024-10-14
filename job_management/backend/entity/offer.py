@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Any, Type, Iterable, Tuple
 
 import reflex as rx
-from pydantic import computed_field
 from pydantic.v1 import Field, validator, BaseConfig
 from pydantic.v1.fields import ModelField
 

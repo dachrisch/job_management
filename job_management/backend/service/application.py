@@ -54,7 +54,7 @@ class JobApplicationService(JobOfferService):
         analyzed_result = await c.as_system(system_prompt).as_user(user_prompt).complete_async()
         analyze_dto = JobOfferAnalyzeDto(url=job_offer.url, **analyzed_result['job'])
         self.log.debug(f'Finished analyzing offer: {analyze_dto}')
-        self.jobs_analyze.delete_many({'url' : job_offer.url})
+        self.jobs_analyze.delete_many({'url': job_offer.url})
         self.jobs_analyze.add(analyze_dto)
         self.jobs.update_one({'url': job_offer.url},
                              {'$set': {'state.analyzed': True,

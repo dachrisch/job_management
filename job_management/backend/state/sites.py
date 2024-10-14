@@ -7,6 +7,7 @@ from more_itertools import first
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.spider.findjobs import JobsFromUrlSpider
 from .pagination import PaginationState
+from .sorting import SortableState
 from .statistics import JobsStatisticsState
 from ..crawl.crawler import CrochetCrawlerRunner
 from ..entity.site import JobSite
@@ -57,12 +58,23 @@ class SitesPaginationState(rx.State, PaginationState):
         await (await self.get_state(SitesState)).load_sites()
 
 
+class SitesSortableState(rx.State, SortableState):
+    sort_value: str = first(JobSite.sortable_fields())[0]
+    sort_reverse: bool = False
+
+    async def toggle_sort(self):
+        self.sort_reverse = not self.sort_reverse
+        await (await self.get_state(SitesState)).load_sites()
+
+    async def change_sort_value(self, new_value: str):
+        self.sort_value = new_value
+        await (await self.get_state(SitesState)).load_sites()
+
+
 class SitesState(rx.State):
     num_sites_yesterday: int = 0
 
     _sites: list[JobSite] = []
-    sort_value: str = first(JobSite.sortable_fields())[0]
-    sort_reverse: bool = False
 
     @property
     def log(self) -> logging.Logger:
@@ -70,10 +82,12 @@ class SitesState(rx.State):
 
     async def load_sites(self):
         paging_state = (await self.get_state(SitesPaginationState))
+        sorting_state = (await self.get_state(SitesSortableState))
 
         self.log.info(f'Loading sites for page [{paging_state.page + 1}]...')
-        self._sites = Locator.job_sites_service.load_sites(paging_state.page, paging_state.page_size, self.sort_value,
-                                                           self.sort_reverse)
+        self._sites = Locator.job_sites_service.load_sites(paging_state.page, paging_state.page_size,
+                                                           sorting_state.sort_value,
+                                                           sorting_state.sort_reverse)
         paging_state.total_items = Locator.job_sites_service.count_sites()
         self.num_sites_yesterday = Locator.job_sites_service.count_sites(days_from_now=1)
         (await self.get_state(JobsStatisticsState)).load_jobs_statistic()
@@ -83,14 +97,6 @@ class SitesState(rx.State):
     @rx.var(cache=False)
     def sites(self) -> list[JobSite]:
         return self._sites
-
-    async def toggle_sort(self):
-        self.sort_reverse = not self.sort_reverse
-        await self.load_sites()
-
-    async def change_sort_value(self, new_value: str):
-        self.sort_value = new_value
-        await self.load_sites()
 
     async def add_site_to_db(self, form_data: dict):
         site = JobSiteDto.from_dict(form_data)

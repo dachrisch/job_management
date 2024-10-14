@@ -8,7 +8,7 @@ from pydantic.v1 import ValidationError
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
-from job_offer_spider.db.collection import CollectionHandler
+from job_offer_spider.db.collection import CollectionHandler, ASCENDING, DESCENDING
 from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.cover_letter import JobOfferCoverLetterDto
 from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto, JobOfferAnalyzeDto, JobOfferApplicationDto
@@ -29,8 +29,10 @@ class JobOfferService:
         self.cover_letter_docs = db.cover_letter_docs
         self.log = logging.getLogger(__name__)
 
-    def load_jobs(self, page: int, page_size: int):
-        return list(map(self.dto_to_job, self.jobs.all(skip=page * page_size, limit=page_size)))
+    def load_jobs(self, page: int, page_size: int, sort_key: str, sort_reverse: bool = False):
+        return list(
+            map(self.dto_to_job, self.jobs.all(skip=page * page_size, limit=page_size, sort_key=sort_key.lower(),
+                                               direction=DESCENDING if sort_reverse else ASCENDING)))
 
     def jobs_for_site(self, site: JobSite) -> list[JobOffer]:
         return list(

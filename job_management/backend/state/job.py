@@ -2,11 +2,13 @@ import logging
 from typing import Any
 
 import reflex as rx
+from more_itertools import first
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
 from job_management.backend.service.locator import Locator
 from job_management.backend.state.pagination import PaginationState
+from job_management.backend.state.sorting import SortableState
 
 
 class JobPaginationState(rx.State, PaginationState):
@@ -50,6 +52,19 @@ class JobPaginationState(rx.State, PaginationState):
         await (await self.get_state(JobState)).load_jobs()
 
 
+class JobsSortableState(rx.State, SortableState):
+    sort_value: str = first(JobOffer.sortable_fields())[0]
+    sort_reverse: bool = False
+
+    async def toggle_sort(self):
+        self.sort_reverse = not self.sort_reverse
+        await (await self.get_state(JobState)).load_jobs()
+
+    async def change_sort_value(self, new_value: str):
+        self.sort_value = new_value
+        await (await self.get_state(JobState)).load_jobs()
+
+
 class JobState(rx.State):
     jobs: list[JobOffer] = []
     current_site: JobSite = JobSite()
@@ -59,12 +74,15 @@ class JobState(rx.State):
         return logging.getLogger(__name__)
 
     async def load_jobs(self):
-        paging_state = (await self.get_state(JobPaginationState))
         if self.current_site.url:
             self.jobs = Locator.jobs_sites_with_jobs_service.jobs_for_site(self.current_site)
         else:
-            self.jobs = Locator.jobs_sites_with_jobs_service.load_jobs(paging_state.page, paging_state.page_size)
-        paging_state.total_items = Locator.jobs_sites_with_jobs_service.count_jobs()
+            paging_state = (await self.get_state(JobPaginationState))
+            sorting_state = (await self.get_state(JobsSortableState))
+            self.jobs = Locator.jobs_sites_with_jobs_service.load_jobs(paging_state.page, paging_state.page_size,
+                                                                       sorting_state.sort_value,
+                                                                       sorting_state.sort_reverse)
+            paging_state.total_items = Locator.jobs_sites_with_jobs_service.count_jobs()
         self.log.info(f'loaded [{len(self.jobs)}] jobs for [{self.current_site}]')
 
     def update_current_site(self):

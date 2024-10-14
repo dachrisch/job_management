@@ -10,8 +10,7 @@ from job_management.backend.entity.site import JobSite
 from job_management.backend.service.container import Container
 from job_management.backend.service.locator import Locator
 from job_offer_spider.db.job_management import MontyJobManagementDb
-from .mocks import AuthenticatedCredentialsService
-from .mocks import mocked_requests_response
+from .mocks import mocked_requests_response, AuthenticatedCredentialsService
 
 
 class OverridingContainer(DeclarativeContainer):

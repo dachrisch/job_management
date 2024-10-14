@@ -4,11 +4,10 @@ import reflex as rx
 from reflex import Var
 from reflex.components.lucide.icon import LUCIDE_ICON_LIST
 from reflex.event import EventSpec, EventHandler
-from reflex.vars import BaseVar
 
 
 def icon_button(icon_name: Literal[tuple(LUCIDE_ICON_LIST)],
-                on_click_handler: Union[EventHandler, EventSpec, list, Callable, BaseVar, Coroutine],
+                on_click_handler: Union[EventHandler, EventSpec, list, Callable, Coroutine],
                 is_loading: Union[bool, Var[bool]] = False,
                 color_scheme: Optional[
                     Union[

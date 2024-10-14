@@ -13,7 +13,7 @@ class CrawlCli:
         console = Console()
         self._spinner = console.status
         self._l = console.print
-        self._db = Locator().db
+        self._db = Locator().job_management_db
 
     def all(self):
         self.sites(False)

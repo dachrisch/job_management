@@ -12,7 +12,7 @@ class StoreJobOfferPipeline(ChainablePipeline[JobOfferSpiderItem]):
 
     def __init__(self):
         super().__init__(JobOfferSpiderItem)
-        self.db = Locator().db
+        self.db = Locator().job_management_db
         self.log = logging.getLogger(__name__)
 
     def process_item(self, item: JobOfferSpiderItem, spider) -> Item:

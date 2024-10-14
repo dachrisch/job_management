@@ -1,7 +1,7 @@
 import reflex as rx
 
-from .crawler import CrochetCrawlerRunner
 from job_offer_spider.spider.findjobs import JobsFromDbSpider
+from .crawler import CrochetCrawlerRunner
 
 
 class JobsCrawlerState(rx.State):

@@ -64,25 +64,20 @@ class SitesState(rx.State):
     sort_value: str = first(JobSite.sortable_fields())[0]
     sort_reverse: bool = False
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.refresh_callback = self.load_sites
-        self.info = logging.getLogger(self.__class__.__name__).info
-        self.debug = logging.getLogger(self.__class__.__name__).debug
-        self.site_jobs_service = Locator.jobs_sites_with_jobs_service
-        self.sites_service = Locator.job_sites_service
-        self.offer_service = Locator.job_offer_service
+    @property
+    def log(self) -> logging.Logger:
+        return logging.getLogger(__name__)
 
     async def load_sites(self):
         paging_state = (await self.get_state(SitesPaginationState))
 
-        self.info(f'Loading sites for page [{paging_state.page + 1}]...')
-        self._sites = self.sites_service.load_sites(paging_state.page, paging_state.page_size, self.sort_value,
-                                                    self.sort_reverse)
-        paging_state.total_items = self.sites_service.count_sites()
-        self.num_sites_yesterday = self.sites_service.count_sites(days_from_now=1)
+        self.log.info(f'Loading sites for page [{paging_state.page + 1}]...')
+        self._sites = Locator.job_sites_service.load_sites(paging_state.page, paging_state.page_size, self.sort_value,
+                                                           self.sort_reverse)
+        paging_state.total_items = Locator.job_sites_service.count_sites()
+        self.num_sites_yesterday = Locator.job_sites_service.count_sites(days_from_now=1)
         (await self.get_state(JobsStatisticsState)).load_jobs_statistic()
-        self.info(
+        self.log.info(
             f'Loaded [{len(self._sites)}] sites for page [{paging_state.page + 1} of {paging_state.total_pages}]...')
 
     @rx.var(cache=False)
@@ -99,7 +94,7 @@ class SitesState(rx.State):
 
     async def add_site_to_db(self, form_data: dict):
         site = JobSiteDto.from_dict(form_data)
-        self.sites_service.add_site(site)
+        Locator.job_sites_service.add_site(site)
         await self.load_sites()
         if form_data.get('crawling'):
             return SitesState.start_crawl(site.to_dict())
@@ -110,7 +105,7 @@ class SitesState(rx.State):
         async with self:
             site.status.deleting = True
 
-        self.site_jobs_service.delete(site)
+        Locator.jobs_sites_with_jobs_service.delete(site)
 
         async with self:
             site.status.deleting = False
@@ -121,7 +116,7 @@ class SitesState(rx.State):
     async def start_crawl(self, site_dict: dict[str, Any]):
         site = self._find_site(site_dict)
 
-        self.info(f'Starting crawler for [{site}]')
+        self.log.info(f'Starting crawler for [{site}]')
 
         async with self:
             if site:
@@ -155,11 +150,11 @@ class SitesState(rx.State):
     @rx.background
     async def clear_jobs(self, site_dict: dict[str, Any]):
         site = self._find_site(site_dict)
-        self.info(f'Deleting jobs from [{site}]')
+        self.log.info(f'Deleting jobs from [{site}]')
         async with self:
             site.status.clearing = True
 
-        self.site_jobs_service.clear_jobs(site)
+        Locator.jobs_sites_with_jobs_service.clear_jobs(site)
 
         async with self:
             await self.load_sites()

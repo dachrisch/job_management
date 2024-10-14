@@ -155,7 +155,7 @@ def navbar_icons_menu_item(
     )
 
 
-def navbar(back_link: rx.Var = rx.Var.create('', _var_is_string=True)):
+def navbar(back_link: rx.Var = rx.Var.create('')):
     return rx.box(
         rx.desktop_only(
             rx.hstack(

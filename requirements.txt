@@ -8,6 +8,6 @@ montydb==2.5.3
 more-itertools==10.5.0
 openai==1.44.1
 pymongo==4.8.0
-reflex==0.5.10
+reflex==0.6.2
 Scrapy==2.11.2
 fire==0.6.0

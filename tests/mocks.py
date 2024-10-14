@@ -3,7 +3,9 @@ from typing import Any, Iterable
 from reflex import EventHandler
 from reflex.event import BACKGROUND_TASK_MARKER
 
+from job_management.backend.service.google import GoogleCredentialsService
 from job_management.backend.state.add_jobs import AddJobsState
+from job_offer_spider.db.collection import CollectionHandler
 
 
 class SitesStateMock:
@@ -11,7 +13,7 @@ class SitesStateMock:
         return
 
 
-async def get_state_mock(state):
+async def get_state_mock(instance, state):
     return SitesStateMock()
 
 
@@ -19,8 +21,12 @@ class AddJobsStateBypassWrapper:
     def __init__(self):
         AddJobsState.__aenter__ = lambda x: x
         AddJobsState.__await__ = lambda x: iter(())
+        AddJobsState.get_state = get_state_mock
         self.instance = AddJobsState()
-        self.instance.get_state = get_state_mock
+
+    @property
+    def get_state(self):
+        return SitesStateMock()
 
     def add_jobs_to_db(self, form_dict: dict[str, Any]):
         event: EventHandler = AddJobsState.add_jobs_to_db
@@ -50,7 +56,8 @@ def mocked_requests_response(url: str, *args, **kwargs):
     return MockResponse(url, 200)
 
 
-class MockDb:
+class MockCollectionHandler(CollectionHandler):
+
     def __init__(self):
         self.added_items = []
 
@@ -72,3 +79,10 @@ class MockDb:
             if all([getattr(item, key, None) == getattr(containing_item, key, None) for key in keys]):
                 return True
         return False
+
+
+class AuthenticatedCredentialsService(GoogleCredentialsService):
+
+    @property
+    def has_valid_credentials(self) -> bool:
+        return True

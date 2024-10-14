@@ -28,8 +28,13 @@ class JobApplicationService(JobOfferService):
                          self.jobs_analyze.filter({'url': {'$eq': job_offer.url}})), None)
 
     async def analyze_job(self, openai_api_key: str, job_offer: JobOffer) -> JobOfferAnalyzeDto:
+        page_content = one(self.jobs_body.filter({'url': {'$eq': job_offer.url}}))
+        return await self.analyze_job_description(openai_api_key, job_offer, page_content.body)
+
+    async def analyze_job_description(self, openai_api_key: str, job_offer: JobOffer,
+                                      job_offer_description: str) -> JobOfferAnalyzeDto:
         c = Conversation(openai_api_key=openai_api_key)
-        self.log.info(f'Analyzing [{job_offer}]')
+        self.log.info(f'Analyzing [{job_offer} from description]')
         system_prompt = ('Analyze the content of this webpage and find the job description. '
                          'if no job description is found, return empty json as {}'
                          'if a job description is found, respond with'
@@ -44,12 +49,12 @@ class JobApplicationService(JobOfferService):
                          '"additional": <all additional infos not covered before>'
                          '}'
                          '}')
-        page_content = one(self.jobs_body.filter({'url': {'$eq': job_offer.url}}))
-        user_prompt = f'The web page content is: {page_content.body}'
+        user_prompt = f'The web page content is: {job_offer_description}'
         self.log.debug(f'Analyze prompt: {c}')
         analyzed_result = await c.as_system(system_prompt).as_user(user_prompt).complete_async()
         analyze_dto = JobOfferAnalyzeDto(url=job_offer.url, **analyzed_result['job'])
         self.log.debug(f'Finished analyzing offer: {analyze_dto}')
+        self.jobs_analyze.delete_many({'url': job_offer.url})
         self.jobs_analyze.add(analyze_dto)
         self.jobs.update_one({'url': job_offer.url},
                              {'$set': {'state.analyzed': True,

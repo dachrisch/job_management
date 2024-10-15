@@ -81,7 +81,7 @@ class ApplicationState(rx.State):
         async with self:
             self.job_offer.state.is_storing = True
 
-        await self.storage_service.store_application_in_google_docs(
+        await Locator.storage_service.store_application_in_google_docs(
             JobApplicationCoverLetter.from_analyze(self.job_offer_analyzed, self.job_offer_application))
 
         async with self:

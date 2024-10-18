@@ -7,4 +7,4 @@ from pydantic import Field
 class JobOfferApplication(rx.Base):
     url: str = ''
     text: str = ''
-    added: datetime = Field(default_factory=lambda: datetime.now(), title='Date added')
+    added: datetime = Field(None, title='Date added')

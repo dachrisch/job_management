@@ -14,4 +14,4 @@ class JobOfferAnalyze(rx.Base):
     responsibilities: str = None
     offers: str = None
     additional: Optional[str] = None
-    added: datetime = Field(default_factory=lambda: datetime.now(), title='Date added')
+    added: datetime = Field(None, title='Date added')

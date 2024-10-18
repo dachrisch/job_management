@@ -30,4 +30,4 @@ class JobApplicationCoverLetterDoc(rx.Base):
     url: str
     document_id: str
     name: str
-    date: datetime = Field(default_factory=lambda: datetime.now(), title='Date added')
+    added: datetime = Field(None, title='Date added')

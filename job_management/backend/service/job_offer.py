@@ -95,4 +95,3 @@ class JobOfferService:
         job_offer_dto = JobOfferDto.from_dict(job.dict())
         self.jobs.add(job_offer_dto)
         self.jobs_body.add(job_offer_body_dto)
-        return self.load_jobs()

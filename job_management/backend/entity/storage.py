@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 import reflex as rx
+from pydantic import Field
 
 from job_management.backend.entity.offer_analyzed import JobOfferAnalyze
 from job_management.backend.entity.offer_application import JobOfferApplication
@@ -29,4 +30,4 @@ class JobApplicationCoverLetterDoc(rx.Base):
     url: str
     document_id: str
     name: str
-    date: datetime = datetime.now()
+    date: datetime = Field(default_factory=lambda: datetime.now(), title='Date added')

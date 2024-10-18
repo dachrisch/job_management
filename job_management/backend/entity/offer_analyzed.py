@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 import reflex as rx
+from pydantic import Field
 
 
 class JobOfferAnalyze(rx.Base):
@@ -13,4 +14,4 @@ class JobOfferAnalyze(rx.Base):
     responsibilities: str = None
     offers: str = None
     additional: Optional[str] = None
-    added: datetime = datetime.now()
+    added: datetime = Field(default_factory=lambda: datetime.now(), title='Date added')

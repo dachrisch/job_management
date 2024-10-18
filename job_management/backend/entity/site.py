@@ -13,7 +13,7 @@ class JobSite(rx.Base):
     title: str = Field('', title='Site Title')
     url: str = Field('', title='Site URL')
     jobs: Statistics = Field(default_factory=lambda: Statistics(), title='Found Jobs')
-    added: datetime = Field(None, title='Date added')
+    added: datetime = Field(default_factory=lambda: datetime.now(), title='Date added')
     last_scanned: datetime = Field(None, title='Date last scanned')
     status: SiteStatus = Field(default_factory=lambda: SiteStatus(), sort_exclude=True)
 

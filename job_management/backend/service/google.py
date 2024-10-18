@@ -4,6 +4,7 @@ from functools import lru_cache
 from json import JSONDecodeError
 from typing import Optional
 
+from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
@@ -48,7 +49,7 @@ class GoogleCredentialsService(CredentialsService):
                 self.credentials = Credentials.from_authorized_user_info(json.loads(credentials_json), SCOPES)
                 if self.credentials.expired:
                     self.credentials.refresh(Request())
-            except JSONDecodeError:
+            except (JSONDecodeError, RefreshError):
                 self.clear_credentials()
         self.log.info(f'Loading credentials from storage successful: {self.has_valid_credentials}')
 

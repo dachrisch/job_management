@@ -13,7 +13,7 @@ class JobOffer(rx.Base):
     title: str = Field('', title='Job Title')
     url: str = Field('', title='Job Url')
     site_url: str = Field('', title='Site Url')
-    added: datetime = Field(None, title='Date added')
+    added: datetime = Field(default_factory=lambda: datetime.now(), title='Date added')
     seen: datetime = Field(None, title='Date seen')
 
     state: JobStatus = Field(default_factory=lambda: JobStatus(), title='Process State')

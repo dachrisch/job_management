@@ -47,7 +47,7 @@ def mocked_requests_response(url: str, *args, **kwargs):
 
         @property
         def content(self):
-            return bytes('<html><h1>Test Title</h1></html>', 'utf-8')
+            return bytes('<html><title>Test Title</title></html>', 'utf-8')
 
         @property
         def text(self):

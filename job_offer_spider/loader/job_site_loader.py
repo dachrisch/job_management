@@ -20,6 +20,8 @@ class JobSiteItemLoader:
         self.item_loader.add_xpath('title', '//meta[@property="og:title"]/@content')
         if not self.item_loader.get_output_value('title'):
             self.item_loader.add_css('title', 'title::text')
+        if not self.item_loader.get_output_value('title'):
+            self.item_loader.add_css('title', 'h1::text')
 
     def add_value(self, name: str, value: Any):
         self.item_loader.add_value(name, value)

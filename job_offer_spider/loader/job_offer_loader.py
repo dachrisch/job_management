@@ -19,6 +19,8 @@ class JobOfferItemLoader:
         if not self.item_loader.get_output_value('title'):
             self.item_loader.replace_xpath('title', '//meta[@property="og:title"]/@content')
         if not self.item_loader.get_output_value('title'):
+            self.item_loader.add_css('title', 'title::text')
+        if not self.item_loader.get_output_value('title'):
             self.item_loader.add_css('title', 'h1::text')
 
     def populate(self, site_url: str) -> JobOfferItemLoader:

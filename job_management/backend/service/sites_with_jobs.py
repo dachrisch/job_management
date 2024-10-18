@@ -8,7 +8,7 @@ from requests import HTTPError, RequestException
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
-from job_management.backend.entity.sites_and_jobs import SitesAndJobs
+from job_management.backend.entity.sites_and_jobs import SitesAndJobs, ParseError
 from job_management.backend.service.job_offer import JobOfferService
 from job_management.backend.service.site import JobSitesService
 from job_offer_spider.db.job_management import JobManagementDb
@@ -64,6 +64,7 @@ class JobSitesWithJobsService(JobOfferService, JobSitesService):
                 response.raise_for_status()
             except (HTTPError, RequestException) as e:
                 self.log.warning(f'Fetching [{url}] produced error. Skipping', exc_info=e)
+                sites_and_jobs.add_error(url, e)
                 continue
             page_url = urlparse(url, 'https')
             site_title = page_url.netloc.capitalize()
@@ -74,11 +75,13 @@ class JobSitesWithJobsService(JobOfferService, JobSitesService):
                 sites_and_jobs.add(JobSiteDto(title=site_title, url=site_url),
                                    job_offer,
                                    JobOfferBodyDto(url=job_offer.url, body=response.text))
+            else:
+                sites_and_jobs.add_error(url, Exception('Could not load job offer from url'))
 
         self.log.info(f'Parsed {sites_and_jobs.num_sites} sites and {sites_and_jobs.num_jobs} jobs')
         return sites_and_jobs
 
-    def add_jobs_from(self, urls: list[str]):
+    def add_jobs_from(self, urls: list[str]) -> SitesAndJobs:
         sites_and_jobs = self.parse_sites_and_jobs(urls)
         for site in sites_and_jobs.sites:
             if not self.sites.contains(site):
@@ -89,3 +92,4 @@ class JobSitesWithJobsService(JobOfferService, JobSitesService):
                 if not self.jobs_body.contains(sites_and_jobs.jobs_body[job.url]):
                     self.jobs_body.add(sites_and_jobs.jobs_body[job.url])
             self.update_statistic_for_job_site(JobSite(**site.to_dict()))
+        return sites_and_jobs

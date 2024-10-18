@@ -73,12 +73,12 @@ class JobSitesStateTest(IsolatedAsyncioTestCase):
                 {'job_urls': 'http://example.com/jobs/description\nhttp://break-example.com/jobs/title-position'})]
 
         self.assertTrue(mock_collection_handler.test_contains(JobSiteDto(url='http://example.com',
-                                                                         title='Example.com'), ('url', 'title')))
+                                                                         title='Test Title'), ('url', 'title')))
         self.assertTrue(mock_collection_handler.test_contains(JobOfferDto(url='http://example.com/jobs/description',
                                                                           title='Test Title'), ('url', 'title')),
                         f'item not found in {mock_collection_handler.added_items}')
         self.assertTrue(mock_collection_handler.test_contains(JobSiteDto(url='http://break-example.com',
-                                                                         title='Break-example.com'), ('url', 'title')))
+                                                                         title='Test Title'), ('url', 'title')))
         self.assertTrue(
             mock_collection_handler.test_contains(JobOfferDto(url='http://break-example.com/jobs/title-position',
                                                               title='Test Title'), ('url', 'title')))

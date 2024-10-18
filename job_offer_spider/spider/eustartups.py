@@ -1,11 +1,9 @@
-from typing import override
+from typing import override, Any
 
-from scrapy import Request
 from scrapy.http import Response
-from scrapy.loader import ItemLoader
 from scrapy.spiders import SitemapSpider
 
-from job_offer_spider.item.spider.site import SiteSpiderItem
+from job_offer_spider.loader.job_site_loader import JobSiteItemLoader
 
 
 class EuStartupsSpider(SitemapSpider):
@@ -14,9 +12,7 @@ class EuStartupsSpider(SitemapSpider):
     sitemap_follow = ['/directory/']
 
     @override
-    def parse(self, response: Response, **kwargs) -> Request:
-        item_loader = ItemLoader(item=SiteSpiderItem(), response=response)
-        item_loader.add_xpath('title', '//meta[@property="og:title"]/@content')
-        item_loader.add_css('url', 'div.wpbdp-field-website div.value::text')
-        if item_loader.get_output_value('url'):
-            return item_loader.load_item()
+    def parse(self, response: Response, **kwargs) -> Any:
+        item_loader = JobSiteItemLoader(response=response)
+        if item_loader.is_valid():
+            return item_loader.load()

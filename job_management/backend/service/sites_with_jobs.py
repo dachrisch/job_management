@@ -15,6 +15,7 @@ from job_offer_spider.db.job_management import JobManagementDb
 from job_offer_spider.item.db.job_offer import JobOfferDto, JobOfferBodyDto
 from job_offer_spider.item.db.sites import JobSiteDto
 from job_offer_spider.loader.job_offer_loader import JobOfferItemLoader
+from job_offer_spider.loader.job_site_loader import JobSiteItemLoader
 
 
 class JobSitesWithJobsService(JobOfferService, JobSitesService):
@@ -66,13 +67,11 @@ class JobSitesWithJobsService(JobOfferService, JobSitesService):
                 self.log.warning(f'Fetching [{url}] produced error. Skipping', exc_info=e)
                 sites_and_jobs.add_error(url, e)
                 continue
-            page_url = urlparse(url, 'https')
-            site_title = page_url.netloc.capitalize()
-            site_url = urlunparse((page_url.scheme, page_url.netloc, '', '', '', ''))
-            item_loader = JobOfferItemLoader.from_requests(response).populate(site_url)
+            site_dto = self.get_site(urlparse(url, 'https'))
+            item_loader = JobOfferItemLoader.from_requests(response).populate(site_dto.url)
             if item_loader.is_valid():
                 job_offer = JobOfferDto.from_dict(item_loader.load())
-                sites_and_jobs.add(JobSiteDto(title=site_title, url=site_url),
+                sites_and_jobs.add(site_dto,
                                    job_offer,
                                    JobOfferBodyDto(url=job_offer.url, body=response.text))
             else:
@@ -80,6 +79,15 @@ class JobSitesWithJobsService(JobOfferService, JobSitesService):
 
         self.log.info(f'Parsed {sites_and_jobs.num_sites} sites and {sites_and_jobs.num_jobs} jobs')
         return sites_and_jobs
+
+    def get_site(self, page_url) -> JobSiteDto:
+        site_url = urlunparse((page_url.scheme, page_url.netloc, '', '', '', ''))
+        response = requests.get(site_url)
+        site_loader = JobSiteItemLoader.from_requests(response)
+        site_loader.add_value('url', site_url)
+        site_dto = JobSiteDto.from_dict(site_loader.load())
+
+        return site_dto
 
     def add_jobs_from(self, urls: list[str]) -> SitesAndJobs:
         sites_and_jobs = self.parse_sites_and_jobs(urls)

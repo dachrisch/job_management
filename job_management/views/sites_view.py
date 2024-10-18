@@ -28,13 +28,13 @@ def show_site(site: JobSite):
                 rx.button(
                     rx.icon('refresh-cw'),
                     loading=site.status.crawling,
-                    on_click=lambda: SitesState.start_crawl(site)
+                    on_click=lambda: SitesState.start_crawl(site).stop_propagation
                 ),
-                icon_button('eraser', SitesState.clear_jobs(site), site.status.clearing, 'yellow'),
+                icon_button('eraser', SitesState.clear_jobs(site).stop_propagation, site.status.clearing, 'yellow'),
                 rx.button(
                     rx.icon('trash-2'),
                     loading=site.status.deleting,
-                    on_click=lambda: SitesState.delete_site(site),
+                    on_click=lambda: SitesState.delete_site(site).stop_propagation,
                     color_scheme='red'
                 )
             )),

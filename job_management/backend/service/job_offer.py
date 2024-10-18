@@ -88,6 +88,7 @@ class JobOfferService:
         self.cover_letter_docs.delete_many({'url': {'$in': jobs_url}})
 
     def add_job(self, job: JobOffer):
+        self.log.info(f'Adding job {job}')
         job_body_response = requests.get(job.url)
         job_body_response.raise_for_status()
         job_offer_body_dto = JobOfferBodyDto(url=job.url, body=job_body_response.text)

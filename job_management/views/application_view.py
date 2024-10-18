@@ -173,7 +173,7 @@ def display_application():
 def stored_doc_link(cover_letter: JobApplicationCoverLetterDoc):
     return rx.hstack(
         rx.icon('book-check'),
-        rx.moment(cover_letter.date, from_now=True),
+        rx.moment(cover_letter.added, from_now=True),
         rx.link(rx.text(cover_letter.name),
                 href=f'https://docs.google.com/document/d/{cover_letter.document_id}',
                 target='_blank'),

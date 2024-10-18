@@ -1,12 +1,10 @@
 from unittest import TestCase
 
-from more_itertools import flatten
-
 from job_management.backend.entity.offer import JobOffer
 
 
 def flatten_dict(content):
-    return  sorted({x for v in content.values() for x in v})
+    return sorted({x for v in content.values() for x in v})
 
 
 class TestJobOffer(TestCase):
@@ -17,5 +15,5 @@ class TestJobOffer(TestCase):
         self.assertEqual(
             ['a', 'b', 'c', 'd', 'e'],
             flatten_dict({'1': ['a', 'b', 'c', 'd'],
-             '2': ['e']})
+                          '2': ['e']})
         )

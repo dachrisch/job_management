@@ -8,7 +8,7 @@ from requests import HTTPError, RequestException
 
 from job_management.backend.entity.offer import JobOffer
 from job_management.backend.entity.site import JobSite
-from job_management.backend.entity.sites_and_jobs import SitesAndJobs, ParseError
+from job_management.backend.entity.sites_and_jobs import SitesAndJobs
 from job_management.backend.service.job_offer import JobOfferService
 from job_management.backend.service.site import JobSitesService
 from job_offer_spider.db.job_management import JobManagementDb

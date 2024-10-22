@@ -69,7 +69,7 @@ class JobSitesStateTest(IsolatedAsyncioTestCase):
         wrapper = AddJobsStateBypassWrapper()
         mock_collection_handler: MockCollectionHandler = db.collection_handler
         # drain async events
-        [f async for f in wrapper.add_jobs_to_db(
+        [f async for f in wrapper.add_jobs(
                 {'job_urls': 'http://example.com/jobs/description\nhttp://break-example.com/jobs/title-position'})]
 
         self.assertTrue(mock_collection_handler.test_contains(JobSiteDto(url='http://example.com',

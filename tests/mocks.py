@@ -28,8 +28,8 @@ class AddJobsStateBypassWrapper:
     def get_state(self):
         return SitesStateMock()
 
-    def add_jobs_to_db(self, form_dict: dict[str, Any]):
-        event: EventHandler = AddJobsState.add_jobs_to_db
+    def add_jobs(self, form_dict: dict[str, Any]):
+        event: EventHandler = AddJobsState.add_jobs
         function = event.fn
         setattr(function, BACKGROUND_TASK_MARKER, True)
         return function(self.instance, form_dict)

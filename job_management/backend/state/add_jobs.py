@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 
 import reflex as rx
 
@@ -11,7 +11,25 @@ class AddJobsState(rx.State):
     is_dialog_open: bool = False
 
     @rx.background
-    async def add_jobs_to_db(self, form_dict: dict[str, Any]):
+    async def add_job(self, form_dict: Dict[str, str]):
+        site_service = Locator().jobs_sites_with_jobs_service
+        async with self:
+            self.loading = True
+
+        sites_and_jobs = site_service.add_jobs_from([form_dict['job_url']])
+
+        for error in sites_and_jobs.errors:
+            yield rx.toast.error(title=error.url, description=str(error.reason))
+
+        for job in sites_and_jobs.all_jobs:
+            yield rx.toast.success(title=job.title, description=str(job.url))
+
+        async with self:
+            await (await self.get_state(SitesState)).load_sites()
+            self.loading = False
+
+    @rx.background
+    async def add_jobs(self, form_dict: Dict[str, Any]):
         site_service = Locator().jobs_sites_with_jobs_service
         async with self:
             self.loading = True

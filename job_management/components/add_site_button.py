@@ -171,7 +171,7 @@ def add_jobs_button() -> rx.Component:
                         mt="4",
                         justify="end",
                     ),
-                    on_submit=AddJobsState.add_jobs_to_db,
+                    on_submit=AddJobsState.add_jobs,
                     reset_on_submit=False,
                 ),
                 width="100%",

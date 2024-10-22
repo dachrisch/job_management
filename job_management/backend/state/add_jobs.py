@@ -11,7 +11,7 @@ class AddJobsState(rx.State):
     is_dialog_open: bool = False
 
     @rx.background
-    async def add_job(self, form_dict: Dict[str,str]):
+    async def add_job(self, form_dict: Dict[str, str]):
         site_service = Locator().jobs_sites_with_jobs_service
         async with self:
             self.loading = True
